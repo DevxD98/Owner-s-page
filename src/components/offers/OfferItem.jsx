@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import { Edit, Check, X } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 
-type OfferItemProps = {
-  id: string;
-  title: string;
-  validTill: string;
-  isActive: boolean;
-};
-
-const OfferItem = ({ id, title, validTill, isActive }: OfferItemProps) => {
+const OfferItem = ({ id, title, validTill, isActive }) => {
   const { toggleOffer, updateOffer } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);

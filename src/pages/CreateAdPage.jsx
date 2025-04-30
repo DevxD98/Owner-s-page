@@ -10,7 +10,7 @@ const CreateAdPage = () => {
   const [validTill, setValidTill] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     if (!title || !validTill) {
@@ -52,8 +52,8 @@ const CreateAdPage = () => {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., Flat 30% OFF on ₹499+"
+            className="w-full p-3 border border-gray-300 rounded-md"
+            placeholder="e.g. 20% off on all items"
           />
         </div>
         
@@ -66,14 +66,14 @@ const CreateAdPage = () => {
             id="validTill"
             value={validTill}
             onChange={(e) => setValidTill(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., 30 May 2025"
+            className="w-full p-3 border border-gray-300 rounded-md"
+            placeholder="e.g. 30 Jun 2025"
           />
         </div>
         
         <button
           type="submit"
-          className="w-full py-3 px-4 bg-blue-800 text-white rounded-md hover:bg-blue-900 transition-colors"
+          className="w-full py-3 bg-blue-800 text-white rounded-md hover:bg-blue-900 transition-colors"
         >
           Create Offer
         </button>

@@ -8,7 +8,7 @@ const RedemptionTrackerPage = () => {
   const navigate = useNavigate();
   const { redemptions, offers } = useApp();
 
-  const getOfferTitle = (offerId: string) => {
+  const getOfferTitle = (offerId) => {
     const offer = offers.find(o => o.id === offerId);
     return offer?.title || '';
   };

@@ -2,15 +2,6 @@ import React, { useState } from 'react';
 import { Edit, Check, X } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 
-type RedemptionItemProps = {
-  id: string;
-  customerName: string;
-  date: string;
-  status: 'completed' | 'pending' | 'cancelled';
-  offerId: string;
-  offerTitle: string;
-};
-
 const RedemptionItem = ({
   id,
   customerName,
@@ -18,7 +9,7 @@ const RedemptionItem = ({
   status,
   offerId,
   offerTitle,
-}: RedemptionItemProps) => {
+}) => {
   const { updateRedemption } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [editedCustomerName, setEditedCustomerName] = useState(customerName);
@@ -27,7 +18,7 @@ const RedemptionItem = ({
   const handleSave = () => {
     updateRedemption(id, {
       customerName: editedCustomerName,
-      status: editedStatus as 'completed' | 'pending' | 'cancelled',
+      status: editedStatus,
     });
     setIsEditing(false);
   };
@@ -44,7 +35,7 @@ const RedemptionItem = ({
           />
           <select
             value={editedStatus}
-            onChange={(e) => setEditedStatus(e.target.value as any)}
+            onChange={(e) => setEditedStatus(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md"
           >
             <option value="completed">Completed</option>

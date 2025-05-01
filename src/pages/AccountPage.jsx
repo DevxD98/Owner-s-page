@@ -1,4 +1,5 @@
 import React from 'react';
+import CustomIcon from '../components/icons/CustomIcon';
 import { ArrowLeft, Store, Settings, CreditCard, FileText, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, LayoutDashboard, QrCode, User, Plus } from 'lucide-react';
+import { Home, LayoutDashboard, User, Plus } from 'lucide-react';
+import QRCodeIcon from '../icons/QRCodeIcon';
+import ScannerIcon from '../icons/ScannerIcon';
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
@@ -49,7 +51,7 @@ const BottomNavigation = () => {
             }`
           }
         >
-          <QrCode size={20} />
+          <QRCodeIcon size={20} />
           <span className="text-xs mt-1">Scan QR</span>
         </NavLink>
 

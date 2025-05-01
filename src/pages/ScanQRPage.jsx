@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ScannerIcon from '../components/icons/ScannerIcon';
 
 const ScanQRPage = () => {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ const ScanQRPage = () => {
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-xl font-bold">Scan QR Code</h1>
+        <div className="ml-auto">
+          <ScannerIcon size={20} className="text-gray-600" />
+        </div>
       </div>
 
       <div className="flex flex-col items-center justify-center mt-8">

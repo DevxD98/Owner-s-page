@@ -9,11 +9,11 @@ import AddCatalogIcon from '../components/icons/AddCatalogIcon';
 import { useApp } from '../contexts/AppContext';
 
 const offerTypes = [
-  { id: 'spotlight', icon: <SpotlightOfferIcon size={32} className="mx-auto transition-transform duration-300" />, label: 'Spotlight Offer' },
-  { id: 'happyhours', icon: <HappyhoursOfferIcon size={32} className="mx-auto transition-transform duration-300" />, label: 'Happy hours Offer' },
-  { id: 'spintowin', icon: <SpintoWinIcon size={32} className="mx-auto transition-transform duration-300" />, label: 'Spin to Win' },
-  { id: 'sponsored', icon: <SponsoredAdsIcon size={32} className="mx-auto transition-transform duration-300" />, label: 'Sponsored Ads' },
-  { id: 'catalog', icon: <AddCatalogIcon size={32} className="mx-auto transition-transform duration-300" />, label: 'Add Catalog' },
+  { id: 'spotlight', icon: <SpotlightOfferIcon size={36} className="mx-auto" />, label: 'Spotlight Offer' },
+  { id: 'happyhours', icon: <HappyhoursOfferIcon size={36} className="mx-auto" />, label: 'Happy hours Offer' },
+  { id: 'spintowin', icon: <SpintoWinIcon size={36} className="mx-auto" />, label: 'Spin to Win' },
+  { id: 'sponsored', icon: <SponsoredAdsIcon size={36} className="mx-auto" />, label: 'Sponsored Ads' },
+  { id: 'catalog', icon: <AddCatalogIcon size={36} className="mx-auto" />, label: 'Add Catalog' },
 ];
 
 const CreateOfferPage = () => {
@@ -83,10 +83,10 @@ const CreateOfferPage = () => {
         {offerTypes.map((type) => (
           <button 
             key={type.id} 
-            className={`flex flex-col items-center w-16 ${selectedOfferType === type.id ? 'opacity-100 scale-110 shadow-lg rounded-xl' : 'opacity-50'}`}
+            className={`flex flex-col items-center w-16 ${selectedOfferType === type.id ? 'opacity-100' : 'opacity-50'}`}
             onClick={() => setSelectedOfferType(type.id)}
           >
-            <div className={`p-2 rounded-full ${selectedOfferType === type.id ? 'bg-gray-100' : ''}`}>
+            <div className={`p-2 rounded-full flex items-center justify-center ${selectedOfferType === type.id ? 'bg-gray-200' : ''}`}>
               {type.icon}
             </div>
             <span className="text-xs text-center mt-1 leading-tight">{type.label}</span>

@@ -4,6 +4,7 @@ import Layout from '../components/layout/Layout';
 import HomePage from '../pages/HomePage';
 import MyAdsPage from '../pages/MyAdsPage';
 import CreateAdPage from '../pages/CreateAdPage';
+import CreateOfferPage from '../pages/CreateOfferPage';
 import ScanQRPage from '../pages/ScanQRPage';
 import AccountPage from '../pages/AccountPage';
 import OfferManagementPage from '../pages/OfferManagementPage';
@@ -16,6 +17,7 @@ const AppRoutes = () => {
         <Route index element={<HomePage />} />
         <Route path="my-ads" element={<MyAdsPage />} />
         <Route path="create-ad" element={<CreateAdPage />} />
+<Route path="create-offer" element={<CreateOfferPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="offer-management" element={<OfferManagementPage />} />

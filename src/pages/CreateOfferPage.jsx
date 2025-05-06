@@ -6,6 +6,7 @@ import HappyhoursOfferIcon from '../components/icons/HappyhoursOfferIcon';
 import SpintoWinIcon from '../components/icons/SpintoWinIcon';
 import SponsoredAdsIcon from '../components/icons/SponsoredAdsIcon';
 import AddCatalogIcon from '../components/icons/AddCatalogIcon';
+import CameraIcon from '../components/icons/CameraIcon';
 import { useApp } from '../contexts/AppContext';
 
 const offerTypes = [
@@ -147,7 +148,7 @@ const CreateOfferPage = () => {
           <div>
             <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
             <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
-              <span className="text-gray-500 text-4xl">📷</span>
+              <CameraIcon size={36} className="text-gray-500" />
             </div>
           </div>
           
@@ -245,7 +246,7 @@ const CreateOfferPage = () => {
           <div>
             <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
             <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
-              <span className="text-gray-500 text-4xl">📷</span>
+              <CameraIcon size={36} className="text-gray-500" />
             </div>
           </div>
 
@@ -280,8 +281,124 @@ const CreateOfferPage = () => {
         </form>
       )}
 
+      {/* Sponsored Ads Form */}
+      {selectedOfferType === 'sponsored' && (
+        <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block font-medium mb-1">Ad Title</label>
+            <input 
+              name="title"
+              value={offerData.title}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
+              placeholder="Full name" 
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Ad Description</label>
+            <input 
+              name="description"
+              value={offerData.description}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
+              placeholder="Full name" 
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Select Offer Type</label>
+            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
+              <input 
+                name="offerType"
+                value={offerData.offerType}
+                onChange={handleInputChange}
+                className="flex-1 bg-transparent outline-none" 
+                placeholder="XXXX" 
+              />
+              <ChevronDown size={16} className="text-gray-500" />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Ad Placement</label>
+            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
+              <input 
+                name="adPlacement"
+                value={offerData.adPlacement}
+                onChange={handleInputChange}
+                className="flex-1 bg-transparent outline-none" 
+                placeholder="XXXX" 
+              />
+              <ChevronDown size={16} className="text-gray-500" />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Discount Details</label>
+            <input 
+              name="discountDetails"
+              value={offerData.discountDetails}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
+              placeholder="Full name" 
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Validity Period</label>
+            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
+              <input 
+                name="validityPeriod"
+                value={offerData.validityPeriod}
+                onChange={handleInputChange}
+                className="flex-1 bg-transparent outline-none" 
+                placeholder="Full name" 
+              />
+              <ChevronDown size={16} className="text-gray-500" />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
+            <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
+              <CameraIcon size={36} className="text-gray-500" />
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-medium">Ad Visibility</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={offerData.isVisible}
+                onChange={handleToggleChange}
+                className="sr-only peer" 
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+          
+          <div className="mt-4 mb-8 flex space-x-4">
+            <button 
+              type="button" 
+              onClick={() => navigate(-1)}
+              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
+            >
+              Create
+            </button>
+          </div>
+        </form>
+      )}
+
       {/* Other Offer Types Form */}
-      {selectedOfferType !== 'spotlight' && selectedOfferType !== 'spintowin' && (
+      {selectedOfferType !== 'spotlight' && selectedOfferType !== 'spintowin' && selectedOfferType !== 'sponsored' && (
         <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
           <div>
             <label className="block font-medium mb-1">Offer Title</label>
@@ -343,8 +460,8 @@ const CreateOfferPage = () => {
           
           <div>
             <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
-            <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span className="text-gray-500 text-4xl">📷</span>
+            <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
+              <CameraIcon size={36} className="text-gray-500" />
             </div>
           </div>
           

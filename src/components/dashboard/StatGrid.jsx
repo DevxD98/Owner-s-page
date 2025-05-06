@@ -7,10 +7,10 @@ const StatGrid = () => {
 
   return (
     <div className="grid grid-cols-2 gap-4 p-4">
-      <StatCard title="Offers claimed" value={stats.offersClaimed} />
-      <StatCard title="Total Spins" value={stats.totalSpins} />
-      <StatCard title="Ad Views Today" value={stats.adViewsToday} />
-      <StatCard title="Top Viewed Ad" value={stats.topViewedAd} />
+      <StatCard title="Total Offer running" value={stats.offersClaimed} />
+      <StatCard title="Total offer view" value={stats.totalSpins} />
+      <StatCard title="Total Store Visit" value={stats.adViewsToday} />
+      <StatCard title="Recent Redemption" value={stats.topViewedAd} />
     </div>
   );
 };

@@ -1,21 +1,44 @@
 import React from 'react';
-import { MapPin, QrCode } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 
 const LocationHeader = () => {
-  const { location } = useApp();
-
+  // Get store information from context
+  const { storeName } = useApp();
+  
   return (
-    <div className="flex justify-between items-center p-4 border-b border-gray-100">
-      <div className="flex items-start space-x-2">
-        <MapPin className="text-gray-700 mt-1" size={20} />
+    <div className="flex items-center p-4 border-b border-gray-100">
+      <div className="flex items-center space-x-2">
+        <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">MS</div>
         <div>
-          <h2 className="font-bold text-lg">Current Location</h2>
-          <p className="text-gray-500 text-sm">{location}</p>
+          {/* Styling according to screenshot specifications */}
+          <h2 
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 1000,
+              fontSize: '26px',
+              lineHeight: '100%',
+              letterSpacing: '0%',
+              color: '#252525',
+              width: '150px',
+              height: '29px',
+              marginTop: '25px',
+              marginLeft: '20px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {storeName}
+          </h2>
+          <p
+          style={{
+            marginTop: '10px',
+            marginLeft: '-49px',
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: 1000,
+            fontSize: '10px',
+            lineHeight: '100%',
+            letterSpacing: '0%',
+          }} className="text-gray-500 text-sm">My Store</p>
         </div>
-      </div>
-      <div className="border border-gray-300 rounded p-1">
-        <QrCode size={24} />
       </div>
     </div>
   );

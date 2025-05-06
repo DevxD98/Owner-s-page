@@ -18,7 +18,7 @@ const BottomNavigation = () => {
             }`
           }
         >
-          <Home size={20} />
+          <Home size={25} />
           <span className="text-xs mt-1">Home</span>
         </NavLink>
 
@@ -30,16 +30,16 @@ const BottomNavigation = () => {
             }`
           }
         >
-          <LayoutDashboard size={20} />
+          <LayoutDashboard size={25} />
           <span className="text-xs mt-1">My Ads</span>
         </NavLink>
 
         <div className="relative -top-5">
           <button
             onClick={() => navigate('/create-offer')}
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-800 text-white shadow-lg hover:bg-blue-900 transition-colors"
+            className="flex items-center justify-center w-20 h-20 rounded-full bg-[#001CD3] text-white shadow-lg hover:bg-[#226EDA] transition-colors"
           >
-            <Plus size={24} />
+            <Plus size={27} />
           </button>
         </div>
 
@@ -51,7 +51,7 @@ const BottomNavigation = () => {
             }`
           }
         >
-          <QRCodeIcon size={20} />
+          <QRCodeIcon size={25} />
           <span className="text-xs mt-1">Scan QR</span>
         </NavLink>
 
@@ -63,7 +63,7 @@ const BottomNavigation = () => {
             }`
           }
         >
-          <User size={20} />
+          <User size={25} />
           <span className="text-xs mt-1">Account</span>
         </NavLink>
       </nav>

@@ -8,6 +8,7 @@ import CreateOfferPage from '../pages/CreateOfferPage';
 import ScanQRPage from '../pages/ScanQRPage';
 import AccountPage from '../pages/AccountPage';
 import OfferManagementPage from '../pages/OfferManagementPage';
+import BookingStatusPage from '../pages/BookingStatusPage';
 import RedemptionTrackerPage from '../pages/RedemptionTrackerPage';
 
 const AppRoutes = () => {
@@ -21,6 +22,7 @@ const AppRoutes = () => {
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="offer-management" element={<OfferManagementPage />} />
+        <Route path="booking-status" element={<BookingStatusPage />} />
         <Route path="redemption-tracker" element={<RedemptionTrackerPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

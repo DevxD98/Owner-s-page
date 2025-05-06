@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState } from 'react';
 
 const defaultContext = {
   location: 'A-01, Bank street, new delhi-110096',
+  storeName: 'Matrix salon',
   stats: {
-    offersClaimed: 1,
-    totalSpins: 1,
-    adViewsToday: 1,
-    topViewedAd: 1,
+    offersClaimed: 0,
+    totalSpins: 0,
+    adViewsToday: 0,
+    topViewedAd: 0,
   },
   offers: [
     {
@@ -27,6 +28,18 @@ const defaultContext = {
       isActive: false,
       validTill: '20 Jun 2025',
     },
+  ],
+  bookings: [
+    {
+      id: '1',
+      customerName: 'Ravi Shankar',
+      offerType: 'Spin to win',
+      date: '11 April 2025',
+      time: '10:30 AM',
+      validTill: 'May 10',
+      status: 'Booked',
+      offerId: '2'
+    }
   ],
   redemptions: [
     {
@@ -55,6 +68,7 @@ const defaultContext = {
   addOffer: () => {},
   updateOffer: () => {},
   updateRedemption: () => {},
+  updateBooking: () => {},
 };
 
 const AppContext = createContext(defaultContext);
@@ -63,8 +77,10 @@ export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
   const [location, setLocation] = useState(defaultContext.location);
+  const [storeName, setStoreName] = useState(defaultContext.storeName);
   const [stats, setStats] = useState(defaultContext.stats);
   const [offers, setOffers] = useState(defaultContext.offers);
+  const [bookings, setBookings] = useState(defaultContext.bookings);
   const [redemptions, setRedemptions] = useState(defaultContext.redemptions);
 
   const toggleOffer = (id) => {
@@ -93,16 +109,25 @@ export const AppProvider = ({ children }) => {
     ));
   };
 
+  const updateBooking = (id, updatedBooking) => {
+    setBookings(bookings.map(booking => 
+      booking.id === id ? { ...booking, ...updatedBooking } : booking
+    ));
+  };
+
   return (
     <AppContext.Provider
       value={{
         location,
+        storeName,
         stats,
         offers,
+        bookings,
         redemptions,
         toggleOffer,
         addOffer,
         updateOffer,
+        updateBooking,
         updateRedemption,
       }}
     >

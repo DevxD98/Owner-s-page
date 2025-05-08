@@ -31,7 +31,7 @@ const BottomNavigation = ({ hidePlusButton = false }) => {
           }
         >
           <LayoutDashboard size={25} />
-          <span className="text-xs mt-1">My Ads</span>
+          <span className="text-xs mt-1">Ads</span>
         </NavLink>
 
         {!hidePlusButton && (

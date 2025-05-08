@@ -10,6 +10,7 @@ import AccountPage from '../pages/AccountPage';
 import OfferManagementPage from '../pages/OfferManagementPage';
 import BookingStatusPage from '../pages/BookingStatusPage';
 import RedemptionTrackerPage from '../pages/RedemptionTrackerPage';
+import StorePage from '../pages/StorePage';
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
         <Route path="offer-management" element={<OfferManagementPage />} />
         <Route path="booking-status" element={<BookingStatusPage />} />
         <Route path="redemption-tracker" element={<RedemptionTrackerPage />} />
+        <Route path="store" element={<StorePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -1,13 +1,18 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const LocationHeader = () => {
   // Get store information from context
   const { storeName } = useApp();
+  const navigate = useNavigate();
   
   return (
     <div className="flex items-center p-4 border-b border-gray-100">
-      <div className="flex items-center space-x-2">
+      <div 
+        className="flex items-center space-x-2 cursor-pointer" 
+        onClick={() => navigate('/store')}
+      >
         <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">MS</div>
         <div>
           {/* Styling according to screenshot specifications */}

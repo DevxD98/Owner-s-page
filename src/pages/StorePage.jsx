@@ -21,7 +21,7 @@ const StorePage = () => {
         {/* Back button */}
         <button 
           onClick={() => navigate(-1)} 
-          className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-md"
+          className="absolute top-4 left-1 bg-white rounded-full p-2 shadow-md"
         >
           <ArrowLeft size={20} />
         </button>
@@ -70,6 +70,7 @@ const StorePage = () => {
 
         {/* Tab Content */}
         <div className="flex-grow w-full text-center text-gray-500 min-h-[120px] flex items-center justify-center">
+        
           {selectedTab === 'offers' ? (
             <p>This store has no offers currently</p>
           ) : (

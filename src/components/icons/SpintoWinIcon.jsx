@@ -14,8 +14,7 @@ const SpintoWinIcon = ({ size = 50, className }) => {
         cx="25"
         cy="18.2891"
         r="12.7109"
-        stroke="#484848"
-        strokeOpacity="0.5"
+        stroke="currentColor"
         strokeWidth="2"
       />
       <line
@@ -23,8 +22,7 @@ const SpintoWinIcon = ({ size = 50, className }) => {
         y1="10.8837"
         x2="35.7003"
         y2="25.2147"
-        stroke="#484848"
-        strokeOpacity="0.5"
+        stroke="currentColor"
         strokeWidth="2"
       />
       <line
@@ -32,8 +30,7 @@ const SpintoWinIcon = ({ size = 50, className }) => {
         y1="5.17383"
         x2="25.4038"
         y2="31.4034"
-        stroke="#484848"
-        strokeOpacity="0.5"
+        stroke="currentColor"
         strokeWidth="2"
       />
       <line
@@ -41,8 +38,7 @@ const SpintoWinIcon = ({ size = 50, className }) => {
         y1="25.2025"
         x2="35.2534"
         y2="11.4916"
-        stroke="#484848"
-        strokeOpacity="0.5"
+        stroke="currentColor"
         strokeWidth="2"
       />
     </svg>

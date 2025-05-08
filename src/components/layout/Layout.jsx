@@ -1,14 +1,27 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import BottomNavigation from './BottomNavigation';
 
 const Layout = () => {
+  const location = useLocation();
+  
+  // Pages where bottom navigation should be hidden
+  const hideNavigationPaths = [
+    '/store',
+    '/offer-management',
+    '/booking-status',
+    '/redemption-tracker'
+  ];
+  
+  const hideNavigation = hideNavigationPaths.includes(location.pathname);
+  const hidePlusButton = location.pathname === '/create-offer';
+
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto pb-16 bg-white">
-      <main className="flex-1">
+      <main className={`flex-1 ${!hideNavigation ? 'pb-16' : ''}`}>
         <Outlet />
       </main>
-      <BottomNavigation />
+      {!hideNavigation && <BottomNavigation hidePlusButton={hidePlusButton} />}
     </div>
   );
 };

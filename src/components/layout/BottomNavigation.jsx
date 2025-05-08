@@ -4,7 +4,7 @@ import { Home, LayoutDashboard, User, Plus } from 'lucide-react';
 import QRCodeIcon from '../icons/QRCodeIcon';
 import ScannerIcon from '../icons/ScannerIcon';
 
-const BottomNavigation = () => {
+const BottomNavigation = ({ hidePlusButton = false }) => {
   const navigate = useNavigate();
 
   return (
@@ -34,14 +34,16 @@ const BottomNavigation = () => {
           <span className="text-xs mt-1">My Ads</span>
         </NavLink>
 
-        <div className="relative -top-5">
-          <button
-            onClick={() => navigate('/create-offer')}
-            className="flex items-center justify-center w-20 h-20 rounded-full bg-[#001CD3] text-white shadow-lg hover:bg-[#226EDA] transition-colors"
-          >
-            <Plus size={27} />
-          </button>
-        </div>
+        {!hidePlusButton && (
+          <div className="relative -top-5">
+            <button
+              onClick={() => navigate('/create-offer')}
+              className="flex items-center justify-center w-20 h-20 rounded-full bg-[#001CD3] text-white shadow-lg hover:bg-[#226EDA] transition-colors"
+            >
+              <Plus size={27} />
+            </button>
+          </div>
+        )}
 
         <NavLink
           to="/scan-qr"

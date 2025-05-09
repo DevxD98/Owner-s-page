@@ -78,6 +78,13 @@ export const useApp = () => useContext(AppContext);
 export const AppProvider = ({ children }) => {
   const [location, setLocation] = useState(defaultContext.location);
   const [storeName, setStoreName] = useState(defaultContext.storeName);
+  const [storeCategory, setStoreCategory] = useState('');
+  const [storeAddress, setStoreAddress] = useState('');
+  const [storeLogo, setStoreLogo] = useState('');
+  const [storeImage, setStoreImage] = useState('');
+  const [storePhone, setStorePhone] = useState('');
+  const [storeHours, setStoreHours] = useState('');
+  const [storeEmail, setStoreEmail] = useState('');
   const [stats, setStats] = useState(defaultContext.stats);
   const [offers, setOffers] = useState(defaultContext.offers);
   const [bookings, setBookings] = useState(defaultContext.bookings);
@@ -119,7 +126,16 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         location,
+        setLocation,
         storeName,
+        storeCategory,
+        storeAddress,
+        storeLogo,
+        storeImage,
+        storePhone,
+        storeHours,
+        storeEmail,
+        setStoreEmail,
         stats,
         offers,
         bookings,
@@ -127,8 +143,15 @@ export const AppProvider = ({ children }) => {
         toggleOffer,
         addOffer,
         updateOffer,
-        updateBooking,
         updateRedemption,
+        updateBooking,
+        setStoreName,
+        setStoreCategory,
+        setStoreAddress,
+        setStoreLogo,
+        setStoreImage,
+        setStorePhone,
+        setStoreHours,
       }}
     >
       {children}

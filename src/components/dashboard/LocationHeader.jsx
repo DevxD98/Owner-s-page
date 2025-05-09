@@ -4,8 +4,19 @@ import { useNavigate } from 'react-router-dom';
 
 const LocationHeader = () => {
   // Get store information from context
-  const { storeName } = useApp();
+  const { storeName, storeLogo } = useApp();
   const navigate = useNavigate();
+  
+  // Get initials for the fallback logo
+  const getInitials = (name) => {
+    if (!name) return 'MS';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
   
   return (
     <div className="flex items-center p-4 border-b border-gray-100">
@@ -13,7 +24,15 @@ const LocationHeader = () => {
         className="flex items-center space-x-2 cursor-pointer" 
         onClick={() => navigate('/store')}
       >
-        <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">MS</div>
+        {storeLogo ? (
+          <div className="w-10 h-10 rounded-full overflow-hidden">
+            <img src={storeLogo} alt="Store Logo" className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">
+            {getInitials(storeName)}
+          </div>
+        )}
         <div>
           {/* Styling according to screenshot specifications */}
           <h2 

@@ -1,16 +1,33 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
 const StorePage = () => {
   const navigate = useNavigate();
-  const { storeName } = useApp();
+  const { 
+    storeName, 
+    storeCategory, 
+    storeAddress, 
+    storeLogo: contextStoreLogo, 
+    storeImage: contextStoreImage,
+    storePhone,
+    storeHours,
+    setStoreLogo: updateStoreLogo,
+    setStoreImage: updateStoreImage
+  } = useApp();
+  
   const [selectedTab, setSelectedTab] = useState('catalogue');
   const [showCatalogEditor, setShowCatalogEditor] = useState(false);
   const [catalogImages, setCatalogImages] = useState(Array(6).fill(null));
-  const [storeBanner, setStoreBanner] = useState("https://via.placeholder.com/360x368");
-  const [storeLogo, setStoreLogo] = useState("https://via.placeholder.com/77");
+  const [storeBanner, setStoreBanner] = useState(contextStoreImage || "https://via.placeholder.com/360x368");
+  const [storeLogo, setStoreLogo] = useState(contextStoreLogo || "https://via.placeholder.com/77");
+  
+  // Update local state when context changes
+  useEffect(() => {
+    if (contextStoreImage) setStoreBanner(contextStoreImage);
+    if (contextStoreLogo) setStoreLogo(contextStoreLogo);
+  }, [contextStoreImage, contextStoreLogo]);
   
   const bannerInputRef = useRef(null);
   const logoInputRef = useRef(null);
@@ -68,7 +85,10 @@ const StorePage = () => {
               accept="image/*"
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
-                  setStoreLogo(URL.createObjectURL(e.target.files[0]));
+                  const logoUrl = URL.createObjectURL(e.target.files[0]);
+                  setStoreLogo(logoUrl);
+                  // Update the context
+                  updateStoreLogo && updateStoreLogo(logoUrl);
                 }
               }}
             />

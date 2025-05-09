@@ -11,6 +11,9 @@ import OfferManagementPage from '../pages/OfferManagementPage';
 import BookingStatusPage from '../pages/BookingStatusPage';
 import RedemptionTrackerPage from '../pages/RedemptionTrackerPage';
 import StorePage from '../pages/StorePage';
+import CreateAccountPage from '../pages/CreateAccountPage';
+import StoreInformationPage from '../pages/StoreInformationPage';
+import LocationBranchPage from '../pages/LocationBranchPage';
 
 const AppRoutes = () => {
   return (
@@ -19,13 +22,16 @@ const AppRoutes = () => {
         <Route index element={<HomePage />} />
         <Route path="my-ads" element={<MyAdsPage />} />
         <Route path="create-ad" element={<CreateAdPage />} />
-<Route path="create-offer" element={<CreateOfferPage />} />
+        <Route path="create-offer" element={<CreateOfferPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="offer-management" element={<OfferManagementPage />} />
         <Route path="booking-status" element={<BookingStatusPage />} />
         <Route path="redemption-tracker" element={<RedemptionTrackerPage />} />
         <Route path="store" element={<StorePage />} />
+        <Route path="create-account" element={<CreateAccountPage />} />
+        <Route path="store-information" element={<StoreInformationPage />} />
+          <Route path="location-branch" element={<LocationBranchPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

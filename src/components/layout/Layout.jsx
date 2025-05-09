@@ -10,7 +10,8 @@ const Layout = () => {
     '/store',
     '/offer-management',
     '/booking-status',
-    '/redemption-tracker'
+    '/redemption-tracker',
+    '/create-account'
   ];
   
   const hideNavigation = hideNavigationPaths.includes(location.pathname);

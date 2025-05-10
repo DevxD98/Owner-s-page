@@ -20,8 +20,8 @@ const StorePage = () => {
   const [selectedTab, setSelectedTab] = useState('catalogue');
   const [showCatalogEditor, setShowCatalogEditor] = useState(false);
   const [catalogImages, setCatalogImages] = useState(Array(6).fill(null));
-  const [storeBanner, setStoreBanner] = useState(contextStoreImage || "https://via.placeholder.com/360x368");
-  const [storeLogo, setStoreLogo] = useState(contextStoreLogo || "https://via.placeholder.com/77");
+  const [storeBanner, setStoreBanner] = useState(contextStoreImage || "");
+  const [storeLogo, setStoreLogo] = useState(contextStoreLogo || "");
   
   // Update local state when context changes
   useEffect(() => {
@@ -37,12 +37,21 @@ const StorePage = () => {
     <div className="flex flex-col items-center w-full bg-white min-h-screen">
       {/* Store Banner */}
       <div className="relative w-[360px] h-[368px]">
-        <img
-          src={storeBanner}
-          alt="Store Banner"
-          className="w-full h-full object-cover rounded-b-[30px] cursor-pointer"
-          onClick={() => bannerInputRef.current.click()}
-        />
+        {storeBanner ? (
+          <img
+            src={storeBanner}
+            alt="Store Banner"
+            className="w-full h-full object-cover rounded-b-[30px] cursor-pointer"
+            onClick={() => bannerInputRef.current.click()}
+          />
+        ) : (
+          <div 
+            className="w-full h-full bg-gray-200 rounded-b-[30px] flex items-center justify-center cursor-pointer"
+            onClick={() => bannerInputRef.current.click()}
+          >
+            <p className="text-gray-500">Click to add store banner</p>
+          </div>
+        )}
         <input 
           type="file" 
           ref={bannerInputRef} 
@@ -66,12 +75,21 @@ const StorePage = () => {
         {/* Store Logo */}
         <div className="absolute -bottom-[38.5px] left-1/2 transform -translate-x-1/2 z-10">
           <div className="w-[77px] h-[77px] rounded-full border-4 border-white overflow-hidden shadow-lg bg-white relative">
-            <img
-              src={storeLogo}
-              alt="Store Logo"
-              className="w-full h-full object-cover cursor-pointer"
-              onClick={() => logoInputRef.current.click()}
-            />
+            {storeLogo ? (
+              <img
+                src={storeLogo}
+                alt="Store Logo"
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => logoInputRef.current.click()}
+              />
+            ) : (
+              <div 
+                className="w-full h-full bg-gray-300 flex items-center justify-center cursor-pointer"
+                onClick={() => logoInputRef.current.click()}
+              >
+                <Pencil size={20} className="text-gray-500" />
+              </div>
+            )}
             <button 
               className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md"
               onClick={() => logoInputRef.current.click()}

@@ -31,7 +31,12 @@ const AppRoutes = () => {
         <Route path="store" element={<StorePage />} />
         <Route path="create-account" element={<CreateAccountPage />} />
         <Route path="store-information" element={<StoreInformationPage />} />
-          <Route path="location-branch" element={<LocationBranchPage />} />
+        <Route path="location-branch" element={<LocationBranchPage />} />
+        <Route path="switch-account" element={<Navigate to="/" replace />} />
+        <Route path="timing-availability" element={<Navigate to="/" replace />} />
+        <Route path="settings" element={<Navigate to="/" replace />} />
+        <Route path="help-support" element={<Navigate to="/" replace />} />
+        <Route path="about-app" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -10,7 +10,7 @@ const AccountPage = () => {
   
   // Get initials for the fallback logo
   const getInitials = (name) => {
-    if (!name) return 'MS';
+    if (!name) return 'ST';
     return name
       .split(' ')
       .map(word => word[0])
@@ -38,8 +38,8 @@ const AccountPage = () => {
                 )}
               </div>
               <div className="text-white">
-                <h2 className="font-medium text-lg">{storeName || 'Store Name'}</h2>
-                <p className="text-sm text-white opacity-80">@{storeName ? storeName.toLowerCase().replace(/\s+/g, '') : 'store'}</p>
+                <h2 className="font-medium text-lg">{storeName || 'Your Store'}</h2>
+                <p className="text-sm text-white opacity-80">{storeName ? `@${storeName.toLowerCase().replace(/\s+/g, '')}` : 'Add store information'}</p>
               </div>
             </div>
             <button 

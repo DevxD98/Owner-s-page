@@ -42,7 +42,10 @@ const AccountPage = () => {
                 <p className="text-sm text-white opacity-80">@{storeName ? storeName.toLowerCase().replace(/\s+/g, '') : 'store'}</p>
               </div>
             </div>
-            <button className="text-white">
+            <button 
+              className="text-white" 
+              onClick={() => navigate('/store-information')}
+            >
               <Pencil size={20} />
             </button>
           </div>
@@ -81,14 +84,17 @@ const AccountPage = () => {
               </div>
               <div>
                 <h3 className="font-medium">Location & Branch</h3>
-                <p className="text-sm text-gray-400">View all previous coupons</p>
+                <p className="text-sm text-gray-400">Manage store location details</p>
               </div>
             </div>
             <ChevronRight size={20} className="text-gray-400" />
           </div>
 
           {/* Switch To User Account */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <div 
+            className="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer"
+            onClick={() => navigate('/switch-account')}
+          >
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
                 <User size={20} className="text-gray-600" />
@@ -102,7 +108,10 @@ const AccountPage = () => {
           </div>
 
           {/* Timing & Availability */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <div 
+            className="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer"
+            onClick={() => navigate('/timing-availability')}
+          >
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
                 <Clock size={20} className="text-gray-600" />
@@ -116,7 +125,10 @@ const AccountPage = () => {
           </div>
 
           {/* Settings */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <div 
+            className="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer"
+            onClick={() => navigate('/settings')}
+          >
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
                 <Settings size={20} className="text-gray-600" />
@@ -130,7 +142,10 @@ const AccountPage = () => {
           </div>
 
           {/* Help & Support */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <div 
+            className="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer"
+            onClick={() => navigate('/help-support')}
+          >
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
                 <HelpCircle size={20} className="text-gray-600" />
@@ -144,7 +159,10 @@ const AccountPage = () => {
           </div>
 
           {/* About App */}
-          <div className="flex items-center justify-between p-4">
+          <div 
+            className="flex items-center justify-between p-4 cursor-pointer"
+            onClick={() => navigate('/about-app')}
+          >
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
                 <Info size={20} className="text-gray-600" />

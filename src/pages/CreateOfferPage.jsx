@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, X } from 'lucide-react';
 import SpotlightOfferIcon from '../components/icons/SpotlightOfferIcon';
 import HappyhoursOfferIcon from '../components/icons/HappyhoursOfferIcon';
@@ -16,8 +16,11 @@ const offerTypes = [
 
 const CreateOfferPage = () => {
   const navigate = useNavigate();
-  const { addOffer } = useApp();
+  const location = useLocation();
+  const { addOffer, offers, updateOffer } = useApp();
   const [selectedOfferType, setSelectedOfferType] = useState('happyhours');
+  const [editMode, setEditMode] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [offerData, setOfferData] = useState({
     title: '',
     description: '',
@@ -83,9 +86,50 @@ const CreateOfferPage = () => {
     });
   };
 
+  // Check for offer ID in URL params for editing
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const offerId = params.get('id');
+    
+    if (offerId) {
+      const offerToEdit = offers.find(offer => offer.id === offerId);
+      if (offerToEdit) {
+        setEditMode(true);
+        setEditId(offerId);
+        setSelectedOfferType(offerToEdit.type || 'happyhours');
+        
+        // Parse validTill if it contains time range
+        let startTime = '';
+        let endTime = '';
+        if (offerToEdit.validTill && offerToEdit.validTill.includes(' - ')) {
+          const [start, end] = offerToEdit.validTill.split(' - ');
+          startTime = start;
+          endTime = end;
+        }
+        
+        setOfferData({
+          title: offerToEdit.title || '',
+          description: offerToEdit.description || '',
+          startTime: startTime,
+          endTime: endTime,
+          minPurchase: offerToEdit.minPurchase || '',
+          redemptionsAllowed: offerToEdit.redemptionsAllowed || '',
+          validityPeriod: offerToEdit.validTill || '',
+          isVisible: offerToEdit.isActive !== undefined ? offerToEdit.isActive : true,
+          offerImage: offerToEdit.offerImage || null,
+          imagePreview: offerToEdit.offerImage ? URL.createObjectURL(offerToEdit.offerImage) : null,
+          spinnerOffers: offerToEdit.spinnerOffers || ['', ''],
+          spinnerProbabilities: offerToEdit.spinnerProbabilities || ['50', '50'],
+          selectedDay: offerToEdit.selectedDay || 'Monday',
+          slotCapacity: offerToEdit.slotCapacity || ''
+        });
+      }
+    }
+  }, [location.search, offers]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add offer logic here
+    // Prepare offer payload
     const offerPayload = {
       title: offerData.title,
       description: offerData.description,
@@ -101,7 +145,12 @@ const CreateOfferPage = () => {
       offerPayload.validTill = `${offerData.startTime} - ${offerData.endTime}`;
     }
 
-    addOffer(offerPayload);
+    if (editMode && editId) {
+      updateOffer(editId, offerPayload);
+    } else {
+      addOffer(offerPayload);
+    }
+    
     navigate('/my-ads');
   };
 

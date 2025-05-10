@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useApp } from '../contexts/AppContext';
 import Layout from '../components/layout/Layout';
 import HomePage from '../pages/HomePage';
 import MyAdsPage from '../pages/MyAdsPage';
@@ -16,10 +17,13 @@ import StoreInformationPage from '../pages/StoreInformationPage';
 import LocationBranchPage from '../pages/LocationBranchPage';
 
 const AppRoutes = () => {
+  const { storeName } = useApp();
+  const isNewUser = !storeName;
+  
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<HomePage />} />
+        <Route index element={isNewUser ? <Navigate to="/create-account" replace /> : <HomePage />} />
         <Route path="my-ads" element={<MyAdsPage />} />
         <Route path="create-ad" element={<CreateAdPage />} />
         <Route path="create-offer" element={<CreateOfferPage />} />

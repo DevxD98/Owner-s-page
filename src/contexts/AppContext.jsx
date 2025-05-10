@@ -1,69 +1,17 @@
 import React, { createContext, useContext, useState } from 'react';
 
 const defaultContext = {
-  location: 'A-01, Bank street, new delhi-110096',
-  storeName: 'Matrix salon',
+  location: '',
+  storeName: '',
   stats: {
     offersClaimed: 0,
     totalSpins: 0,
     adViewsToday: 0,
     topViewedAd: 0,
   },
-  offers: [
-    {
-      id: '1',
-      title: 'Flat 30% OFF on ₹499+',
-      isActive: true,
-      validTill: '30 May 2025',
-    },
-    {
-      id: '2',
-      title: 'Spin to win offer !',
-      isActive: true,
-      validTill: '15 Jun 2025',
-    },
-    {
-      id: '3',
-      title: 'Spin to win offer !',
-      isActive: false,
-      validTill: '20 Jun 2025',
-    },
-  ],
-  bookings: [
-    {
-      id: '1',
-      customerName: 'Ravi Shankar',
-      offerType: 'Spin to win',
-      date: '11 April 2025',
-      time: '10:30 AM',
-      validTill: 'May 10',
-      status: 'Booked',
-      offerId: '2'
-    }
-  ],
-  redemptions: [
-    {
-      id: '1',
-      customerName: 'Ravi Shankar',
-      date: '11 April 2025',
-      status: 'completed',
-      offerId: '1'
-    },
-    {
-      id: '2',
-      customerName: 'Ravi Shankar',
-      date: '11 April 2025',
-      status: 'completed',
-      offerId: '1'
-    },
-    {
-      id: '3',
-      customerName: 'Ravi Shankar',
-      date: '11 April 2025',
-      status: 'completed',
-      offerId: '1'
-    }
-  ],
+  offers: [],
+  bookings: [],
+  redemptions: [],
   toggleOffer: () => {},
   addOffer: () => {},
   updateOffer: () => {},
@@ -76,8 +24,8 @@ const AppContext = createContext(defaultContext);
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
-  const [location, setLocation] = useState(defaultContext.location);
-  const [storeName, setStoreName] = useState(defaultContext.storeName);
+  const [location, setLocation] = useState('');
+  const [storeName, setStoreName] = useState('');
   const [storeCategory, setStoreCategory] = useState('');
   const [storeAddress, setStoreAddress] = useState('');
   const [storeLogo, setStoreLogo] = useState('');

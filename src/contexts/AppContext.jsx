@@ -85,6 +85,9 @@ export const AppProvider = ({ children }) => {
   const [storePhone, setStorePhone] = useState('');
   const [storeHours, setStoreHours] = useState('');
   const [storeEmail, setStoreEmail] = useState('');
+  const [cityState, setCityState] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [googleMapLocation, setGoogleMapLocation] = useState('');
   const [stats, setStats] = useState(defaultContext.stats);
   const [offers, setOffers] = useState(defaultContext.offers);
   const [bookings, setBookings] = useState(defaultContext.bookings);
@@ -136,6 +139,12 @@ export const AppProvider = ({ children }) => {
         storeHours,
         storeEmail,
         setStoreEmail,
+        cityState,
+        setCityState,
+        pincode,
+        setPincode,
+        googleMapLocation,
+        setGoogleMapLocation,
         stats,
         offers,
         bookings,

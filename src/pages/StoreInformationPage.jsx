@@ -69,7 +69,7 @@ const StoreInformationPage = () => {
             type="text"
             value={storeName}
             onChange={(e) => setStoreNameLocal(e.target.value)}
-            placeholder="Full name"
+            placeholder="Enter your store name"
             className="w-full p-4 bg-gray-100 rounded-lg"
           />
         </div>
@@ -82,7 +82,7 @@ const StoreInformationPage = () => {
             onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
           >
             <span className={storeCategory ? 'text-black' : 'text-gray-400'}>
-              {storeCategory || 'Full name'}
+              {storeCategory || 'Select store category'}
             </span>
             <ChevronDown size={20} className="text-gray-400" />
           </div>
@@ -122,7 +122,7 @@ const StoreInformationPage = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Full name"
+            placeholder="Enter your email address"
             className="w-full p-4 bg-gray-100 rounded-lg"
           />
         </div>

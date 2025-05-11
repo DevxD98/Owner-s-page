@@ -36,7 +36,7 @@ const StorePage = () => {
   return (
     <div className="flex flex-col items-center w-full bg-white min-h-screen">
       {/* Store Banner */}
-      <div className="relative w-[360px] h-[368px]">
+      <div className="relative w-full h-[368px]">
         {storeBanner ? (
           <img
             src={storeBanner}
@@ -115,10 +115,10 @@ const StorePage = () => {
       </div>
 
       {/* White Section */}
-      <div className="bg-white w-[360px] flex flex-col items-center text-center px-4 pt-14">
+      <div className="bg-white w-full flex flex-col items-center text-center px-4 pt-14">
         <h1 className="text-lg font-semibold">“Here’s How Your Store Looks to Customers”</h1>
         <h2 className="text-xl font-medium mt-2">{storeName || 'Shop Name'}</h2>
-        <p className="text-gray-500 mb-6">Address</p>
+        <p className="text-gray-500 mb-6">{storeAddress || 'Address'}</p>
 
         {/* Tabs */}
         <div className="flex w-full border-b border-gray-300 mb-4">

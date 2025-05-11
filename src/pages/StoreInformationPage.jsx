@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import PhoneInput from '../components/inputs/PhoneInput';
+import { validateEmail } from '../utils/emailValidation';
 
 const StoreInformationPage = () => {
   const navigate = useNavigate();
@@ -10,17 +12,21 @@ const StoreInformationPage = () => {
     storeCategory: contextStoreCategory,
     storePhone: contextStorePhone,
     storeEmail: contextStoreEmail,
+    storeAddress: contextStoreAddress,
     setStoreName, 
     setStoreCategory,
     setStorePhone,
     setStoreEmail,
+    setStoreAddress,
   } = useApp();
 
   const [storeName, setStoreNameLocal] = useState(contextStoreName || '');
   const [storeCategory, setStoreCategoryLocal] = useState(contextStoreCategory || '');
   const [mobileNumber, setMobileNumber] = useState(contextStorePhone || '');
   const [email, setEmail] = useState(contextStoreEmail || '');
+  const [address, setAddress] = useState(contextStoreAddress || '');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const categories = [
     'Restaurant',
@@ -34,12 +40,30 @@ const StoreInformationPage = () => {
     'Other'
   ];
 
+  // Validate email when it changes
+  useEffect(() => {
+    if (email) {
+      const validation = validateEmail(email);
+      setEmailError(validation.isValid ? '' : validation.message);
+    } else {
+      setEmailError('');
+    }
+  }, [email]);
+
   const handleSave = () => {
+    // Validate email before saving
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.message);
+      return;
+    }
+
     // Update context with store information
     setStoreName(storeName);
     setStoreCategory(storeCategory);
     setStorePhone(mobileNumber);
     setStoreEmail(email);
+    setStoreAddress(address);
     
     // Navigate back
     navigate(-1);
@@ -106,12 +130,11 @@ const StoreInformationPage = () => {
         {/* Mobile Number */}
         <div className="space-y-2">
           <label className="text-base font-medium">Mobile Number</label>
-          <input
-            type="tel"
+          <PhoneInput
             value={mobileNumber}
-            onChange={(e) => setMobileNumber(e.target.value)}
-            placeholder="+91 XXXXX XXXXX"
-            className="w-full p-4 bg-gray-100 rounded-lg"
+            onChange={setMobileNumber}
+            placeholder="Phone number"
+            required
           />
         </div>
 
@@ -123,6 +146,19 @@ const StoreInformationPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email address"
+            className={`w-full p-4 bg-gray-100 rounded-lg ${emailError ? 'border border-red-500' : ''}`}
+          />
+          {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+        </div>
+        
+        {/* Address */}
+        <div className="space-y-2">
+          <label className="text-base font-medium">Store Address</label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Enter your store address"
             className="w-full p-4 bg-gray-100 rounded-lg"
           />
         </div>

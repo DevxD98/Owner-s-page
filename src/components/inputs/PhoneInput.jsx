@@ -99,7 +99,7 @@ const PhoneInput = ({
         <div className="relative">
           <button
             type="button"
-            className="flex items-center justify-center h-full px-3 bg-gray-100 rounded-l-lg border-r border-gray-300"
+            className="flex items-center justify-center h-full px-3 bg-gray-100 rounded-l-lg border-r border-gray-300 min-w-[80px]"
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <span className="text-gray-700">{getCurrentCountryCode()}</span>
@@ -121,7 +121,7 @@ const PhoneInput = ({
           
           {/* Country code dropdown */}
           {showDropdown && (
-            <div className="absolute z-10 mt-1 w-24 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+            <div className="absolute z-10 mt-1 min-w-[80px] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
               {countryCodes.map((code) => (
                 <div 
                   key={code} 
@@ -150,7 +150,7 @@ const PhoneInput = ({
         />
       </div>
       
-      {/* Error message */}
+      {/* Error message - Only show after user interaction */}
       {showError && touched && error && (
         <p className="text-red-500 text-sm mt-1">{error}</p>
       )}

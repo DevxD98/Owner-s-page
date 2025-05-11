@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import PhoneInput from '../components/inputs/PhoneInput';
+import { validateEmail } from '../utils/emailValidation';
 
 const CreateAccountPage = () => {
   const navigate = useNavigate();
-  const { setStoreName, setStoreCategory, setStoreAddress, setStoreLogo, setStoreImage, setStorePhone, setStoreHours } = useApp();
+  const { setStoreName, setStoreCategory, setStoreAddress, setStoreLogo, setStoreImage, setStorePhone, setStoreHours, setStoreEmail } = useApp();
   
   const [formData, setFormData] = useState({
     storeName: '',
@@ -14,8 +16,11 @@ const CreateAccountPage = () => {
     storeLogo: null,
     phoneNumber: '',
     openingHours: '',
+    email: '',
     agreeToTerms: false
   });
+  
+  const [emailError, setEmailError] = useState('');
 
   const [storeImagePreview, setStoreImagePreview] = useState(null);
   const [storeLogoPreview, setStoreLogoPreview] = useState(null);
@@ -48,12 +53,31 @@ const CreateAccountPage = () => {
     }
   };
 
+  // Validate email when it changes
+  useEffect(() => {
+    if (formData.email) {
+      const validation = validateEmail(formData.email);
+      setEmailError(validation.isValid ? '' : validation.message);
+    } else {
+      setEmailError('');
+    }
+  }, [formData.email]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
     if (!formData.agreeToTerms) {
       alert('Please agree to the Terms and Conditions');
       return;
+    }
+    
+    // Validate email before submitting
+    if (formData.email) {
+      const emailValidation = validateEmail(formData.email);
+      if (!emailValidation.isValid) {
+        setEmailError(emailValidation.message);
+        return;
+      }
     }
 
     // Update context with store information
@@ -62,6 +86,7 @@ const CreateAccountPage = () => {
     setStoreAddress && setStoreAddress(formData.address);
     setStorePhone && setStorePhone(formData.phoneNumber);
     setStoreHours && setStoreHours(formData.openingHours);
+    setStoreEmail && setStoreEmail(formData.email);
     
     // Handle image files if needed
     if (formData.storeImage && setStoreImage) {
@@ -198,23 +223,34 @@ const CreateAccountPage = () => {
 
           {/* Phone Number */}
           <div className="relative">
-            <input
-              type="tel"
-              name="phoneNumber"
+            <PhoneInput
               value={formData.phoneNumber}
-              onChange={handleInputChange}
+              onChange={(value) => setFormData({...formData, phoneNumber: value})}
               placeholder="Phone number"
-              className="w-full p-4 bg-gray-100 rounded-lg pl-4 pr-10"
+              required
+            />
+          </div>
+
+          {/* Email Address */}
+          <div className="relative">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Email Address"
+              className={`w-full p-4 bg-gray-100 rounded-lg pl-4 pr-10 ${emailError ? 'border border-red-500' : ''}`}
               required
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
             </div>
+            {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
           </div>
-
+          
           {/* Opening Hours */}
           <div className="relative">
             <input

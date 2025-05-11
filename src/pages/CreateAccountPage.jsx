@@ -20,6 +20,24 @@ const CreateAccountPage = () => {
     agreeToTerms: false
   });
   
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  
+  // Available store categories
+  const categories = [
+    'Restaurant',
+    'Salon',
+    'Retail',
+    'Cafe',
+    'Gym',
+    'Spa',
+    'Electronics',
+    'Fashion',
+    'Grocery',
+    'Bakery',
+    'Pharmacy',
+    'Other'
+  ];
+  
   const [emailError, setEmailError] = useState('');
 
   const [storeImagePreview, setStoreImagePreview] = useState(null);
@@ -133,25 +151,45 @@ const CreateAccountPage = () => {
             </div>
           </div>
 
-          {/* Category */}
+          {/* Category Dropdown */}
           <div className="relative">
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              placeholder="Category"
-              className="w-full p-4 bg-gray-100 rounded-lg pl-4 pr-10"
-              required
-            />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-              </svg>
+            <div 
+              className="w-full p-4 bg-gray-100 rounded-lg flex justify-between items-center cursor-pointer"
+              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <span className={formData.category ? 'text-black' : 'text-gray-400'}>
+                {formData.category || 'Select store category'}
+              </span>
+              <div className="text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </div>
             </div>
+            
+            {/* Category Dropdown Menu */}
+            {showCategoryDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                {categories.map((category) => (
+                  <div 
+                    key={category} 
+                    className="p-3 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        category: category
+                      });
+                      setShowCategoryDropdown(false);
+                    }}
+                  >
+                    {category}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Address & Location */}

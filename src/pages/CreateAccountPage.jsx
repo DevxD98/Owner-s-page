@@ -292,7 +292,7 @@ const CreateAccountPage = () => {
           {/* Opening Hours */}
           <div className="relative">
             <input
-              type="text"
+              type="time"
               name="openingHours"
               value={formData.openingHours}
               onChange={handleInputChange}

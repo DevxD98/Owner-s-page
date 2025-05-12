@@ -10,6 +10,7 @@ const defaultContext = {
     topViewedAd: 0,
   },
   offers: [],
+  draftOffers: [],
   bookings: [],
   redemptions: [],
   toggleOffer: () => {},
@@ -17,6 +18,8 @@ const defaultContext = {
   updateOffer: () => {},
   updateRedemption: () => {},
   updateBooking: () => {},
+  saveDraftOffer: () => {},
+  updateDraftOffer: () => {},
 };
 
 const AppContext = createContext(defaultContext);
@@ -40,6 +43,8 @@ export const AppProvider = ({ children }) => {
   const [offers, setOffers] = useState(defaultContext.offers);
   const [bookings, setBookings] = useState(defaultContext.bookings);
   const [redemptions, setRedemptions] = useState(defaultContext.redemptions);
+  const [draftOffers, setDraftOffers] = useState([]);
+  const [notifyFollowers, setNotifyFollowers] = useState(false);
 
   const toggleOffer = (id) => {
     setOffers(offers.map(offer => 
@@ -70,6 +75,25 @@ export const AppProvider = ({ children }) => {
   const updateBooking = (id, updatedBooking) => {
     setBookings(bookings.map(booking => 
       booking.id === id ? { ...booking, ...updatedBooking } : booking
+    ));
+  };
+
+  const saveDraftOffer = (offer) => {
+    const newDraftOffer = {
+      ...offer,
+      id: String(draftOffers.length + 1),
+      lastEdited: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    };
+    setDraftOffers([...draftOffers, newDraftOffer]);
+  };
+
+  const updateDraftOffer = (id, updatedOffer) => {
+    setDraftOffers(draftOffers.map(offer => 
+      offer.id === id ? { 
+        ...offer, 
+        ...updatedOffer, 
+        lastEdited: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      } : offer
     ));
   };
 
@@ -109,6 +133,11 @@ export const AppProvider = ({ children }) => {
         setStoreImage,
         setStorePhone,
         setStoreHours,
+        draftOffers,
+        notifyFollowers,
+        setNotifyFollowers,
+        saveDraftOffer,
+        updateDraftOffer,
       }}
     >
       {children}

@@ -15,6 +15,7 @@ import StorePage from '../pages/StorePage';
 import CreateAccountPage from '../pages/CreateAccountPage';
 import StoreInformationPage from '../pages/StoreInformationPage';
 import LocationBranchPage from '../pages/LocationBranchPage';
+import DraftOffersPage from '../pages/DraftOffersPage';
 
 const AppRoutes = () => {
   const { storeName } = useApp();
@@ -36,6 +37,7 @@ const AppRoutes = () => {
         <Route path="create-account" element={<CreateAccountPage />} />
         <Route path="store-information" element={<StoreInformationPage />} />
         <Route path="location-branch" element={<LocationBranchPage />} />
+        <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="switch-account" element={<Navigate to="/" replace />} />
         <Route path="timing-availability" element={<Navigate to="/" replace />} />
         <Route path="settings" element={<Navigate to="/" replace />} />

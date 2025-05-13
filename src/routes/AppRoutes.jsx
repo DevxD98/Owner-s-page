@@ -28,6 +28,7 @@ const AppRoutes = () => {
         <Route path="my-ads" element={<MyAdsPage />} />
         <Route path="create-ad" element={<CreateAdPage />} />
         <Route path="create-offer" element={<CreateOfferPage />} />
+        <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="offer-management" element={<OfferManagementPage />} />
@@ -37,7 +38,6 @@ const AppRoutes = () => {
         <Route path="create-account" element={<CreateAccountPage />} />
         <Route path="store-information" element={<StoreInformationPage />} />
         <Route path="location-branch" element={<LocationBranchPage />} />
-        <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="switch-account" element={<Navigate to="/" replace />} />
         <Route path="timing-availability" element={<Navigate to="/" replace />} />
         <Route path="settings" element={<Navigate to="/" replace />} />

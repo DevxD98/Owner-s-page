@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronRight, X } from 'lucide-react';
 import SpotlightOfferIcon from '../components/icons/SpotlightOfferIcon';
 import HappyhoursOfferIcon from '../components/icons/HappyhoursOfferIcon';
 import SpintoWinIcon from '../components/icons/SpintoWinIcon';
@@ -17,7 +17,7 @@ const offerTypes = [
 const CreateOfferPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { addOffer, offers, draftOffers, updateOffer, saveDraftOffer, updateDraftOffer } = useApp();
+  const { addOffer, offers, updateOffer } = useApp();
   const [selectedOfferType, setSelectedOfferType] = useState('happyhours');
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -36,7 +36,8 @@ const CreateOfferPage = () => {
     spinnerOffers: ['', ''],
     spinnerProbabilities: ['50', '50'],
     selectedDay: 'Monday',
-    slotCapacity: ''
+    slotCapacity: '',
+    isDraft: false
   });
   
   const addSpinnerOffer = () => {
@@ -91,14 +92,9 @@ const CreateOfferPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const offerId = params.get('id');
-    const isDraft = params.get('draft') === 'true';
     
     if (offerId) {
-      // Determine if we're editing a draft offer or a published offer
-      const offerToEdit = isDraft 
-        ? draftOffers.find(offer => offer.id === offerId)
-        : offers.find(offer => offer.id === offerId);
-        
+      const offerToEdit = offers.find(offer => offer.id === offerId);
       if (offerToEdit) {
         setEditMode(true);
         setEditId(offerId);
@@ -122,24 +118,30 @@ const CreateOfferPage = () => {
           redemptionsAllowed: offerToEdit.redemptionsAllowed || '',
           validityPeriod: offerToEdit.validTill || '',
           isVisible: offerToEdit.isActive !== undefined ? offerToEdit.isActive : true,
+          notifyFollowers: offerToEdit.notifyFollowers || false,
           offerImage: offerToEdit.offerImage || null,
           imagePreview: offerToEdit.offerImage ? URL.createObjectURL(offerToEdit.offerImage) : null,
           spinnerOffers: offerToEdit.spinnerOffers || ['', ''],
           spinnerProbabilities: offerToEdit.spinnerProbabilities || ['50', '50'],
           selectedDay: offerToEdit.selectedDay || 'Monday',
-          slotCapacity: offerToEdit.slotCapacity || ''
+          slotCapacity: offerToEdit.slotCapacity || '',
+          isDraft: offerToEdit.isDraft || false
         });
       }
     }
-  }, [location.search, offers, draftOffers]);
+  }, [location.search, offers]);
 
-  const prepareOfferPayload = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Prepare offer payload
     const offerPayload = {
       title: offerData.title,
       description: offerData.description,
       isActive: offerData.isVisible,
+      notifyFollowers: offerData.notifyFollowers,
       type: selectedOfferType,
-      offerImage: offerData.offerImage
+      offerImage: offerData.offerImage,
+      isDraft: false
     };
 
     if (selectedOfferType === 'spotlight') {
@@ -148,33 +150,16 @@ const CreateOfferPage = () => {
     } else {
       offerPayload.validTill = `${offerData.startTime} - ${offerData.endTime}`;
     }
-    
-    return offerPayload;
-  };
-  
-  const handleSaveDraft = () => {
-    const offerPayload = prepareOfferPayload();
-    
-    if (editMode && editId) {
-      updateDraftOffer(editId, offerPayload);
-    } else {
-      saveDraftOffer(offerPayload);
-    }
-    
-    navigate('/draft-offers');
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Prepare offer payload
-    const offerPayload = prepareOfferPayload();
-
+    // For Preview Offer functionality, we'll store the data temporarily and navigate to a preview page
+    // In a real app, this would navigate to a preview page before final submission
     if (editMode && editId) {
       updateOffer(editId, offerPayload);
     } else {
       addOffer(offerPayload);
     }
     
+    // Navigate to preview page (in a real app) or back to my-ads for this demo
     navigate('/my-ads');
   };
 
@@ -185,52 +170,6 @@ const CreateOfferPage = () => {
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-lg font-medium">What are you offering</h1>
-      </div>
-      
-      {/* View Saved Draft Offers Link */}
-      <div className="px-4 mb-2">
-        <div 
-          className="flex justify-between items-center cursor-pointer" 
-          onClick={() => navigate('/draft-offers')}
-        >
-          <span className="font-medium">View Your Saved Draft Offers</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </div>
-      </div>
-      {/* Offer Visibility and Notify Followers */}
-      <div className="px-4 mb-4">
-        <div className="flex justify-between items-center mb-3">
-          <span className="font-medium">Offer Visibility</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={offerData.isVisible} 
-              onChange={handleToggleChange} 
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <span className="font-medium">Notify Followers</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={offerData.notifyFollowers} 
-              onChange={(e) => {
-                setOfferData({
-                  ...offerData,
-                  notifyFollowers: e.target.checked
-                });
-              }} 
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
       </div>
       
       {/* Offer Type Selection */}
@@ -250,6 +189,134 @@ const CreateOfferPage = () => {
           </button>
         ))}
       </div>
+
+      {/* Spotlight Offer Form */}
+      {selectedOfferType === 'spotlight' && (
+        <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block font-medium mb-1">Offer Title</label>
+            <input 
+              name="title"
+              value={offerData.title}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
+              placeholder="Full name" 
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Offer Description</label>
+            <input 
+              name="description"
+              value={offerData.description}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
+              placeholder="Full name" 
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Validity Period</label>
+            <DatePicker
+              value={offerData.validityPeriod}
+              onChange={(date) => setOfferData({ ...offerData, validityPeriod: date })}
+              placeholder="Date"
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Min Purchase (optional)</label>
+            <input 
+              name="minPurchase"
+              value={offerData.minPurchase}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
+              placeholder="₹ 199" 
+            />
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
+            <label htmlFor="offerImageUpload" className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
+              {offerData.imagePreview ? (
+                <img src={offerData.imagePreview} alt="Preview" className="h-full object-contain" />
+              ) : (
+                <CameraIcon size={36} className="text-gray-500" />
+              )}
+              <input 
+                id="offerImageUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+          </div>
+          
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-medium">Offer Visibility</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={offerData.isVisible}
+                onChange={handleToggleChange}
+                className="sr-only peer" 
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-medium">Notify Followers</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={offerData.notifyFollowers}
+                onChange={(e) => setOfferData({...offerData, notifyFollowers: e.target.checked})}
+                className="sr-only peer" 
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+          
+          <div className="mt-4 mb-4 flex space-x-4">
+            <button 
+              type="button" 
+              onClick={() => {
+                // Save as draft functionality
+                const draftPayload = {
+                  ...offerData,
+                  type: selectedOfferType,
+                  isDraft: true
+                };
+                if (editMode && editId) {
+                  updateOffer(editId, draftPayload);
+                } else {
+                  addOffer(draftPayload);
+                }
+                navigate('/my-ads');
+              }}
+              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
+            >
+              Save as Draft
+            </button>
+            <button 
+              type="submit" 
+              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
+            >
+              Preview Offer
+            </button>
+          </div>
+
+          <div 
+            className="flex justify-between items-center py-3 cursor-pointer border-t border-gray-200"
+            onClick={() => navigate('/draft-offers')}
+          >
+            <span className="text-base font-medium">View Your Saved Draft Offers</span>
+            <ChevronRight size={20} className="text-gray-500" />
+          </div>
+        </form>
+      )}
 
       {/* Spin to Win Form */}
       {selectedOfferType === 'spintowin' && (
@@ -358,20 +425,13 @@ const CreateOfferPage = () => {
             </label>
           </div>
 
-          <div className="mt-4 mb-8 flex space-x-2">
+          <div className="mt-4 mb-8 flex space-x-4">
             <button 
               type="button" 
               onClick={() => navigate(-1)}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
               Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Save as Draft
             </button>
             <button 
               type="submit" 
@@ -487,20 +547,13 @@ const CreateOfferPage = () => {
             </label>
           </div>
           
-          <div className="mt-4 mb-8 flex space-x-2">
+          <div className="mt-4 mb-8 flex space-x-4">
             <button 
               type="button" 
               onClick={() => navigate(-1)}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
               Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Save as Draft
             </button>
             <button 
               type="submit" 
@@ -653,135 +706,37 @@ const CreateOfferPage = () => {
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
-          
-          <div className="mt-4 mb-8 flex space-x-2">
-            <button 
-              type="button" 
-              onClick={() => navigate(-1)}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Save as Draft
-            </button>
-            <button 
-              type="submit" 
-              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      )}
 
-      {/* Other Offer Types Form */}
-      {selectedOfferType !== 'spotlight' && selectedOfferType !== 'spintowin' && selectedOfferType !== 'happyhours' && selectedOfferType !== 'sponsored' && (
-        <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block font-medium mb-1">Offer Title</label>
-            <input 
-              name="title"
-              value={offerData.title}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Description</label>
-            <input 
-              name="description"
-              value={offerData.description}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Start Time & End Time</label>
-            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
-              <input 
-                name="startTime"
-                value={offerData.startTime}
-                onChange={handleInputChange}
-                className="flex-1 bg-transparent outline-none" 
-                placeholder="Full name" 
-              />
-              <ChevronDown size={16} className="text-gray-500" />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Min Purchase (optional)</label>
-            <input 
-              name="minPurchase"
-              value={offerData.minPurchase}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Number of redemptions allowed</label>
-            <input 
-              name="redemptionsAllowed"
-              value={offerData.redemptionsAllowed}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
-            <label htmlFor="otherOfferImageUpload" className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
-              {offerData.imagePreview ? (
-                <img src={offerData.imagePreview} alt="Preview" className="h-full object-contain" />
-              ) : (
-                <CameraIcon size={36} className="text-gray-500" />
-              )}
-              <input 
-                id="otherOfferImageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
-          </div>
-          
           <div className="flex items-center justify-between mt-2">
-            <span className="font-medium">Offer Visibility</span>
+            <span className="font-medium">Notify Followers</span>
             <label className="relative inline-flex items-center cursor-pointer">
               <input 
                 type="checkbox" 
-                checked={offerData.isVisible}
-                onChange={handleToggleChange}
+                checked={offerData.notifyFollowers}
+                onChange={(e) => setOfferData({...offerData, notifyFollowers: e.target.checked})}
                 className="sr-only peer" 
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
           
-          <div className="mt-4 mb-8 flex space-x-2">
+          <div className="mt-4 mb-4 flex space-x-4">
             <button 
               type="button" 
-              onClick={() => navigate(-1)}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
+              onClick={() => {
+                // Save as draft functionality
+                const draftPayload = {
+                  ...offerData,
+                  type: selectedOfferType,
+                  isDraft: true
+                };
+                if (editMode && editId) {
+                  updateOffer(editId, draftPayload);
+                } else {
+                  addOffer(draftPayload);
+                }
+                navigate('/my-ads');
+              }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
               Save as Draft
@@ -789,413 +744,17 @@ const CreateOfferPage = () => {
             <button 
               type="submit" 
               className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      )}
-        
-    </div>
-  );
-};
-
-// Move export default to the end of the file after all component code
-
-
-
-      {/* Spotlight Offer Form */}
-      {selectedOfferType === 'spotlight' && (
-        <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block font-medium mb-1">Offer Title</label>
-            <input 
-              name="title"
-              value={offerData.title}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Description</label>
-            <input 
-              name="description"
-              value={offerData.description}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Validity Period</label>
-            <DatePicker
-              value={offerData.validityPeriod}
-              onChange={(date) => setOfferData({ ...offerData, validityPeriod: date })}
-              placeholder="Date"
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Min Purchase (optional)</label>
-            <input 
-              name="minPurchase"
-              value={offerData.minPurchase}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="₹ 199" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
-            <label htmlFor="offerImageUpload" className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
-              {offerData.imagePreview ? (
-                <img src={offerData.imagePreview} alt="Preview" className="h-full object-contain" />
-              ) : (
-                <CameraIcon size={36} className="text-gray-500" />
-              )}
-              <input 
-                id="offerImageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
-          </div>
-          
-          {/* Form Buttons */}
-          <div className="mt-auto p-4 flex gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                // Save as draft
-                const offerPayload = {
-                  title: offerData.title || 'Untitled Offer',
-                  description: offerData.description,
-                  isActive: offerData.isVisible,
-                  type: selectedOfferType,
-                  offerImage: offerData.offerImage,
-                  notifyFollowers: offerData.notifyFollowers
-                };
-                
-                if (editMode && editId) {
-                  updateDraftOffer(editId, offerPayload);
-                } else {
-                  saveDraftOffer(offerPayload);
-                }
-                
-                navigate('/draft-offers');
-              }}
-              className="flex-1 border border-gray-300 py-3 rounded-lg font-medium"
-            >
-              Save as Draft
-            </button>
-            <button
-              type="submit" 
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium"
             >
               Preview Offer
             </button>
           </div>
-        </form>
-      )}
 
-      {/* Sponsored Ads Form */}
-      {selectedOfferType === 'sponsored' && (
-        <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block font-medium mb-1">Ad Title</label>
-            <input 
-              name="title"
-              value={offerData.title}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Ad Description</label>
-            <input 
-              name="description"
-              value={offerData.description}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Select Offer Type</label>
-            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
-              <input 
-                name="offerType"
-                value={offerData.offerType}
-                onChange={handleInputChange}
-                className="flex-1 bg-transparent outline-none" 
-                placeholder="XXXX" 
-              />
-              <ChevronDown size={16} className="text-gray-500" />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Ad Placement</label>
-            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
-              <input 
-                name="adPlacement"
-                value={offerData.adPlacement}
-                onChange={handleInputChange}
-                className="flex-1 bg-transparent outline-none" 
-                placeholder="XXXX" 
-              />
-              <ChevronDown size={16} className="text-gray-500" />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Discount Details</label>
-            <input 
-              name="discountDetails"
-              value={offerData.discountDetails}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Validity Period</label>
-            <DatePicker
-              value={offerData.validityPeriod}
-              onChange={(date) => setOfferData({ ...offerData, validityPeriod: date })}
-              placeholder="Date"
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
-            <label htmlFor="otherOfferImageUpload" className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
-              {offerData.imagePreview ? (
-                <img src={offerData.imagePreview} alt="Preview" className="h-full object-contain" />
-              ) : (
-                <CameraIcon size={36} className="text-gray-500" />
-              )}
-              <input 
-                id="otherOfferImageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
-          </div>
-          
-          <div className="flex items-center justify-between mt-2">
-            <span className="font-medium">Ad Visibility</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={offerData.isVisible}
-                onChange={handleToggleChange}
-                className="sr-only peer" 
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-          
-          <div className="mt-4 mb-8 flex space-x-2">
-            <button 
-              type="button" 
-              onClick={() => navigate(-1)}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Save as Draft
-            </button>
-            <button 
-              type="submit" 
-              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Happy Hours Offer Form */}
-      {selectedOfferType === 'happyhours' && (
-        <form className="flex flex-col px-4 gap-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block font-medium mb-1">Offer Title</label>
-            <input 
-              name="title"
-              value={offerData.title}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Description</label>
-            <input 
-              name="description"
-              value={offerData.description}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="Full name" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Select Days</label>
-            <div className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center">
-              <select
-                name="selectedDay"
-                value={offerData.selectedDay || "Monday"}
-                onChange={handleInputChange}
-                className="flex-1 bg-transparent outline-none appearance-none w-full"
-              >
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <ChevronDown size={16} className="text-gray-500" />
-            </div>
-          </div>
-          
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Start Time</label>
-              <label className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center cursor-pointer">
-                <input 
-                  type="time"
-                  name="startTime"
-                  value={offerData.startTime}
-                  onChange={handleInputChange}
-                  className="flex-1 bg-transparent outline-none appearance-none w-full cursor-pointer" 
-                />
-                <ChevronDown size={16} className="text-gray-500 pointer-events-none" />
-              </label>
-            </div>
-            
-            <div className="flex-1">
-              <label className="block font-medium mb-1">End Time</label>
-              <label className="relative w-full rounded-lg border bg-gray-100 px-3 py-2 flex items-center cursor-pointer">
-                <input 
-                  type="time"
-                  name="endTime"
-                  value={offerData.endTime}
-                  onChange={handleInputChange}
-                  className="flex-1 bg-transparent outline-none appearance-none w-full cursor-pointer" 
-                />
-                <ChevronDown size={16} className="text-gray-500 pointer-events-none" />
-              </label>
-            </div>
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Min Purchase (optional)</label>
-            <input 
-              name="minPurchase"
-              value={offerData.minPurchase}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="₹119" 
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Slot Capacity</label>
-            <input 
-              name="slotCapacity"
-              value={offerData.slotCapacity || ""}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="10" 
-              type="number"
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Number of redemptions allowed</label>
-            <input 
-              name="redemptionsAllowed"
-              value={offerData.redemptionsAllowed}
-              onChange={handleInputChange}
-              className="w-full rounded-lg border bg-gray-100 px-3 py-2" 
-              placeholder="1" 
-              type="number"
-            />
-          </div>
-          
-          <div>
-            <label className="block font-medium mb-1">Offer Image <span className="text-xs text-gray-400 ml-1">Keep it under 15 MB</span></label>
-            <label htmlFor="happyHoursImageUpload" className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors">
-              {offerData.imagePreview ? (
-                <img src={offerData.imagePreview} alt="Preview" className="h-full object-contain" />
-              ) : (
-                <CameraIcon size={36} className="text-gray-500" />
-              )}
-              <input 
-                id="happyHoursImageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
-          </div>
-          
-          <div className="flex items-center justify-between mt-2">
-            <span className="font-medium">Offer Visibility</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={offerData.isVisible}
-                onChange={handleToggleChange}
-                className="sr-only peer" 
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-          
-          <div className="mt-4 mb-8 flex space-x-2">
-            <button 
-              type="button" 
-              onClick={() => navigate(-1)}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Save as Draft
-            </button>
-            <button 
-              type="submit" 
-              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
-            >
-              Save
-            </button>
+          <div 
+            className="flex justify-between items-center py-3 cursor-pointer border-t border-gray-200"
+            onClick={() => navigate('/draft-offers')}
+          >
+            <span className="text-base font-medium">View Your Saved Draft Offers</span>
+            <ChevronRight size={20} className="text-gray-500" />
           </div>
         </form>
       )}
@@ -1291,18 +850,37 @@ const CreateOfferPage = () => {
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
+
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-medium">Notify Followers</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={offerData.notifyFollowers}
+                onChange={(e) => setOfferData({...offerData, notifyFollowers: e.target.checked})}
+                className="sr-only peer" 
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
           
-          <div className="mt-4 mb-8 flex space-x-2">
+          <div className="mt-4 mb-4 flex space-x-4">
             <button 
               type="button" 
-              onClick={() => navigate(-1)}
-              className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              onClick={handleSaveDraft}
+              onClick={() => {
+                // Save as draft functionality
+                const draftPayload = {
+                  ...offerData,
+                  type: selectedOfferType,
+                  isDraft: true
+                };
+                if (editMode && editId) {
+                  updateOffer(editId, draftPayload);
+                } else {
+                  addOffer(draftPayload);
+                }
+                navigate('/my-ads');
+              }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
               Save as Draft
@@ -1311,48 +889,20 @@ const CreateOfferPage = () => {
               type="submit" 
               className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
             >
-              Save
+              Preview Offer
             </button>
+          </div>
+
+          <div 
+            className="flex justify-between items-center py-3 cursor-pointer border-t border-gray-200"
+            onClick={() => navigate('/draft-offers')}
+          >
+            <span className="text-base font-medium">View Your Saved Draft Offers</span>
+            <ChevronRight size={20} className="text-gray-500" />
           </div>
         </form>
       )}
-      
-      {/* Form Buttons */}
-      {!selectedOfferType && (
-        <div className="mt-auto p-4 flex gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              // Save as draft
-              const offerPayload = {
-                title: offerData.title || 'Untitled Offer',
-                description: offerData.description,
-                isActive: offerData.isVisible,
-                type: selectedOfferType,
-                offerImage: offerData.offerImage,
-                notifyFollowers: offerData.notifyFollowers
-              };
-              
-              if (editMode && editId) {
-                updateDraftOffer(editId, offerPayload);
-              } else {
-                saveDraftOffer(offerPayload);
-              }
-              
-              navigate('/draft-offers');
-            }}
-            className="flex-1 border border-gray-300 py-3 rounded-lg font-medium"
-          >
-            Save as Draft
-          </button>
-          <button
-            type="submit" 
-            className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium"
-          >
-            Preview Offer
-          </button>
-        </div>
-      )}
+        
     </div>
   );
 };

@@ -133,34 +133,21 @@ const CreateOfferPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Prepare offer payload
-    const offerPayload = {
-      title: offerData.title,
-      description: offerData.description,
-      isActive: offerData.isVisible,
-      notifyFollowers: offerData.notifyFollowers,
-      type: selectedOfferType,
-      offerImage: offerData.offerImage,
-      isDraft: false
-    };
-
-    if (selectedOfferType === 'spotlight') {
-      offerPayload.validTill = offerData.validityPeriod;
-      offerPayload.minPurchase = offerData.minPurchase;
-    } else {
-      offerPayload.validTill = `${offerData.startTime} - ${offerData.endTime}`;
-    }
-
-    // For Preview Offer functionality, we'll store the data temporarily and navigate to a preview page
-    // In a real app, this would navigate to a preview page before final submission
-    if (editMode && editId) {
-      updateOffer(editId, offerPayload);
-    } else {
-      addOffer(offerPayload);
-    }
     
-    // Navigate to preview page (in a real app) or back to my-ads for this demo
-    navigate('/my-ads');
+    // Store the offer data in session storage for preview
+    const previewPayload = {
+      ...offerData,
+      type: selectedOfferType,
+      editMode: editMode,
+      editId: editId,
+      isPreview: true
+    };
+    
+    // Store in session storage for preview page
+    sessionStorage.setItem('offerPreview', JSON.stringify(previewPayload));
+    
+    // Navigate to preview page
+    navigate('/preview-offer');
   };
 
   return (

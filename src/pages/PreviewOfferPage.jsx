@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Heart } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 
 const PreviewOfferPage = () => {
   const navigate = useNavigate();
-  const { addOffer, updateOffer } = useApp();
+  const { addOffer, updateOffer, storeName } = useApp();
   const [previewData, setPreviewData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -47,29 +47,6 @@ const PreviewOfferPage = () => {
     }
   };
   
-  const handleSaveAsDraft = () => {
-    if (previewData) {
-      // Add to offers as draft
-      const draftPayload = {
-        ...previewData,
-        isPreview: false,
-        isDraft: true
-      };
-      
-      if (editMode && editId) {
-        updateOffer(editId, draftPayload);
-      } else {
-        addOffer(draftPayload);
-      }
-      
-      // Clear preview data
-      sessionStorage.removeItem('offerPreview');
-      
-      // Redirect to drafts
-      navigate('/draft-offers');
-    }
-  };
-  
   const handleEdit = () => {
     // Navigate back to create offer page
     navigate(-1);
@@ -79,87 +56,115 @@ const PreviewOfferPage = () => {
     return <div className="p-4">Loading preview...</div>;
   }
   
+  // Format time for happy hours display
+  const getFormattedTime = () => {
+    if (previewData.type === 'happyhours' && previewData.startTime && previewData.endTime) {
+      return `${previewData.startTime} - ${previewData.endTime}`;
+    } else if (previewData.type === 'happyhours') {
+      return "2 - 4 pm"; // Default time if not specified
+    }
+    return "";
+  };
+  
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <div className="flex items-center p-4">
         <button onClick={() => navigate(-1)} className="mr-2">
-          <ArrowLeft size={20} />
+          <ArrowLeft size={24} />
         </button>
-        <h1 className="text-lg font-medium">Offer Preview</h1>
+        <h1 className="text-xl font-bold">Preview Your Offer Before Publishing</h1>
       </div>
       
-      <div className="p-4 flex-1">
-        <div className="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm">
-          <h2 className="text-xl font-medium">{previewData.title}</h2>
-          <p className="text-gray-600 mt-2">{previewData.description || "No description provided"}</p>
-          
-          {previewData.imagePreview && (
-            <div className="mt-4">
-              <img 
-                src={previewData.imagePreview} 
-                alt="Offer" 
-                className="w-full h-48 object-cover rounded-lg"
-              />
+      <div className="flex-1 flex flex-col">
+        {/* Offer Image */}
+        <div className="w-full h-72">
+          {previewData.imagePreview ? (
+            <img 
+              src={previewData.imagePreview} 
+              alt="Offer" 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <p className="text-gray-500">No image provided</p>
             </div>
           )}
-          
-          <div className="mt-4">
-            <h3 className="font-medium">Details:</h3>
-            <div className="mt-2 space-y-1 text-sm">
-              {previewData.validityPeriod && (
-                <p>Valid till: {previewData.validityPeriod}</p>
-              )}
-              {previewData.minPurchase && (
-                <p>Min purchase: ₹{previewData.minPurchase}</p>
-              )}
-              {previewData.type === 'spintowin' && (
-                <div className="mt-3">
-                  <p className="font-medium">Spinner Offers:</p>
-                  <ul className="list-disc pl-5 mt-1">
-                    {previewData.spinnerOffers.map((offer, index) => (
-                      <li key={index}>
-                        {offer} - {previewData.spinnerProbabilities[index]}%
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {previewData.type === 'happyhours' && (
-                <div className="mt-3">
-                  <p>Day: {previewData.selectedDay}</p>
-                  <p>Hours: {previewData.startTime} - {previewData.endTime}</p>
-                  {previewData.slotCapacity && (
-                    <p>Slot capacity: {previewData.slotCapacity}</p>
-                  )}
-                </div>
-              )}
-              <p>Notify followers: {previewData.notifyFollowers ? 'Yes' : 'No'}</p>
-              <p>Visibility: {previewData.isVisible ? 'Visible' : 'Hidden'}</p>
-            </div>
+        </div>
+        
+        {/* Store Info and Like Button */}
+        <div className="flex justify-between items-center px-4 py-3">
+          <div className="flex items-center">
+            <span className="text-xl font-bold mr-1">Name of store</span>
+            <span className="text-gray-500">(2km)</span>
           </div>
-        </div>
-        
-        <div className="mt-4 mb-4 flex space-x-4">
-          <button 
-            onClick={handleEdit}
-            className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
-          >
-            Edit Offer
-          </button>
-          <button 
-            onClick={handlePublish}
-            className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
-          >
-            Publish Offer
+          <button className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center">
+            <Heart size={24} className="text-gray-400" />
           </button>
         </div>
         
-        <div 
-          onClick={handleSaveAsDraft}
-          className="flex justify-center items-center py-3 cursor-pointer"
+        {/* Offer Details */}
+        <div className="px-4">
+          {previewData.type === 'spotlight' && (
+            <>
+              <h2 className="text-3xl font-bold text-gray-900">
+                Get {previewData.title || "20% OFF"}
+              </h2>
+              <p className="text-lg text-gray-700 mt-1">
+                {previewData.description || "your total bill on your next visit!"}
+              </p>
+            </>
+          )}
+          
+          {previewData.type === 'happyhours' && (
+            <>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {previewData.title || "Get 20% OFF"}
+              </h2>
+              <p className="text-lg text-gray-700 mt-1">
+                {previewData.description || "your total bill on your next visit!"}
+              </p>
+              <div className="mt-4">
+                <div className="flex items-center mt-2">
+                  <span className="text-3xl">😀</span>
+                  <span className="bg-gray-200 px-5 py-2 rounded-full ml-2">Category</span>
+                </div>
+                <p className="text-xl font-medium mt-4">Happy Hours {getFormattedTime()}</p>
+              </div>
+            </>
+          )}
+          
+          {previewData.type === 'spintowin' && (
+            <>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {previewData.title || "Spin to Win"}
+              </h2>
+              <p className="text-lg text-gray-700 mt-1">
+                Spin for a chance to win:
+              </p>
+              <ul className="list-disc pl-5 mt-2">
+                {previewData.spinnerOffers && previewData.spinnerOffers.map((offer, index) => (
+                  <li key={index} className="text-gray-700">{offer || `Prize ${index + 1}`}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="p-4 pb-8 flex space-x-4">
+        <button 
+          onClick={handleEdit}
+          className="flex-1 py-4 border border-blue-600 text-blue-600 font-medium rounded-lg text-lg"
         >
-          <span className="text-blue-600 font-medium">Save as Draft</span>
-        </div>
+          Edit Offer
+        </button>
+        <button 
+          onClick={handlePublish}
+          className="flex-1 py-4 bg-blue-600 text-white font-medium rounded-lg text-lg"
+        >
+          Publish Offer
+        </button>
       </div>
     </div>
   );

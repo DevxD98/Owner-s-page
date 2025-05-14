@@ -15,7 +15,7 @@ const Layout = () => {
   ];
   
   const hideNavigation = hideNavigationPaths.includes(location.pathname);
-  const hidePlusButton = location.pathname === '/create-offer';
+  const hidePlusButton = location.pathname === '/create-offer' || location.pathname === '/draft-offers';
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto pb-16 bg-white">

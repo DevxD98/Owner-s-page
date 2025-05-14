@@ -425,20 +425,54 @@ const CreateOfferPage = () => {
             </label>
           </div>
 
-          <div className="mt-4 mb-8 flex space-x-4">
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-medium">Notify Followers</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={offerData.notifyFollowers}
+                onChange={(e) => setOfferData({...offerData, notifyFollowers: e.target.checked})}
+                className="sr-only peer" 
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+          
+          <div className="mt-4 mb-4 flex space-x-4">
             <button 
               type="button" 
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                // Save as draft functionality
+                const draftPayload = {
+                  ...offerData,
+                  type: selectedOfferType,
+                  isDraft: true
+                };
+                if (editMode && editId) {
+                  updateOffer(editId, draftPayload);
+                } else {
+                  addOffer(draftPayload);
+                }
+                navigate('/my-ads');
+              }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
-              Cancel
+              Save as Draft
             </button>
             <button 
               type="submit" 
               className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg"
             >
-              Save
+              Preview Offer
             </button>
+          </div>
+
+          <div 
+            className="flex justify-between items-center py-3 cursor-pointer border-t border-gray-200"
+            onClick={() => navigate('/draft-offers')}
+          >
+            <span className="text-base font-medium">View Your Saved Draft Offers</span>
+            <ChevronRight size={20} className="text-gray-500" />
           </div>
         </form>
       )}

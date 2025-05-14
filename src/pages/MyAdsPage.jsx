@@ -9,7 +9,7 @@ const MyAdsPage = () => {
   const { offers } = useApp();
   
   // Filter out draft offers
-  const activeOffers = offers.filter(offer => !offer.isDraft);
+  const publishedOffers = offers.filter(offer => !offer.isDraft);
 
   return (
     <div className="p-4">
@@ -21,8 +21,8 @@ const MyAdsPage = () => {
       </div>
 
       <div className="space-y-4 mt-6">
-        {activeOffers.length > 0 ? (
-          activeOffers.map((offer) => (
+        {publishedOffers.length > 0 ? (
+          publishedOffers.map((offer) => (
             <OfferItem
               key={offer.id}
               id={offer.id}

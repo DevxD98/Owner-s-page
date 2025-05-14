@@ -7,6 +7,9 @@ import OfferItem from '../components/offers/OfferItem';
 const MyAdsPage = () => {
   const navigate = useNavigate();
   const { offers } = useApp();
+  
+  // Filter out draft offers
+  const activeOffers = offers.filter(offer => !offer.isDraft);
 
   return (
     <div className="p-4">
@@ -18,8 +21,8 @@ const MyAdsPage = () => {
       </div>
 
       <div className="space-y-4 mt-6">
-        {offers.length > 0 ? (
-          offers.map((offer) => (
+        {activeOffers.length > 0 ? (
+          activeOffers.map((offer) => (
             <OfferItem
               key={offer.id}
               id={offer.id}

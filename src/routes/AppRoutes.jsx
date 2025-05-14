@@ -16,6 +16,7 @@ import CreateAccountPage from '../pages/CreateAccountPage';
 import StoreInformationPage from '../pages/StoreInformationPage';
 import LocationBranchPage from '../pages/LocationBranchPage';
 import DraftOffersPage from '../pages/DraftOffersPage';
+import PreviewOfferPage from '../pages/PreviewOfferPage';
 
 const AppRoutes = () => {
   const { storeName } = useApp();
@@ -28,6 +29,7 @@ const AppRoutes = () => {
         <Route path="my-ads" element={<MyAdsPage />} />
         <Route path="create-ad" element={<CreateAdPage />} />
         <Route path="create-offer" element={<CreateOfferPage />} />
+        <Route path="preview-offer" element={<PreviewOfferPage />} />
         <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />

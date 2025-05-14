@@ -294,7 +294,7 @@ const CreateOfferPage = () => {
                 } else {
                   addOffer(draftPayload);
                 }
-                navigate('/my-ads');
+                navigate('/draft-offers');
               }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
@@ -453,7 +453,7 @@ const CreateOfferPage = () => {
                 } else {
                   addOffer(draftPayload);
                 }
-                navigate('/my-ads');
+                navigate('/draft-offers');
               }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
@@ -769,7 +769,7 @@ const CreateOfferPage = () => {
                 } else {
                   addOffer(draftPayload);
                 }
-                navigate('/my-ads');
+                navigate('/draft-offers');
               }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >
@@ -913,7 +913,7 @@ const CreateOfferPage = () => {
                 } else {
                   addOffer(draftPayload);
                 }
-                navigate('/my-ads');
+                navigate('/draft-offers');
               }}
               className="flex-1 py-3 border border-blue-600 text-blue-600 font-medium rounded-lg"
             >

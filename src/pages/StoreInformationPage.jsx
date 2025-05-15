@@ -22,7 +22,7 @@ const StoreInformationPage = () => {
 
   const [storeName, setStoreNameLocal] = useState(contextStoreName || '');
   const [storeCategory, setStoreCategoryLocal] = useState(contextStoreCategory || '');
-  const [mobileNumber, setMobileNumber] = useState(contextStorePhone || '');
+  const [mobileNumber, setMobileNumber] = useState(contextStorePhone || '+91');
   const [email, setEmail] = useState(contextStoreEmail || '');
   const [address, setAddress] = useState(contextStoreAddress || '');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);

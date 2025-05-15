@@ -14,7 +14,7 @@ const CreateAccountPage = () => {
     address: '',
     storeImage: null,
     storeLogo: null,
-    phoneNumber: '',
+    phoneNumber: '+91',
     openingHours: '',
     email: '',
     agreeToTerms: false

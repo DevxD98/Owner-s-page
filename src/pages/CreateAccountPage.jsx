@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import PhoneInput from '../components/inputs/PhoneInput';
 import { validateEmail } from '../utils/emailValidation';
+import { Clock, Calendar, User, MapPin, Image, Upload, ChevronDown } from 'lucide-react';
 
 const CreateAccountPage = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const CreateAccountPage = () => {
   });
   
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showTimeInput, setShowTimeInput] = useState(false);
   
   // Available store categories
   const categories = [
@@ -39,9 +41,24 @@ const CreateAccountPage = () => {
   ];
   
   const [emailError, setEmailError] = useState('');
-
   const [storeImagePreview, setStoreImagePreview] = useState(null);
   const [storeLogoPreview, setStoreLogoPreview] = useState(null);
+
+  // Format time string for display
+  const formatTimeDisplay = (timeString) => {
+    if (!timeString) return '';
+    
+    try {
+      const [hours, minutes] = timeString.split(':');
+      const hour = parseInt(hours, 10);
+      const minute = minutes;
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minute} ${period}`;
+    } catch (e) {
+      return timeString;
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -108,14 +125,10 @@ const CreateAccountPage = () => {
     
     // Handle image files if needed
     if (formData.storeImage && setStoreImage) {
-      // In a real app, you would upload the image to a server
-      // and then set the URL in the context
       setStoreImage(storeImagePreview);
     }
     
     if (formData.storeLogo && setStoreLogo) {
-      // In a real app, you would upload the logo to a server
-      // and then set the URL in the context
       setStoreLogo(storeLogoPreview);
     }
 
@@ -124,95 +137,93 @@ const CreateAccountPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full bg-white min-h-screen p-4">
-      <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold mb-2">Get Started</h1>
-          <p className="text-gray-600">by creating a free account.</p>
+    <div className="flex flex-col items-center w-full bg-gradient-to-b from-blue-50 to-white min-h-screen p-4">
+      <div className="w-full max-w-md mx-auto my-4">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold mb-3 text-gray-800 tracking-tight">Get Started</h1>
+          <p className="text-gray-600 text-lg">by creating a free account.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Store Name */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <input
               type="text"
               name="storeName"
               value={formData.storeName}
               onChange={handleInputChange}
               placeholder="Store Name"
-              className="w-full p-4 bg-gray-100 rounded-lg pl-4 pr-10"
+              className="w-full p-4 bg-transparent rounded-xl pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-100"
               required
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+              <User size={20} strokeWidth={1.5} />
             </div>
           </div>
 
           {/* Category Dropdown */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md">
             <div 
-              className="w-full p-4 bg-gray-100 rounded-lg flex justify-between items-center cursor-pointer"
+              className="w-full p-4 bg-transparent rounded-xl flex justify-between items-center cursor-pointer border border-gray-100"
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
             >
-              <span className={formData.category ? 'text-black' : 'text-gray-400'}>
-                {formData.category || 'Select store category'}
+              <span className={formData.category ? 'text-gray-800' : 'text-gray-400'}>
+                {formData.category || 'Category'}
               </span>
               <div className="text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="14" width="7" height="7"></rect>
-                  <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
+                <ChevronDown size={20} strokeWidth={1.5} />
               </div>
             </div>
-            
-            {/* Category Dropdown Menu */}
+
+            {/* Category Dropdown Menu - Positioned directly below the input field */}
             {showCategoryDropdown && (
-              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                {categories.map((category) => (
-                  <div 
-                    key={category} 
-                    className="p-3 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => {
-                      setFormData({
-                        ...formData,
-                        category: category
-                      });
-                      setShowCategoryDropdown(false);
-                    }}
-                  >
-                    {category}
-                  </div>
-                ))}
-              </div>
+              <>
+                <div 
+                  className="fixed inset-0 z-40 bg-transparent"
+                  onClick={() => setShowCategoryDropdown(false)}
+                />
+                <div 
+                  className="absolute z-50 mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {categories.map((category) => (
+                    <div 
+                      key={category} 
+                      className="p-3 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          category: category
+                        });
+                        setShowCategoryDropdown(false);
+                      }}
+                    >
+                      {category}
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
           {/* Address & Location */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <input
               type="text"
               name="address"
               value={formData.address}
               onChange={handleInputChange}
               placeholder="Address & Location Pin"
-              className="w-full p-4 bg-gray-100 rounded-lg pl-4 pr-10"
+              className="w-full p-4 bg-transparent rounded-xl pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-100"
               required
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+              <MapPin size={20} strokeWidth={1.5} />
             </div>
           </div>
 
           {/* Upload Store Image */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <input
               type="file"
               id="storeImage"
@@ -222,21 +233,22 @@ const CreateAccountPage = () => {
             />
             <label
               htmlFor="storeImage"
-              className="w-full p-4 bg-gray-100 rounded-lg flex justify-between items-center cursor-pointer"
+              className="w-full p-4 bg-transparent rounded-xl flex justify-between items-center cursor-pointer border border-gray-100"
             >
               <span className="text-gray-500">{formData.storeImage ? formData.storeImage.name : 'Upload Store Image'}</span>
               <div className="text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
+                <Image size={20} strokeWidth={1.5} />
               </div>
             </label>
+            {storeImagePreview && (
+              <div className="mt-2 p-2">
+                <img src={storeImagePreview} alt="Store Preview" className="h-20 object-cover rounded-lg" />
+              </div>
+            )}
           </div>
 
           {/* Upload Store Logo */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <input
               type="file"
               id="storeLogo"
@@ -246,84 +258,101 @@ const CreateAccountPage = () => {
             />
             <label
               htmlFor="storeLogo"
-              className="w-full p-4 bg-gray-100 rounded-lg flex justify-between items-center cursor-pointer"
+              className="w-full p-4 bg-transparent rounded-xl flex justify-between items-center cursor-pointer border border-gray-100"
             >
               <span className="text-gray-500">{formData.storeLogo ? formData.storeLogo.name : 'Upload Store Logo'}</span>
               <div className="text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
+                <Upload size={20} strokeWidth={1.5} />
               </div>
             </label>
+            {storeLogoPreview && (
+              <div className="mt-2 p-2">
+                <img src={storeLogoPreview} alt="Logo Preview" className="h-16 w-16 object-cover rounded-full mx-auto border-2 border-gray-200" />
+              </div>
+            )}
           </div>
 
           {/* Phone Number */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <PhoneInput
               value={formData.phoneNumber}
               onChange={(value) => setFormData({...formData, phoneNumber: value})}
               placeholder="Phone number"
               required
+              className="border border-gray-100"
             />
           </div>
 
+          {/* Opening Hours */}
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+            {showTimeInput ? (
+              <input
+                type="time"
+                name="openingHours"
+                value={formData.openingHours}
+                onChange={handleInputChange}
+                onBlur={() => setShowTimeInput(false)}
+                className="w-full p-4 bg-transparent rounded-xl pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-100"
+                required
+                autoFocus
+              />
+            ) : (
+              <div 
+                className="w-full p-4 bg-transparent rounded-xl flex justify-between items-center cursor-pointer border border-gray-100"
+                onClick={() => setShowTimeInput(true)}
+              >
+                <span className={formData.openingHours ? 'text-gray-800' : 'text-gray-400'}>
+                  {formData.openingHours ? formatTimeDisplay(formData.openingHours) : 'Opening Hours'}
+                </span>
+                <div className="text-gray-400">
+                  <Clock size={20} strokeWidth={1.5} />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Email Address */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
               placeholder="Email Address"
-              className={`w-full p-4 bg-gray-100 rounded-lg pl-4 pr-10 ${emailError ? 'border border-red-500' : ''}`}
+              className={`w-full p-4 bg-transparent rounded-xl pl-4 pr-12 focus:outline-none focus:ring-2 ${emailError ? 'focus:ring-red-300 border-red-200' : 'focus:ring-blue-300 border border-gray-100'}`}
               required
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
             </div>
-            {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+            {emailError && <p className="text-red-500 text-sm mt-1 px-2">{emailError}</p>}
           </div>
           
-          {/* Opening Hours */}
-          <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Opening Hours</label>
-            <input
-              type="time"
-              name="openingHours"
-              value={formData.openingHours}
-              onChange={handleInputChange}
-              className="w-full p-4 bg-gray-100 rounded-lg"
-              required
-            />
-          </div>
-
           {/* Terms and Conditions */}
-          <div className="flex items-center">
+          <div className="flex items-center py-2">
             <input
               type="checkbox"
               id="terms"
               name="agreeToTerms"
               checked={formData.agreeToTerms}
               onChange={handleInputChange}
-              className="mr-2"
+              className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 mr-3"
               required
             />
-            <label htmlFor="terms" className="text-sm">
+            <label htmlFor="terms" className="text-sm text-gray-700">
               By checking the box you agree to our{' '}
-              <span className="text-red-500">Terms</span> and{' '}
-              <span className="text-red-500">Conditions</span>.
+              <a href="#" className="text-red-500 font-medium">Terms</a> and{' '}
+              <a href="#" className="text-red-500 font-medium">Conditions</a>.
             </label>
           </div>
 
           {/* Next Button */}
           <button
             type="submit"
-            className="w-full bg-blue-700 text-white py-4 rounded-lg font-medium text-lg flex items-center justify-center"
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-medium text-lg flex items-center justify-center shadow-md transition-all duration-300 hover:bg-blue-700 hover:shadow-lg mt-4"
           >
             Next
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
@@ -333,10 +362,10 @@ const CreateAccountPage = () => {
         </form>
 
         {/* Login Link */}
-        <div className="text-center mt-6">
-          <p>
+        <div className="text-center mt-8 mb-4">
+          <p className="text-gray-600">
             Already a member?{' '}
-            <span className="font-bold cursor-pointer" onClick={() => navigate('/login')}>Log In</span>
+            <span className="font-bold text-blue-600 cursor-pointer" onClick={() => navigate('/login')}>Log In</span>
           </p>
         </div>
       </div>

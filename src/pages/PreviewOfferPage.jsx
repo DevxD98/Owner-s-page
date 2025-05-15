@@ -30,7 +30,10 @@ const PreviewOfferPage = () => {
       const publishPayload = {
         ...previewData,
         isPreview: false,
-        isDraft: false
+        isDraft: false,
+        // Check if this is a sponsored ad based on the offer type or settings
+        // This is a simplified check - you can expand based on your business logic
+        isSponsored: previewData.isSponsored || previewData.type === 'spotlight'
       };
       
       if (editMode && editId) {
@@ -42,8 +45,8 @@ const PreviewOfferPage = () => {
       // Clear preview data
       sessionStorage.removeItem('offerPreview');
       
-      // Redirect to my ads
-      navigate('/my-ads');
+      // Redirect to home page to show in Recent Live Offers
+      navigate('/');
     }
   };
   

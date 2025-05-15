@@ -47,7 +47,7 @@ const OfferManagement = () => {
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
             <Sparkles size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Offer Management</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
         </div>
         <div className="flex items-center text-gray-500 group-hover:text-amber-600 transition-colors">
           <span className="text-sm mr-1">View All</span>

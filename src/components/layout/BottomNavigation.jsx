@@ -8,7 +8,7 @@ const BottomNavigation = ({ hidePlusButton = false }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed bottom-0 w-full max-w-md mx-auto">
+    <div className="fixed bottom-0 w-full max-w-md mx-auto z-50 shadow-lg">
       <nav className="flex items-center justify-between bg-white border-t border-gray-200 px-4 h-16">
         <NavLink
           to="/"

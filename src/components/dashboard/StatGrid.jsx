@@ -21,9 +21,9 @@ const StatGrid = () => {
 
   return (
     <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Dashboard Overview</h2>
-        <p className="text-gray-500 text-sm">Today's performance metrics</p>
+      <div className="mb-5 mt-6">
+        <h2 className="text-2xl font-extrabold text-gray-800 bg-gradient-to-r from-amber-600 to-indigo-600 bg-clip-text text-transparent">Business Insights</h2>
+        <p className="text-gray-600 text-sm font-medium mt-1">Your performance at a glance</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className={`transition-all duration-300 delay-100 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -36,7 +36,7 @@ const StatGrid = () => {
           <StatCard title="Store Visits" value={estimatedStoreVisits} />
         </div>
         <div className={`transition-all duration-300 delay-400 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          <StatCard title="Today's Redemptions" value={todayRedemptions} />
+          <StatCard title="Recent Redemptions" value={todayRedemptions} />
         </div>
       </div>
     </div>

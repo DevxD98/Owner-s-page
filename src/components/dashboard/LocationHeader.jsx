@@ -21,12 +21,17 @@ const LocationHeader = () => {
   };
   
   return (
-    <div className="bg-gradient-to-r from-indigo-100 via-purple-50 to-blue-50 py-4 px-4 shadow-sm relative overflow-hidden">
+    <div style={{
+      background: "linear-gradient(180deg, rgba(129,140,248,0.7) 0%, rgba(167,139,250,0.45) 50%, rgba(191,219,254,0.25) 100%)"
+    }} className="py-4 px-4 relative overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-10">
-        <div className="absolute top-[-20px] left-[-20px] w-40 h-40 rounded-full bg-indigo-300"></div>
-        <div className="absolute bottom-[-50px] right-[-10px] w-60 h-60 rounded-full bg-blue-300"></div>
+      <div className="absolute top-0 left-0 w-full h-full opacity-20">
+        <div className="absolute top-[-20px] left-[-30px] w-80 h-40 rounded-full bg-indigo-300 animate-pulse-slow"></div>
+        <div className="absolute bottom-[-80px] right-[-40px] w-60 h-60 rounded-full bg-blue-300 animate-pulse-slow"></div>
+        <div className="absolute top-[40%] right-[20%] w-10 h-10 rounded-full bg-purple-300 opacity-30 animate-float"></div>
       </div>
+      {/* Enhanced gradient fadeout at bottom - taller for more fade effect */}
+      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/90 to-transparent"></div>
       
       <div className="max-w-screen-md mx-auto flex items-center justify-between relative z-10">
         <div 

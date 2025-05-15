@@ -4,6 +4,7 @@ import StatGrid from '../components/dashboard/StatGrid';
 import OfferManagement from '../components/offers/OfferManagement';
 import BookingStatusContainer from '../components/bookings/BookingStatusContainer';
 import RedemptionTracker from '../components/redemptions/RedemptionTracker';
+import ActiveSponsoredAds from '../components/ads/ActiveSponsoredAds';
 
 const HomePage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -19,23 +20,35 @@ const HomePage = () => {
 
   return (
     <div 
-      className={`pb-4 bg-gradient-to-b from-gray-50 to-white transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      className={`transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'} bg-white relative`}
       style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         backgroundAttachment: 'fixed'
       }}
     >
+      {/* Enhanced gradient overlay with longer fade effect */}
+      <div style={{
+        background: "linear-gradient(180deg, rgba(129,140,248,0.2) 0%, rgba(196,181,253,0.15) 30%, rgba(224,231,255,0.05) 70%, rgba(255,255,255,0) 100%)"
+      }} className="absolute top-0 left-0 w-full h-36 z-0 pointer-events-none"></div>
+      
+      {/* Subtle animated light effect */}
+      <div className="absolute top-0 left-0 w-full opacity-10 overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-5 left-[10%] w-32 h-32 bg-gradient-to-br from-indigo-100/20 to-transparent rounded-full blur-xl animate-float-slow"></div>
+        <div className="absolute top-10 right-[15%] w-24 h-24 bg-gradient-to-br from-purple-100/20 to-transparent rounded-full blur-xl animate-float-slow-reverse"></div>
+      </div>
+      
       <LocationHeader />
-      <div className="max-w-screen-md mx-auto px-4">
+      <div className="max-w-screen-md mx-auto px-4 relative z-10">
         <StatGrid />
         <div className="mt-6 space-y-6">
           <OfferManagement />
           <BookingStatusContainer />
           <RedemptionTracker />
+          <ActiveSponsoredAds />
         </div>
         
         {/* Footer section */}
-        <div className="mt-10 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+        <div className="mt-10 pt-6 pb-16 border-t border-gray-200 text-center text-sm text-gray-500">
           <p>© {new Date().getFullYear()} Merchant Dashboard</p>
           <div className="flex justify-center gap-4 mt-2">
             <a href="#" className="text-indigo-600 hover:text-indigo-800 transition-colors">Help</a>

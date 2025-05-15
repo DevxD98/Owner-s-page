@@ -18,8 +18,8 @@ const Layout = () => {
   const hidePlusButton = location.pathname === '/create-offer' || location.pathname === '/draft-offers' || location.pathname === '/preview-offer';
 
   return (
-    <div className="flex flex-col min-h-screen max-w-md mx-auto pb-16 bg-white">
-      <main className={`flex-1 ${!hideNavigation ? 'pb-16' : ''}`}>
+    <div className="flex flex-col min-h-screen max-w-md mx-auto bg-white">
+      <main className={`flex-1 ${!hideNavigation ? 'pb-20' : 'pb-4'}`}>
         <Outlet />
       </main>
       {!hideNavigation && <BottomNavigation hidePlusButton={hidePlusButton} />}

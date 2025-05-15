@@ -63,11 +63,20 @@ export const validatePhoneNumber = (phoneNumber) => {
 };
 
 /**
- * Returns a list of supported country codes
- * @returns {Array} - Array of country codes
+ * Returns a list of supported country codes with +91 (India) as the first option
+ * @returns {Array} - Array of country codes with +91 prioritized
  */
 export const getSupportedCountryCodes = () => {
-  return Object.keys(countryPatterns);
+  const codes = Object.keys(countryPatterns);
+  
+  // Move +91 (India) to the front of the array if it exists
+  if (codes.includes('+91')) {
+    const index = codes.indexOf('+91');
+    codes.splice(index, 1);
+    codes.unshift('+91');
+  }
+  
+  return codes;
 };
 
 /**

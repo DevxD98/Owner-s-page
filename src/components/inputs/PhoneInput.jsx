@@ -12,7 +12,8 @@ const PhoneInput = ({
   className = '',
   showError = true
  }) => {
-  const [phoneNumber, setPhoneNumber] = useState(value || '');
+  // Initialize with +91 as default
+  const [phoneNumber, setPhoneNumber] = useState(value || '+91');
   const [showDropdown, setShowDropdown] = useState(false);
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
@@ -20,7 +21,7 @@ const PhoneInput = ({
   // Update internal state when external value changes
   useEffect(() => {
     if (value !== phoneNumber) {
-      setPhoneNumber(value || '');
+      setPhoneNumber(value || '+91');
     }
   }, [value]);
 
@@ -30,7 +31,7 @@ const PhoneInput = ({
   // Extract current country code from phone number
   const getCurrentCountryCode = () => {
     const code = countryCodes.find(code => phoneNumber.startsWith(code));
-    return code || countryCodes[0]; // Default to first country code if none found
+    return code || '+91'; // Default to +91 if none found
   };
 
   // Handle phone number change
@@ -95,11 +96,11 @@ const PhoneInput = ({
   return (
     <div className={`relative ${className}`}>
       <div className="flex items-center relative">
-        {/* Country code selector */}
-        <div className="relative">
+        {/* Country code selector - Updated height to match input */}
+        <div className="relative flex-shrink-0">
           <button
             type="button"
-            className="flex items-center justify-center h-full px-3 bg-gray-100 rounded-l-lg border-r border-gray-300 min-w-[80px]"
+            className="flex items-center justify-center h-[52px] px-3 bg-gray-100 rounded-l-lg border-r border-gray-300 w-[64px]"
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <span className="text-gray-700">{getCurrentCountryCode()}</span>
@@ -121,11 +122,11 @@ const PhoneInput = ({
           
           {/* Country code dropdown */}
           {showDropdown && (
-            <div className="absolute z-10 mt-1 min-w-[80px] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+            <div className="absolute z-10 mt-1 w-[64px] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
               {countryCodes.map((code) => (
                 <div 
                   key={code} 
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  className="p-2 hover:bg-gray-100 cursor-pointer text-center"
                   onClick={() => selectCountryCode(code)}
                 >
                   {code}
@@ -145,7 +146,7 @@ const PhoneInput = ({
           onBlur={handleBlur}
           onFocus={() => setTouched(true)}
           placeholder={placeholder}
-          className="w-full p-4 bg-gray-100 rounded-r-lg focus:outline-none"
+          className="flex-1 w-full p-4 bg-gray-100 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
           required={required}
         />
       </div>

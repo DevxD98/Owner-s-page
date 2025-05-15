@@ -96,14 +96,14 @@ const PhoneInput = ({
   return (
     <div className={`relative ${className}`}>
       <div className="flex items-center relative">
-        {/* Country code selector - Updated height to match input */}
+        {/* Country code selector - Fixed width of 64px */}
         <div className="relative flex-shrink-0">
           <button
             type="button"
-            className="flex items-center justify-center h-[52px] px-3 bg-gray-100 rounded-l-lg border-r border-gray-300 w-[64px]"
+            className="flex items-center justify-center h-[52px] px-2 bg-gray-50 rounded-l-xl border-r border-gray-200 w-[64px] hover:bg-gray-100 transition-colors duration-200"
             onClick={() => setShowDropdown(!showDropdown)}
           >
-            <span className="text-gray-700">{getCurrentCountryCode()}</span>
+            <span className="text-gray-700 font-medium">{getCurrentCountryCode()}</span>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="16" 
@@ -111,7 +111,7 @@ const PhoneInput = ({
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
-              strokeWidth="2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               strokeLinejoin="round"
               className="ml-1"
@@ -122,11 +122,11 @@ const PhoneInput = ({
           
           {/* Country code dropdown */}
           {showDropdown && (
-            <div className="absolute z-10 mt-1 w-[64px] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+            <div className="absolute z-10 mt-1 w-[120px] bg-white border border-gray-100 rounded-lg shadow-lg max-h-60 overflow-auto">
               {countryCodes.map((code) => (
                 <div 
                   key={code} 
-                  className="p-2 hover:bg-gray-100 cursor-pointer text-center"
+                  className="p-2 hover:bg-blue-50 cursor-pointer text-center transition-colors duration-200"
                   onClick={() => selectCountryCode(code)}
                 >
                   {code}
@@ -146,14 +146,14 @@ const PhoneInput = ({
           onBlur={handleBlur}
           onFocus={() => setTouched(true)}
           placeholder={placeholder}
-          className="flex-1 w-full p-4 bg-gray-100 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+          className="flex-1 w-full p-4 bg-gray-50 rounded-r-xl focus:outline-none focus:ring-2 focus:ring-blue-300 border-0"
           required={required}
         />
       </div>
       
       {/* Error message - Only show after user interaction */}
       {showError && touched && error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
+        <p className="text-red-500 text-sm mt-1 px-1">{error}</p>
       )}
     </div>
   );

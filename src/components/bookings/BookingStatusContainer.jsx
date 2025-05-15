@@ -42,7 +42,7 @@ const BookingStatusContainer = () => {
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
             <Calendar size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">Booking Status</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">Booking History</h2>
         </div>
         <ChevronRight size={20} className="text-gray-500 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all" />
       </div>

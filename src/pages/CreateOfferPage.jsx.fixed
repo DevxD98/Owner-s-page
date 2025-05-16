@@ -1,0 +1,220 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, ChevronDown, ChevronRight, X, FileText, Info, FilePenLine, Sparkles, Clock, Gift } from 'lucide-react';
+import SpotlightOfferIcon from '../components/icons/SpotlightOfferIcon';
+import HappyhoursOfferIcon from '../components/icons/HappyhoursOfferIcon';
+import SpintoWinIcon from '../components/icons/SpintoWinIcon';
+import CameraIcon from '../components/icons/CameraIcon';
+import DatePicker from '../components/DatePicker';
+import { useApp } from '../contexts/AppContext';
+
+const offerTypes = [
+  { id: 'spotlight', icon: <Sparkles size={24} className="mx-auto" />, label: 'Spotlight' },
+  { id: 'happyhours', icon: <Clock size={24} className="mx-auto" />, label: 'Happy Hours' },
+  { id: 'spintowin', icon: <Gift size={24} className="mx-auto" />, label: 'Spin to Win' },
+];
+
+function CreateOfferPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { addOffer, offers, updateOffer } = useApp();
+  const [selectedOfferType, setSelectedOfferType] = useState('spotlight');
+  const [editMode, setEditMode] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [offerData, setOfferData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    validityDate: '',
+    minPurchase: '',
+    startTime: '',
+    endTime: '',
+    redemptionsAllowed: '',
+    offerImage: null,
+    imagePreview: null,
+    notifyFollowers: false,
+    spinnerOffers: ['', ''],
+    spinnerProbabilities: ['50', '50'],
+    selectedDay: 'Monday',
+    slotCapacity: '',
+    validityPeriod: '',
+    isDraft: false
+  });
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setOfferData({
+        ...offerData,
+        offerImage: file,
+        imagePreview: URL.createObjectURL(file)
+      });
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setOfferData({
+      ...offerData,
+      [name]: value
+    });
+  };
+  
+  // Format time string for display (converts 24-hour time to 12-hour format)
+  const formatTimeDisplay = (timeString) => {
+    if (!timeString) return '';
+    
+    try {
+      const [hours, minutes] = timeString.split(':');
+      const hour = parseInt(hours, 10);
+      const minute = minutes;
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minute} ${period}`;
+    } catch (e) {
+      return timeString;
+    }
+  };
+
+  const addSpinnerOffer = () => {
+    setOfferData({
+      ...offerData,
+      spinnerOffers: [...offerData.spinnerOffers, ''],
+      spinnerProbabilities: [...offerData.spinnerProbabilities, '0']
+    });
+  };
+
+  const removeSpinnerOffer = (index) => {
+    const newOffers = [...offerData.spinnerOffers];
+    const newProbs = [...offerData.spinnerProbabilities];
+    
+    newOffers.splice(index, 1);
+    newProbs.splice(index, 1);
+    
+    setOfferData({
+      ...offerData,
+      spinnerOffers: newOffers,
+      spinnerProbabilities: newProbs
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const previewPayload = {
+      ...offerData,
+      type: selectedOfferType,
+      editMode: editMode,
+      editId: editId,
+      isPreview: true
+    };
+
+    sessionStorage.setItem('offerPreview', JSON.stringify(previewPayload));
+    navigate('/preview-offer');
+  };
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Enhanced gradient overlay with longer fade effect */}
+      <div style={{
+        background: "linear-gradient(180deg, rgba(129,140,248,0.2) 0%, rgba(196,181,253,0.15) 30%, rgba(224,231,255,0.05) 70%, rgba(255,255,255,0) 100%)"
+      }} className="absolute top-0 left-0 w-full h-36 z-0 pointer-events-none"></div>
+      
+      {/* Subtle animated light effect */}
+      <div className="absolute top-0 left-0 w-full opacity-10 overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-5 left-[10%] w-32 h-32 bg-gradient-to-br from-indigo-100/20 to-transparent rounded-full blur-xl animate-float-slow"></div>
+        <div className="absolute top-10 right-[15%] w-24 h-24 bg-gradient-to-br from-purple-100/20 to-transparent rounded-full blur-xl animate-float-slow-reverse"></div>
+      </div>
+      
+      {/* Header */}
+      <div className="flex items-center p-4 relative z-10 shadow-sm bg-white bg-opacity-90">
+        <button onClick={() => navigate(-1)} className="mr-3 bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition-colors">
+          <ArrowLeft size={20} className="text-gray-700" />
+        </button>
+        <h1 className="text-xl font-semibold text-gray-800">Create New Offer</h1>
+      </div>
+      
+      {/* Offer Type Selection */}
+      <div className="relative z-10 bg-white bg-opacity-90 shadow-sm rounded-b-xl">
+        <div className="flex justify-between px-4 py-5 mb-6 max-w-sm mx-auto">
+          {offerTypes.map((type) => (
+            <button 
+              key={type.id} 
+              className={`flex flex-col items-center w-24 transition-all`}
+              onClick={() => setSelectedOfferType(type.id)}
+            >
+              <div className={`p-3 flex items-center justify-center rounded-full mb-2 transition-all
+                ${selectedOfferType === type.id 
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-300'
+                  : 'bg-gray-100 text-gray-500'}`
+              }>
+                {type.icon}
+              </div>
+              <span className={`text-sm text-center font-medium transition-colors
+                ${selectedOfferType === type.id ? 'text-blue-600' : 'text-gray-500'}`
+              }>
+                {type.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Spotlight Offer Form */}
+      {selectedOfferType === 'spotlight' && (
+        <form className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+          <div className="mb-1">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+              <Sparkles size={18} className="text-blue-600 mr-2" /> 
+              Spotlight Details
+            </h2>
+            <p className="text-sm text-gray-500">Create a special promotional offer to highlight your products or services</p>
+          </div>
+          
+          {/* Form fields continue - refer to original file for details */}
+          
+          {/* Action Buttons */}
+          <div className="mt-6 mb-4 flex space-x-4">
+            <button 
+              type="button" 
+              onClick={() => {
+                const draftPayload = {
+                  ...offerData,
+                  type: selectedOfferType,
+                  isDraft: true
+                };
+                if (editMode && editId) {
+                  updateOffer(editId, draftPayload);
+                } else {
+                  addOffer(draftPayload);
+                }
+                navigate('/draft-offers');
+              }}
+              className="flex-1 py-3.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center"
+            >
+              <FilePenLine size={18} className="mr-2" />
+              Save as Draft
+            </button>
+            <button 
+              type="submit" 
+              className="flex-1 py-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+            >
+              <FileText size={18} className="mr-2" />
+              Preview Offer
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Equivalent sections for Happy Hours & Spin to Win forms */}
+    </div>
+  );
+}
+
+// Make sure this export is exactly as shown
+export default CreateOfferPage;

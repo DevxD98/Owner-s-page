@@ -167,15 +167,12 @@ const CreateOfferPage = () => {
           {/* Set Offer Validity Date */}
           <div>
             <label className="block text-base mb-2">Set Offer Validity Date</label>
-            <div className="relative w-full rounded-lg border bg-gray-100 px-4 py-3 flex items-center">
-              <input 
-                name="validityDate"
+            <div className="w-full rounded-lg border bg-gray-100">
+              <DatePicker
                 value={offerData.validityDate}
-                onChange={handleInputChange}
-                className="flex-1 bg-transparent outline-none" 
-                placeholder="Date" 
+                onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
+                placeholder="Date"
               />
-              <ChevronDown size={20} className="text-gray-500" />
             </div>
           </div>
           
@@ -313,15 +310,38 @@ const CreateOfferPage = () => {
           
           <div>
             <label className="block text-base mb-2">Start Time & End Time</label>
-            <div className="relative w-full rounded-lg border bg-gray-100 px-4 py-3 flex items-center">
-              <input 
-                name="startTime"
-                value={offerData.startTime}
-                onChange={handleInputChange}
-                className="flex-1 bg-transparent outline-none" 
-                placeholder="2 - 4 pm" 
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative w-full rounded-lg border bg-gray-100 px-4 py-3 flex items-center">
+                <input 
+                  name="startTime"
+                  value={offerData.startTime}
+                  onChange={handleInputChange}
+                  className="flex-1 bg-transparent outline-none" 
+                  placeholder="2:00 PM" 
+                />
+                <ChevronDown size={20} className="text-gray-500" />
+              </div>
+              <div className="relative w-full rounded-lg border bg-gray-100 px-4 py-3 flex items-center">
+                <input 
+                  name="endTime"
+                  value={offerData.endTime}
+                  onChange={handleInputChange}
+                  className="flex-1 bg-transparent outline-none" 
+                  placeholder="4:00 PM" 
+                />
+                <ChevronDown size={20} className="text-gray-500" />
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-base mb-2">Validity Date</label>
+            <div className="w-full rounded-lg border bg-gray-100">
+              <DatePicker
+                value={offerData.validityDate}
+                onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
+                placeholder="Select date"
               />
-              <ChevronDown size={20} className="text-gray-500" />
             </div>
           </div>
           
@@ -496,11 +516,13 @@ const CreateOfferPage = () => {
 
           <div>
             <label className="block text-base mb-2">Validity Period</label>
-            <DatePicker
-              value={offerData.validityPeriod}
-              onChange={(date) => setOfferData({ ...offerData, validityPeriod: date })}
-              placeholder="Date"
-            />
+            <div className="w-full rounded-lg border bg-gray-100">
+              <DatePicker
+                value={offerData.validityPeriod}
+                onChange={(date) => setOfferData({ ...offerData, validityPeriod: date })}
+                placeholder="Date"
+              />
+            </div>
           </div>
 
           <div>

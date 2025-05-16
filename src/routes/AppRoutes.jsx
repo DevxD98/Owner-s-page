@@ -20,12 +20,13 @@ import PreviewOfferPage from '../pages/PreviewOfferPage';
 
 const AppRoutes = () => {
   const { storeName } = useApp();
-  const isNewUser = !storeName;
+  // Only redirect to create-account if storeName is not set
+  const isAccountSetUp = !!storeName;
   
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={isNewUser ? <Navigate to="/create-account" replace /> : <HomePage />} />
+        <Route index element={isAccountSetUp ? <HomePage /> : <Navigate to="/create-account" replace />} />
         <Route path="my-ads" element={<MyAdsPage />} />
         <Route path="create-ad" element={<CreateAdPage />} />
         <Route path="create-offer" element={<CreateOfferPage />} />

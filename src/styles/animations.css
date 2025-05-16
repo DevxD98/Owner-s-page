@@ -1,12 +1,12 @@
 /* Custom animations for the merchant dashboard */
 
-/* Fade in animation */
+/* Fade in animation for help page */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-.animate-fade-in {
+.animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out forwards;
 }
 
@@ -21,6 +21,71 @@
     transform: translateY(0);
   }
 }
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+/* Slide from right animation */
+@keyframes slideFromRight {
+  from { 
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideFromRight {
+  animation: slideFromRight 0.4s ease-out forwards;
+}
+
+/* Slide from left animation */
+@keyframes slideFromLeft {
+  from { 
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideFromLeft {
+  animation: slideFromLeft 0.4s ease-out forwards;
+}
+
+/* Floating animation for UI elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Slow pulsing animation */
+@keyframes pulseSlow {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 
 .animate-slide-up {
   animation: slideUp 0.5s ease-out forwards;
@@ -64,4 +129,96 @@
     rgba(255,255,255,0) 100%);
   background-size: 200% auto;
   animation: shine 3s linear infinite;
+}
+
+/* Tooltip animations - Top position */
+@keyframes tooltipFadeInTop {
+  from { 
+    opacity: 0;
+    transform: translateX(-50%) translateY(-18px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+@keyframes tooltipFadeOutTop {
+  from { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(-8px); 
+  }
+  to { 
+    opacity: 0;
+    transform: translateX(-50%) translateY(-18px);
+  }
+}
+
+/* Tooltip animations - Bottom position */
+@keyframes tooltipFadeInBottom {
+  from { 
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+
+@keyframes tooltipFadeOutBottom {
+  from { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(8px); 
+  }
+  to { 
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px);
+  }
+}
+
+/* Tooltip animations - Left position */
+@keyframes tooltipFadeInLeft {
+  from { 
+    opacity: 0;
+    transform: translateY(-50%) translateX(-18px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(-50%) translateX(-8px);
+  }
+}
+
+@keyframes tooltipFadeOutLeft {
+  from { 
+    opacity: 1;
+    transform: translateY(-50%) translateX(-8px); 
+  }
+  to { 
+    opacity: 0;
+    transform: translateY(-50%) translateX(-18px);
+  }
+}
+
+/* Tooltip animations - Right position */
+@keyframes tooltipFadeInRight {
+  from { 
+    opacity: 0;
+    transform: translateY(-50%) translateX(18px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(-50%) translateX(8px);
+  }
+}
+
+@keyframes tooltipFadeOutRight {
+  from { 
+    opacity: 1;
+    transform: translateY(-50%) translateX(8px); 
+  }
+  to { 
+    opacity: 0;
+    transform: translateY(-50%) translateX(18px);
+  }
 }

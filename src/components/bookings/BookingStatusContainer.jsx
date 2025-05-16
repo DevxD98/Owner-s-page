@@ -19,7 +19,7 @@ const BookingStatusContainer = () => {
   }, []);
   
   useEffect(() => {
-    if (isVisible && bookings.length > 0) {
+    if (isVisible && bookings && bookings.length > 0) {
       const timers = [];
       bookings.forEach((_, index) => {
         const timer = setTimeout(() => {
@@ -47,7 +47,7 @@ const BookingStatusContainer = () => {
         <ChevronRight size={20} className="text-gray-500 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all" />
       </div>
       <div className="space-y-4">
-        {bookings.length > 0 ? (
+        {bookings && bookings.length > 0 ? (
           bookings.map((booking, index) => (
             <div 
               key={booking.id} 
@@ -55,10 +55,9 @@ const BookingStatusContainer = () => {
             >
               <BookingStatus
                 customerName={booking.customerName}
-                offerType={booking.offerType}
+                offerType={booking.service}
                 date={booking.date}
                 time={booking.time}
-                validTill={booking.validTill}
                 status={booking.status}
               />
             </div>
@@ -73,7 +72,7 @@ const BookingStatusContainer = () => {
           </div>
         )}
         
-        {bookings.length > 3 && (
+        {bookings && bookings.length > 3 && (
           <button 
             onClick={() => navigate('/booking-status')}
             className="w-full py-2 mt-2 text-indigo-600 bg-indigo-50 rounded-lg text-center font-medium transition-colors hover:bg-indigo-100"

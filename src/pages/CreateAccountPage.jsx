@@ -132,8 +132,11 @@ const CreateAccountPage = () => {
       setStoreLogo(storeLogoPreview);
     }
 
-    // Navigate to home page after successful account creation
-    navigate('/');
+    // Use setTimeout to ensure state updates have completed before navigation
+    setTimeout(() => {
+      // Navigate to home page after successful account creation
+      navigate('/');
+    }, 0);
   };
 
   return (

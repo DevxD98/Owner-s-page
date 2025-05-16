@@ -20,7 +20,7 @@ const RedemptionTracker = () => {
   }, []);
   
   useEffect(() => {
-    if (isVisible && redemptions.length > 0) {
+    if (isVisible && redemptions && redemptions.length > 0) {
       const timers = [];
       const displayRedemptions = redemptions.slice(0, 3);
       
@@ -56,7 +56,7 @@ const RedemptionTracker = () => {
       </div>
 
       <div className="space-y-4 mt-2">
-        {redemptions.length > 0 ? (
+        {redemptions && redemptions.length > 0 ? (
           redemptions.slice(0, 3).map((redemption, index) => (
             <div 
               key={redemption.id} 
@@ -65,10 +65,10 @@ const RedemptionTracker = () => {
               <RedemptionItem
                 id={redemption.id}
                 customerName={redemption.customerName}
-                date={redemption.date}
+                date={redemption.redeemedOn}
+                time={redemption.time}
                 status={redemption.status}
-                offerId={redemption.offerId}
-                offerTitle={getOfferTitle(redemption.offerId)}
+                offerTitle={redemption.offerTitle}
               />
             </div>
           ))

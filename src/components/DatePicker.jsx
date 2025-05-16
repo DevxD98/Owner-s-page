@@ -1,6 +1,5 @@
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const CustomDatePicker = ({ value, onChange, placeholder = 'Select date' }) => {
@@ -10,6 +9,8 @@ const CustomDatePicker = ({ value, onChange, placeholder = 'Select date' }) => {
     if (date) {
       // Send ISO string to backend
       onChange(date.toISOString().split('T')[0]);
+    } else {
+      onChange('');
     }
   };
 

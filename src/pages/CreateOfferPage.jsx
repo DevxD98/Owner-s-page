@@ -41,6 +41,41 @@ const CreateOfferPage = () => {
     isDraft: false
   });
 
+  // Create refs for each offer type section
+  const spotlightSectionRef = React.useRef(null);
+  const happyhoursSectionRef = React.useRef(null);
+  const spintowinSectionRef = React.useRef(null);
+
+  // Handle scrolling to specific section when returning from preview
+  useEffect(() => {
+    if (location.state?.fromPreview && location.state?.scrollToSection) {
+      const section = location.state.scrollToSection;
+      setSelectedOfferType(section); // Set the active tab
+      
+      // Scroll to the appropriate section with a slight delay to ensure rendering
+      setTimeout(() => {
+        let targetRef;
+        switch (section) {
+          case 'spotlight':
+            targetRef = spotlightSectionRef;
+            break;
+          case 'happyhours':
+            targetRef = happyhoursSectionRef;
+            break;
+          case 'spintowin':
+            targetRef = spintowinSectionRef;
+            break;
+          default:
+            targetRef = null;
+        }
+        
+        if (targetRef?.current) {
+          targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [location.state]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -167,7 +202,7 @@ const CreateOfferPage = () => {
 
       {/* Spotlight Offer Form */}
       {selectedOfferType === 'spotlight' && (
-        <form className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+        <form ref={spotlightSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
           <div className="mb-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
               <Sparkles size={18} className="text-blue-600 mr-2" /> 
@@ -344,9 +379,19 @@ const CreateOfferPage = () => {
             </button>
             <button 
               type="submit" 
-              className="flex-1 py-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+              className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md flex items-center justify-center"
             >
-              <FileText size={18} className="mr-2" />
+              <svg 
+                className="mr-2" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M21.92 11.6C19.9 6.91 16.1 4 12 4C7.9 4 4.1 6.91 2.08 11.6C2.03 11.72 2 11.86 2 12C2 12.14 2.03 12.28 2.08 12.4C4.1 17.09 7.9 20 12 20C16.1 20 19.9 17.09 21.92 12.4C21.97 12.28 22 12.14 22 12C22 11.86 21.97 11.72 21.92 11.6ZM12 18C8.83 18 5.83 15.71 4.05 12C5.83 8.29 8.83 6 12 6C15.17 6 18.17 8.29 19.95 12C18.17 15.71 15.17 18 12 18Z" fill="currentColor"/>
+                <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM12 14C10.9 14 10 13.1 10 12C10 10.9 10.9 10 12 10C13.1 10 14 10.9 14 12C14 13.1 13.1 14 12 14Z" fill="currentColor"/>
+              </svg>
               Preview Offer
             </button>
           </div>
@@ -371,7 +416,7 @@ const CreateOfferPage = () => {
 
       {/* Happy Hours Offer Form */}
       {selectedOfferType === 'happyhours' && (
-        <form className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+        <form ref={happyhoursSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
           <div className="mb-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
               <Clock size={18} className="text-blue-600 mr-2" /> 
@@ -556,9 +601,19 @@ const CreateOfferPage = () => {
             </button>
             <button 
               type="submit" 
-              className="flex-1 py-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+              className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md flex items-center justify-center"
             >
-              <FileText size={18} className="mr-2" />
+              <svg 
+                className="mr-2" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M21.92 11.6C19.9 6.91 16.1 4 12 4C7.9 4 4.1 6.91 2.08 11.6C2.03 11.72 2 11.86 2 12C2 12.14 2.03 12.28 2.08 12.4C4.1 17.09 7.9 20 12 20C16.1 20 19.9 17.09 21.92 12.4C21.97 12.28 22 12.14 22 12C22 11.86 21.97 11.72 21.92 11.6ZM12 18C8.83 18 5.83 15.71 4.05 12C5.83 8.29 8.83 6 12 6C15.17 6 18.17 8.29 19.95 12C18.17 15.71 15.17 18 12 18Z" fill="currentColor"/>
+                <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM12 14C10.9 14 10 13.1 10 12C10 10.9 10.9 10 12 10C13.1 10 14 10.9 14 12C14 13.1 13.1 14 12 14Z" fill="currentColor"/>
+              </svg>
               Preview Offer
             </button>
           </div>
@@ -583,7 +638,7 @@ const CreateOfferPage = () => {
 
       {/* Spin to Win Form */}
       {selectedOfferType === 'spintowin' && (
-        <form className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+        <form ref={spintowinSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
           <div className="mb-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
               <Gift size={18} className="text-blue-600 mr-2" /> 
@@ -751,9 +806,19 @@ const CreateOfferPage = () => {
             </button>
             <button 
               type="submit" 
-              className="flex-1 py-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+              className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md flex items-center justify-center"
             >
-              <FileText size={18} className="mr-2" />
+              <svg 
+                className="mr-2" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M21.92 11.6C19.9 6.91 16.1 4 12 4C7.9 4 4.1 6.91 2.08 11.6C2.03 11.72 2 11.86 2 12C2 12.14 2.03 12.28 2.08 12.4C4.1 17.09 7.9 20 12 20C16.1 20 19.9 17.09 21.92 12.4C21.97 12.28 22 12.14 22 12C22 11.86 21.97 11.72 21.92 11.6ZM12 18C8.83 18 5.83 15.71 4.05 12C5.83 8.29 8.83 6 12 6C15.17 6 18.17 8.29 19.95 12C18.17 15.71 15.17 18 12 18Z" fill="currentColor"/>
+                <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM12 14C10.9 14 10 13.1 10 12C10 10.9 10.9 10 12 10C13.1 10 14 10.9 14 12C14 13.1 13.1 14 12 14Z" fill="currentColor"/>
+              </svg>
               Preview Offer
             </button>
           </div>

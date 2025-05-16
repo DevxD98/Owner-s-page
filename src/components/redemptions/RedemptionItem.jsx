@@ -7,6 +7,7 @@ const RedemptionItem = ({
   id,
   customerName,
   date,
+  time,
   status,
   offerId,
   offerTitle,
@@ -119,7 +120,7 @@ const RedemptionItem = ({
             
             <div className="flex items-center text-gray-600 text-sm">
               <Calendar size={14} className="mr-2 text-gray-400" />
-              <span>Redeemed on: {formatDate(date)}</span>
+              <span>Redeemed on: {formatDate(date)}{time ? ` at ${time}` : ''}</span>
             </div>
             
             <div className="flex items-center text-gray-600 text-sm mt-1">

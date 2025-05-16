@@ -3,7 +3,7 @@ import StatCard from './StatCard';
 import { useApp } from '../../contexts/AppContext';
 
 const StatGrid = () => {
-  const { offers, bookings, redemptions } = useApp();
+  const { offers, bookings, redemptions, stats } = useApp();
   const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
@@ -15,9 +15,10 @@ const StatGrid = () => {
   
   // Calculate dynamic stats based on actual data
   const activeOffers = offers.filter(offer => offer.isActive).length;
-  const totalOfferViews = Math.floor(Math.random() * 100) + 50; // Simulated data
-  const estimatedStoreVisits = Math.floor(Math.random() * 20) + 5; // Simulated data
-  const todayRedemptions = Math.floor(Math.random() * 15); // Simulated data
+  const totalOfferViews = stats.adViewsToday || 142;
+  const spinCount = stats.totalSpins || 456;
+  const todayRedemptions = stats.offersClaimed || 237;
+  const estimatedStoreVisits = stats.storeVisits || 325;
 
   return (
     <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>

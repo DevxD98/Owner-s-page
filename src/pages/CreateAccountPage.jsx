@@ -17,6 +17,7 @@ const CreateAccountPage = () => {
     storeLogo: null,
     phoneNumber: '+91',
     openingHours: '',
+    closingHours: '',
     email: '',
     agreeToTerms: false
   });
@@ -58,6 +59,19 @@ const CreateAccountPage = () => {
     } catch (e) {
       return timeString;
     }
+  };
+  
+  // Format business hours (both opening and closing)
+  const formatBusinessHours = () => {
+    if (!formData.openingHours) return 'Business Hours';
+    
+    const opening = formatTimeDisplay(formData.openingHours);
+    const closing = formData.closingHours ? formatTimeDisplay(formData.closingHours) : '';
+    
+    if (closing) {
+      return `${opening} - ${closing}`;
+    }
+    return opening;
   };
 
   const handleInputChange = (e) => {
@@ -120,7 +134,13 @@ const CreateAccountPage = () => {
     setStoreCategory && setStoreCategory(formData.category);
     setStoreAddress && setStoreAddress(formData.address);
     setStorePhone && setStorePhone(formData.phoneNumber);
-    setStoreHours && setStoreHours(formData.openingHours);
+    
+    // Combine opening and closing hours
+    const businessHours = formData.closingHours 
+      ? `${formatTimeDisplay(formData.openingHours)} - ${formatTimeDisplay(formData.closingHours)}`
+      : formatTimeDisplay(formData.openingHours);
+    
+    setStoreHours && setStoreHours(businessHours);
     setStoreEmail && setStoreEmail(formData.email);
     
     // Handle image files if needed
@@ -286,26 +306,50 @@ const CreateAccountPage = () => {
             />
           </div>
 
-          {/* Opening Hours */}
+          {/* Business Hours */}
           <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             {showTimeInput ? (
-              <input
-                type="time"
-                name="openingHours"
-                value={formData.openingHours}
-                onChange={handleInputChange}
-                onBlur={() => setShowTimeInput(false)}
-                className="w-full p-4 bg-transparent rounded-xl pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-100"
-                required
-                autoFocus
-              />
+              <div className="p-4 bg-white rounded-xl border border-gray-100">
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center">
+                    <label className="w-1/3 text-gray-600 text-sm">Opening:</label>
+                    <input
+                      type="time"
+                      name="openingHours"
+                      value={formData.openingHours}
+                      onChange={handleInputChange}
+                      className="flex-1 p-2 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-200"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <label className="w-1/3 text-gray-600 text-sm">Closing:</label>
+                    <input
+                      type="time"
+                      name="closingHours"
+                      value={formData.closingHours}
+                      onChange={handleInputChange}
+                      className="flex-1 p-2 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-200"
+                    />
+                  </div>
+                  
+                  <button 
+                    type="button"
+                    onClick={() => setShowTimeInput(false)}
+                    className="self-end px-4 py-1 bg-blue-600 text-white text-sm rounded-lg"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
             ) : (
               <div 
                 className="w-full p-4 bg-transparent rounded-xl flex justify-between items-center cursor-pointer border border-gray-100"
                 onClick={() => setShowTimeInput(true)}
               >
                 <span className={formData.openingHours ? 'text-gray-800' : 'text-gray-400'}>
-                  {formData.openingHours ? formatTimeDisplay(formData.openingHours) : 'Opening Hours'}
+                  {formData.openingHours ? formatBusinessHours() : 'Business Hours'}
                 </span>
                 <div className="text-gray-400">
                   <Clock size={20} strokeWidth={1.5} />

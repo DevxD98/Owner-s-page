@@ -2,7 +2,7 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Bell } from 'lucide-react';
+import { MapPin, HelpCircle } from 'lucide-react';
 
 const LocationHeader = () => {
   // Get store information from context
@@ -62,7 +62,7 @@ const LocationHeader = () => {
           className="relative p-2.5 bg-white rounded-full shadow-sm border border-gray-100 hover:bg-gray-50 transition-all hover:shadow-md"
           onClick={() => navigate('/account')}
         >
-          <Bell size={20} className="text-gray-600" />
+          <HelpCircle size={20} className="text-gray-600" />
           <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
       </div>

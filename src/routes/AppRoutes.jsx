@@ -17,6 +17,7 @@ import StoreInformationPage from '../pages/StoreInformationPage';
 import LocationBranchPage from '../pages/LocationBranchPage';
 import DraftOffersPage from '../pages/DraftOffersPage';
 import PreviewOfferPage from '../pages/PreviewOfferPage';
+import HelpPage from '../pages/HelpPage';
 
 const AppRoutes = () => {
   const { storeName } = useApp();
@@ -44,7 +45,7 @@ const AppRoutes = () => {
         <Route path="switch-account" element={<Navigate to="/" replace />} />
         <Route path="timing-availability" element={<Navigate to="/" replace />} />
         <Route path="settings" element={<Navigate to="/" replace />} />
-        <Route path="help-support" element={<Navigate to="/" replace />} />
+        <Route path="help-support" element={<HelpPage />} />
         <Route path="about-app" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

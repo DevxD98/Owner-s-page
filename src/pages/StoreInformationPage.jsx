@@ -27,10 +27,47 @@ const StoreInformationPage = () => {
   const [mobileNumber, setMobileNumber] = useState(contextStorePhone || '+91');
   const [email, setEmail] = useState(contextStoreEmail || '');
   const [address, setAddress] = useState(contextStoreAddress || '');
-  const [openingHours, setOpeningHours] = useState(contextStoreHours || '');
+  
+  // Parse opening and closing hours from the context store hours if it exists
+  const [openingHours, setOpeningHours] = useState('');
+  const [closingHours, setClosingHours] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [showTimeInput, setShowTimeInput] = useState(false);
+  
+  // Parse hours from context on component mount
+  useEffect(() => {
+    if (contextStoreHours) {
+      // Check if hours are in format "9:00 AM - 5:00 PM"
+      const hoursParts = contextStoreHours.split(' - ');
+      if (hoursParts.length === 2) {
+        // Try to convert from 12-hour format back to 24-hour format for the time inputs
+        try {
+          const openingParts = hoursParts[0].split(' ');
+          const closingParts = hoursParts[1].split(' ');
+          
+          if (openingParts.length === 2 && closingParts.length === 2) {
+            const [openingHour, openingMinute] = openingParts[0].split(':');
+            const [closingHour, closingMinute] = closingParts[0].split(':');
+            
+            const openingHour24 = openingParts[1] === 'PM' && openingHour !== '12' 
+              ? parseInt(openingHour) + 12 
+              : (openingParts[1] === 'AM' && openingHour === '12' ? 0 : openingHour);
+              
+            const closingHour24 = closingParts[1] === 'PM' && closingHour !== '12'
+              ? parseInt(closingHour) + 12
+              : (closingParts[1] === 'AM' && closingHour === '12' ? 0 : closingHour);
+            
+            setOpeningHours(`${openingHour24.toString().padStart(2, '0')}:${openingMinute}`);
+            setClosingHours(`${closingHour24.toString().padStart(2, '0')}:${closingMinute}`);
+          }
+        } catch (e) {
+          // If parsing fails, just leave the fields empty
+          console.error('Error parsing hours:', e);
+        }
+      }
+    }
+  }, [contextStoreHours]);
 
   const categories = [
     'Restaurant',
@@ -59,6 +96,19 @@ const StoreInformationPage = () => {
       return timeString;
     }
   };
+  
+  // Format business hours (both opening and closing)
+  const formatBusinessHours = () => {
+    if (!openingHours) return 'Business Hours';
+    
+    const opening = formatTimeDisplay(openingHours);
+    const closing = closingHours ? formatTimeDisplay(closingHours) : '';
+    
+    if (closing) {
+      return `${opening} - ${closing}`;
+    }
+    return opening;
+  };
 
   // Validate email when it changes
   useEffect(() => {
@@ -84,7 +134,13 @@ const StoreInformationPage = () => {
     setStorePhone(mobileNumber);
     setStoreEmail(email);
     setStoreAddress(address);
-    setStoreHours(openingHours);
+    
+    // Combine opening and closing hours
+    const businessHours = closingHours 
+      ? `${formatTimeDisplay(openingHours)} - ${formatTimeDisplay(closingHours)}`
+      : formatTimeDisplay(openingHours);
+    
+    setStoreHours(businessHours);
     
     // Navigate back
     navigate(-1);
@@ -192,26 +248,50 @@ const StoreInformationPage = () => {
           </div>
         </div>
         
-        {/* Opening Hours */}
+        {/* Business Hours */}
         <div className="space-y-2">
-          <label className="text-base font-medium text-gray-700">Opening Hours</label>
+          <label className="text-base font-medium text-gray-700">Business Hours</label>
           <div className="relative bg-gray-50 rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             {showTimeInput ? (
-              <input
-                type="time"
-                value={openingHours}
-                onChange={(e) => setOpeningHours(e.target.value)}
-                onBlur={() => setShowTimeInput(false)}
-                className="w-full p-4 bg-transparent rounded-xl pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-100"
-                autoFocus
-              />
+              <div className="p-4 bg-white rounded-xl border border-gray-100">
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center">
+                    <label className="w-1/3 text-gray-600 text-sm">Opening:</label>
+                    <input
+                      type="time"
+                      value={openingHours}
+                      onChange={(e) => setOpeningHours(e.target.value)}
+                      className="flex-1 p-2 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-200"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <label className="w-1/3 text-gray-600 text-sm">Closing:</label>
+                    <input
+                      type="time"
+                      value={closingHours}
+                      onChange={(e) => setClosingHours(e.target.value)}
+                      className="flex-1 p-2 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 border border-gray-200"
+                    />
+                  </div>
+                  
+                  <button 
+                    type="button"
+                    onClick={() => setShowTimeInput(false)}
+                    className="self-end px-4 py-1 bg-blue-600 text-white text-sm rounded-lg"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
             ) : (
               <div 
                 className="w-full p-4 bg-transparent rounded-xl flex justify-between items-center cursor-pointer border border-gray-100"
                 onClick={() => setShowTimeInput(true)}
               >
                 <span className={openingHours ? 'text-gray-800' : 'text-gray-400'}>
-                  {openingHours ? formatTimeDisplay(openingHours) : 'Opening Hours'}
+                  {openingHours ? formatBusinessHours() : 'Business Hours'}
                 </span>
                 <Clock size={20} className="text-gray-400" strokeWidth={1.5} />
               </div>

@@ -11,7 +11,8 @@ const Layout = () => {
     '/offer-management',
     '/booking-status',
     '/redemption-tracker',
-    '/create-account'
+    '/create-account',
+    '/help-support' // Hide navigation on help/demo pages
   ];
   
   const hideNavigation = hideNavigationPaths.includes(location.pathname);

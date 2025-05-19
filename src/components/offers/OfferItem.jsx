@@ -82,38 +82,38 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-2">
               <button 
-                className={`p-1.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-full transition-colors`}
+                className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
                 title="Edit offer"
                 onClick={handleEdit}
               >
-                <Edit size={16} />
+                <Edit size={18} />
               </button>
               <button 
-                className={`p-1.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-full transition-colors`}
+                className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
                 title="Preview offer"
                 onClick={handlePreview}
               >
-                <ExternalLink size={16} />
+                <ExternalLink size={18} />
               </button>
             </div>
             
             {!isDraft && (
               <button
                 onClick={() => toggleOffer(id)}
-                className={`flex items-center text-sm font-medium rounded-full px-3 py-1 transition-colors ${
+                className={`flex items-center text-sm font-medium rounded-md px-4 py-1.5 transition-colors shadow-sm hover:shadow border ${
                   isActive 
-                    ? isSponsored ? 'text-purple-700 bg-purple-50 hover:bg-purple-100' : 'text-green-700 bg-green-50 hover:bg-green-100'
-                    : 'text-gray-600 bg-gray-50 hover:bg-gray-100'
+                    ? isSponsored ? 'text-purple-700 bg-purple-50 hover:bg-purple-100 border-purple-200' : 'text-green-700 bg-green-50 hover:bg-green-100 border-green-200'
+                    : 'text-gray-600 bg-gray-50 hover:bg-gray-100 border-gray-200'
                 }`}
               >
                 {isActive ? (
                   <>
-                    <ToggleRight size={16} className="mr-1" />
+                    <ToggleRight size={18} className="mr-1.5" />
                     <span>Active</span>
                   </>
                 ) : (
                   <>
-                    <ToggleLeft size={16} className="mr-1" />
+                    <ToggleLeft size={18} className="mr-1.5" />
                     <span>Inactive</span>
                   </>
                 )}

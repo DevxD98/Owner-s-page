@@ -46,13 +46,18 @@ const CreateOfferPage = () => {
   const happyhoursSectionRef = React.useRef(null);
   const spintowinSectionRef = React.useRef(null);
 
-  // Handle scrolling to specific section when returning from preview
+  // Handle selected offer type when returning from preview
   useEffect(() => {
     if (location.state?.fromPreview && location.state?.scrollToSection) {
       const section = location.state.scrollToSection;
       setSelectedOfferType(section); // Set the active tab
       
-      // Scroll to the appropriate section with a slight delay to ensure rendering
+      // Scroll to the top of the page first
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Option to scroll to the specific section if needed (commented out)
+      // This can be enabled if the user wants to scroll to the section instead
+      /*
       setTimeout(() => {
         let targetRef;
         switch (section) {
@@ -73,6 +78,7 @@ const CreateOfferPage = () => {
           targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 100);
+      */
     }
   }, [location.state]);
 

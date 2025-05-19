@@ -38,9 +38,9 @@ const BottomNavigation = ({ hidePlusButton = false }) => {
           <div className="relative -top-5">
             <button
               onClick={() => navigate('/create-offer')}
-              className="flex items-center justify-center w-20 h-20 rounded-full bg-[#001CD3] text-white shadow-lg hover:bg-[#226EDA] transition-colors"
+              className="flex items-center justify-center w-16 h-16 rounded-full bg-[#001CD3] text-white shadow-lg hover:bg-[#226EDA] transition-colors"
             >
-              <Plus size={27} />
+              <Plus size={22} />
             </button>
           </div>
         )}

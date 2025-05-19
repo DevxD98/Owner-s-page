@@ -21,7 +21,7 @@ const RecentLiveOffers = () => {
   useEffect(() => {
     if (isVisible && offers && offers.length > 0) {
       const timers = [];
-      const displayOffers = offers.slice(0, 3);
+      const displayOffers = offers.slice(0, 2); // Display only 2 items
       
       displayOffers.forEach((_, index) => {
         const timer = setTimeout(() => {
@@ -57,11 +57,12 @@ const RecentLiveOffers = () => {
 
       <div className="space-y-4">
         {publishedOffers.length > 0 ? (
-          publishedOffers.slice(0, 3).map((offer, index) => (
+          publishedOffers.slice(0, 2).map((offer, index) => (
             <div 
               key={offer.id || index} 
               className={`transition-all duration-500 transform ${loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
+              {/* Use actual views data if available, or default to 230 as shown in the mockup */}
               <OfferItem
                 id={offer.id}
                 title={offer.title}
@@ -69,6 +70,9 @@ const RecentLiveOffers = () => {
                 isActive={offer.isActive}
                 description={offer.description}
                 image={offer.imagePreview || offer.image}
+                views={offer.views || 230}
+                showBoostButton={true}
+                type={offer.type}
               />
             </div>
           ))

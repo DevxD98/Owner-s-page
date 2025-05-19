@@ -1,10 +1,27 @@
 // filepath: /Users/devmondal/Downloads/project 10/src/components/offers/OfferItem.jsx
 import React from 'react';
-import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle } from 'lucide-react';
+import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle, Clock } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import HappyHoursTimer from './HappyHoursTimer';
 
-const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft, isSponsored, views = 0, showBoostButton = false, type }) => {
+const OfferItem = ({ 
+  id, 
+  title, 
+  validTill, 
+  isActive, 
+  description, 
+  image, 
+  isDraft, 
+  isSponsored, 
+  views = 0, 
+  showBoostButton = false, 
+  type,
+  startTime,
+  endTime,
+  validityDate,
+  startDate
+}) => {
   const { toggleOffer } = useApp();
   const navigate = useNavigate();
   
@@ -88,6 +105,18 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
           
           {description && (
             <p className="text-gray-500 text-sm mt-1 line-clamp-2">{description}</p>
+          )}
+          
+          {/* Display Happy Hours Timer for happy hours offers */}
+          {type === 'happyhours' && startTime && endTime && validityDate && (
+            <div className="mt-2 mb-1">
+              <HappyHoursTimer
+                startTime={startTime}
+                endTime={endTime}
+                validityDate={validityDate}
+                startDate={startDate}
+              />
+            </div>
           )}
           
           <div className="flex items-center mt-2">

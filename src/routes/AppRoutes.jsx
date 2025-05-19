@@ -17,6 +17,7 @@ import StoreInformationPage from '../pages/StoreInformationPage';
 import LocationBranchPage from '../pages/LocationBranchPage';
 import DraftOffersPage from '../pages/DraftOffersPage';
 import PreviewOfferPage from '../pages/PreviewOfferPage';
+import BoostOfferPage from '../pages/BoostOfferPage';
 import HelpPage from '../pages/HelpPage';
 
 const AppRoutes = () => {
@@ -32,6 +33,7 @@ const AppRoutes = () => {
         <Route path="create-ad" element={<CreateAdPage />} />
         <Route path="create-offer" element={<CreateOfferPage />} />
         <Route path="preview-offer" element={<PreviewOfferPage />} />
+        <Route path="boost-offer" element={<BoostOfferPage />} />
         <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />

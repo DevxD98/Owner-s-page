@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { calculateHappyHoursTimeRemaining } from '../../utils/timeUtils';
+import { calculateHappyHoursTimeRemaining } from '../../utils/timeUtils.js';
 
 const HappyHoursTimer = ({ startTime, endTime, validityDate, startDate, className }) => {
   const [timeInfo, setTimeInfo] = useState(() => 

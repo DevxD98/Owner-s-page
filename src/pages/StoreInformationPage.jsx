@@ -3,7 +3,7 @@ import { ArrowLeft, ChevronDown, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import PhoneInput from '../components/inputs/PhoneInput';
-import { validateEmail } from '../utils/emailValidation';
+import { validateEmail } from '../utils/emailValidation.js';
 
 const StoreInformationPage = () => {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-// Import our temporary local storage helper - DO NOT COMMIT THIS IMPORT
-import { loadAccountInfo, saveAccountInfo, loadStoreInfo, saveStoreInfo } from '../utils/localStorageHelper';
+// Import our temporary local storage helper
+import { loadAccountInfo, saveAccountInfo, loadStoreInfo, saveStoreInfo } from '../utils/localStorageHelper.js';
 
 const defaultContext = {
   location: '',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { validatePhoneNumber, formatPhoneNumber, getSupportedCountryCodes } from '../../utils/phoneValidation';
+import { validatePhoneNumber, formatPhoneNumber, getSupportedCountryCodes } from '../../utils/phoneValidation.js';
 
 /**
  * A reusable phone input component with country code selection and validation

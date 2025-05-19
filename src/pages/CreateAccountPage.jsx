@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import PhoneInput from '../components/inputs/PhoneInput';
-import { validateEmail } from '../utils/emailValidation';
+import { validateEmail } from '../utils/emailValidation.js';
 import { Clock, Calendar, User, MapPin, Image, Upload, ChevronDown } from 'lucide-react';
 // Import our local storage helper - this file is ignored by git
-import { saveAccountInfo, loadAccountInfo } from '../utils/localStorageHelper';
+import { saveAccountInfo, loadAccountInfo } from '../utils/localStorageHelper.js';
 
 const CreateAccountPage = () => {
   const navigate = useNavigate();

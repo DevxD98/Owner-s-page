@@ -3,7 +3,7 @@ import { Pencil, ChevronRight, User, Clock, HelpCircle, Info, Bell, Settings, Us
 import { useNavigate } from 'react-router-dom';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import { useApp } from '../contexts/AppContext';
-import { clearAllStoredData } from '../utils/localStorageHelper';
+import { clearAllStoredData } from '../utils/localStorageHelper.js';
 
 const AccountPage = () => {
   const navigate = useNavigate();

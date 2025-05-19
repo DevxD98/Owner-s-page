@@ -27,4 +27,4 @@ dist-ssr
 *.new
 
 # Local development files - not to be committed
-src/utils/localStorageHelper.js
+# src/utils/localStorageHelper.js is now included in the repository

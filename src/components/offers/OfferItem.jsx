@@ -4,7 +4,7 @@ import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle } fr
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
-const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft, isSponsored }) => {
+const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft, isSponsored, views = 0, showBoostButton = false, type }) => {
   const { toggleOffer } = useApp();
   const navigate = useNavigate();
   
@@ -15,6 +15,11 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
   
   const handlePreview = () => {
     navigate(`/preview-offer?id=${id}`);
+  };
+  
+  const handleBoost = () => {
+    // Navigate to boost offer page
+    navigate(`/boost-offer?id=${id}`);
   };
   
   // Format date to more readable format
@@ -33,7 +38,7 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
   };
 
   return (
-    <div className={`bg-white rounded-lg p-4 border ${isSponsored ? 'border-purple-200' : 'border-gray-200'} shadow-sm transition-all duration-300 hover:shadow-md group`}>
+    <div className={`bg-white rounded-lg p-4 border ${isSponsored ? 'border-purple-200' : 'border-gray-100'} shadow-sm transition-all duration-300 hover:shadow-md group`}>
       <div className="flex items-start gap-3">
         {/* Image or placeholder */}
         <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
@@ -47,6 +52,11 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
         </div>
         
         <div className="flex-1">
+          {type && (
+            <div className="mb-1 text-xs text-gray-500 font-medium">
+              {type === 'happyhours' ? 'Happy hours' : type === 'spintowin' ? 'Spin to win!' : ''}
+            </div>
+          )}
           <div className="flex justify-between">
             <h3 className={`font-semibold ${isSponsored ? 'text-purple-800 group-hover:text-purple-600' : 'text-gray-800 group-hover:text-amber-600'} transition-colors`}>
               {title}
@@ -63,7 +73,14 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
                 Draft
               </span>
             ) : (
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+              <span 
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                  isActive 
+                    ? isSponsored ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+                title={isActive ? "Active offer" : "Inactive offer"}
+              >
                 {isActive ? 'Active' : 'Inactive'}
               </span>
             )}
@@ -73,10 +90,19 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
             <p className="text-gray-500 text-sm mt-1 line-clamp-2">{description}</p>
           )}
           
-          <div className="flex items-center mt-2 text-xs text-gray-500">
-            <Calendar size={14} className="mr-1" />
-            <span>Valid till: {formatDate(validTill)}</span>
+          <div className="flex items-center mt-2">
+            <div className="flex items-center text-xs text-gray-500">
+              <Calendar size={14} className="mr-1" />
+              <span>Valid till: {formatDate(validTill)}</span>
+            </div>
           </div>
+          
+          {/* Views display (moved below the image) */}
+          {views > 0 && (
+            <div className="flex items-center text-xs text-gray-600 font-medium mt-1.5">
+              <span>Views: {views}</span>
+            </div>
+          )}
           
           {/* Action buttons */}
           <div className="flex items-center justify-between mt-3">
@@ -95,27 +121,30 @@ const OfferItem = ({ id, title, validTill, isActive, description, image, isDraft
               >
                 <ExternalLink size={18} />
               </button>
+              {showBoostButton && (
+                <button 
+                  className="px-4 py-2.5 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-lg transition-all text-sm font-medium shadow-md hover:shadow-lg"
+                  onClick={handleBoost}
+                >
+                  Boost Offer
+                </button>
+              )}
             </div>
             
             {!isDraft && (
               <button
                 onClick={() => toggleOffer(id)}
-                className={`flex items-center text-sm font-medium rounded-md px-4 py-1.5 transition-colors shadow-sm hover:shadow border ${
+                title={isActive ? "Active (click to deactivate)" : "Inactive (click to activate)"}
+                className={`flex items-center justify-center rounded-md p-2.5 transition-all duration-200 shadow-sm hover:shadow border min-w-[44px] min-h-[44px] ${
                   isActive 
                     ? isSponsored ? 'text-purple-700 bg-purple-50 hover:bg-purple-100 border-purple-200' : 'text-green-700 bg-green-50 hover:bg-green-100 border-green-200'
                     : 'text-gray-600 bg-gray-50 hover:bg-gray-100 border-gray-200'
                 }`}
               >
                 {isActive ? (
-                  <>
-                    <ToggleRight size={18} className="mr-1.5" />
-                    <span>Active</span>
-                  </>
+                  <ToggleRight size={24} />
                 ) : (
-                  <>
-                    <ToggleLeft size={18} className="mr-1.5" />
-                    <span>Inactive</span>
-                  </>
+                  <ToggleLeft size={24} />
                 )}
               </button>
             )}

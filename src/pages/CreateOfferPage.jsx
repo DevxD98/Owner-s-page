@@ -14,6 +14,25 @@ const offerTypes = [
   { id: 'spintowin', icon: <Gift size={24} className="mx-auto" />, label: 'Spin to Win' },
 ];
 
+// Predefined categories for offers
+const offerCategories = [
+  'Food & Dining',
+  'Fashion & Apparel',
+  'Beauty & Salon',
+  'Health & Wellness',
+  'Home & Decor',
+  'Electronics & Gadgets',
+  'Entertainment',
+  'Travel & Leisure',
+  'Services',
+  'Education',
+  'Sports & Fitness',
+  'Groceries',
+  'Automotive',
+  'Gifts & Souvenirs',
+  'Other'
+];
+
 const CreateOfferPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,6 +40,7 @@ const CreateOfferPage = () => {
   const [selectedOfferType, setSelectedOfferType] = useState('spotlight');
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [offerData, setOfferData] = useState({
     title: '',
     description: '',
@@ -45,6 +65,56 @@ const CreateOfferPage = () => {
   const spotlightSectionRef = React.useRef(null);
   const happyhoursSectionRef = React.useRef(null);
   const spintowinSectionRef = React.useRef(null);
+
+  // Look for offer ID in URL query parameters for editing
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const offerId = searchParams.get('id');
+    
+    if (offerId && offers.length > 0) {
+      // Find the offer with the matching ID
+      const offerToEdit = offers.find(offer => offer.id === offerId);
+      
+      if (offerToEdit) {
+        console.log('Found offer to edit:', offerToEdit);
+        
+        // Set edit mode and ID
+        setEditMode(true);
+        setEditId(offerId);
+        
+        // Set the offer type
+        if (offerToEdit.type) {
+          setSelectedOfferType(offerToEdit.type);
+        }
+        
+        // Prepare spinner offers and probabilities if they exist
+        const spinnerOffers = offerToEdit.spinnerOffers || ['', ''];
+        const spinnerProbabilities = offerToEdit.spinnerProbabilities || ['', ''];
+        
+        // Populate form fields with offer data
+        setOfferData({
+          title: offerToEdit.title || '',
+          description: offerToEdit.description || '',
+          category: offerToEdit.category || '',
+          validityDate: offerToEdit.validityDate || '',
+          minPurchase: offerToEdit.minPurchase || '',
+          startTime: offerToEdit.startTime || '',
+          endTime: offerToEdit.endTime || '',
+          redemptionsAllowed: offerToEdit.redemptionsAllowed || '',
+          offerImage: null, // Can't restore the file object
+          imagePreview: offerToEdit.imagePreview || offerToEdit.image || null,
+          notifyFollowers: offerToEdit.notifyFollowers || false,
+          spinnerOffers: Array.isArray(spinnerOffers) ? spinnerOffers : ['', ''],
+          spinnerProbabilities: Array.isArray(spinnerProbabilities) ? spinnerProbabilities : ['', ''],
+          selectedDay: offerToEdit.selectedDay || 'Monday',
+          slotCapacity: offerToEdit.slotCapacity || '',
+          validityPeriod: offerToEdit.validityPeriod || '',
+          isDraft: offerToEdit.isDraft || false,
+          startDate: offerToEdit.startDate || ''
+        });
+      }
+    }
+  }, [offers, location.search]);
 
   // Handle selected offer type when returning from preview
   useEffect(() => {
@@ -142,6 +212,7 @@ const CreateOfferPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Create the preview payload
     const previewPayload = {
       ...offerData,
       type: selectedOfferType,
@@ -149,6 +220,29 @@ const CreateOfferPage = () => {
       editId: editId,
       isPreview: true
     };
+
+    // For Happy Hours offers, automatically set today's date as the start date
+    // and use the selected validity date as the end date
+    if (selectedOfferType === 'happyhours') {
+      // Set today's date as start date (May 19, 2025, as specified in requirements)
+      const todayDate = new Date(2025, 4, 19); // Month is 0-indexed (4 = May)
+      const formattedTodayDate = todayDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+      
+      // Set today as the start date and the selected validity date as the end date
+      previewPayload.startDate = formattedTodayDate;
+      
+      // If no validityDate is provided, set a default (1 week from today)
+      if (!previewPayload.validityDate) {
+        const defaultEndDate = new Date(todayDate);
+        defaultEndDate.setDate(defaultEndDate.getDate() + 7);
+        previewPayload.validityDate = defaultEndDate.toISOString().split('T')[0];
+      }
+      
+      console.log('Happy Hours offer dates set:', {
+        startDate: previewPayload.startDate,
+        endDate: previewPayload.validityDate
+      });
+    }
 
     sessionStorage.setItem('offerPreview', JSON.stringify(previewPayload));
     navigate('/preview-offer');
@@ -182,14 +276,14 @@ const CreateOfferPage = () => {
       
       {/* Offer Type Selection */}
       <div className="relative z-10 bg-white bg-opacity-90 shadow-sm rounded-b-xl">
-        <div className="flex justify-between px-4 py-5 mb-6 max-w-sm mx-auto">
+        <div className="flex justify-between px-8 py-3 mb-1 max-w-md mx-auto">
           {offerTypes.map((type) => (
             <button 
               key={type.id} 
-              className={`flex flex-col items-center w-24 transition-all`}
+              className={`flex flex-col items-center transition-all`}
               onClick={() => setSelectedOfferType(type.id)}
             >
-              <div className={`p-3 flex items-center justify-center rounded-full mb-2 transition-all
+              <div className={`p-3.5 flex items-center justify-center rounded-full mb-1 transition-all
                 ${selectedOfferType === type.id 
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-300'
                   : 'bg-gray-100 text-gray-500'}`
@@ -208,7 +302,7 @@ const CreateOfferPage = () => {
 
       {/* Spotlight Offer Form */}
       {selectedOfferType === 'spotlight' && (
-        <form ref={spotlightSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+        <form ref={spotlightSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10 mt-0" onSubmit={handleSubmit}>
           <div className="mb-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
               <Sparkles size={18} className="text-blue-600 mr-2" /> 
@@ -247,14 +341,41 @@ const CreateOfferPage = () => {
           {/* Select Offer Category */}
           <div>
             <label className="block text-base font-medium text-gray-700 mb-2">Select Category</label>
-            <input 
-              name="category"
-              value={offerData.category}
-              onChange={handleInputChange}
-              className="w-full rounded-xl border bg-gray-50 px-4 py-3.5 focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition-all outline-none" 
-              placeholder="Beauty" 
-            />
-            <p className="text-xs text-gray-500 mt-1">Choose a category that best fits your offer (e.g. Food, Beauty, Services)</p>
+            <div className="relative">
+              <div 
+                className="w-full rounded-xl border bg-gray-50 px-4 py-3.5 flex justify-between items-center cursor-pointer focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all"
+                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+              >
+                <span className={offerData.category ? 'text-gray-800' : 'text-gray-400'}>
+                  {offerData.category || 'Select a category'}
+                </span>
+                <ChevronDown size={20} className={`text-gray-400 transition-transform ${showCategoryDropdown ? 'transform rotate-180' : ''}`} />
+              </div>
+              
+              {showCategoryDropdown && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-30"
+                    onClick={() => setShowCategoryDropdown(false)}
+                  />
+                  <div className="absolute z-40 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto">
+                    {offerCategories.map((category) => (
+                      <div 
+                        key={category}
+                        className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setOfferData({...offerData, category});
+                          setShowCategoryDropdown(false);
+                        }}
+                      >
+                        {category}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Choose a category that best fits your offer</p>
           </div>
           
           {/* Set Offer Validity Date */}
@@ -422,7 +543,7 @@ const CreateOfferPage = () => {
 
       {/* Happy Hours Offer Form */}
       {selectedOfferType === 'happyhours' && (
-        <form ref={happyhoursSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+        <form ref={happyhoursSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10 mt-0" onSubmit={handleSubmit}>
           <div className="mb-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
               <Clock size={18} className="text-blue-600 mr-2" /> 
@@ -489,10 +610,10 @@ const CreateOfferPage = () => {
               <DatePicker
                 value={offerData.validityDate}
                 onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
-                placeholder="Select date"
+                placeholder="Select end date"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Select the date until which this happy hour offer will be valid</p>
+            <p className="text-xs text-gray-500 mt-1">This offer will be valid from today (May 19, 2025) until the date you select above</p>
           </div>
           
           <div>
@@ -658,7 +779,7 @@ const CreateOfferPage = () => {
 
       {/* Spin to Win Form */}
       {selectedOfferType === 'spintowin' && (
-        <form ref={spintowinSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10" onSubmit={handleSubmit}>
+        <form ref={spintowinSectionRef} className="flex flex-col px-4 py-5 gap-6 bg-white mx-auto max-w-md rounded-xl relative z-10 mt-0" onSubmit={handleSubmit}>
           <div className="mb-1">
             <h2 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
               <Gift size={18} className="text-blue-600 mr-2" /> 

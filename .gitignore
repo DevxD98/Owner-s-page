@@ -25,3 +25,6 @@ dist-ssr
 *.bak
 *.backup
 *.new
+
+# Local development files - not to be committed
+src/utils/localStorageHelper.js

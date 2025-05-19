@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Calendar, Clock, Info, Tag, MapPin, Award, ChevronRight, AlertCircle, Edit, Share2, CheckCircle } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import HappyHoursTimer from '../components/offers/HappyHoursTimer';
 
 const PreviewOfferPage = () => {
   const navigate = useNavigate();
@@ -64,19 +65,28 @@ const PreviewOfferPage = () => {
     navigate(-1);
   };
   
-  if (!previewData) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-xl shadow-lg flex items-center">
-          <div className="animate-spin mr-3 h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-          <p>Loading preview...</p>
-        </div>
-      </div>
-    );
-  }
+  // Format date to readable format
+  const formatDate = (dateStr) => {
+    if (!dateStr) return null;
+    
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (e) {
+      return dateStr;
+    }
+  };
   
   // Format time for happy hours display
   const getFormattedTime = () => {
+    if (!previewData) {
+      return "";
+    }
+    
     if (previewData.type === 'happyhours' && previewData.startTime && previewData.endTime) {
       return `${previewData.startTime} - ${previewData.endTime}`;
     } else if (previewData.type === 'happyhours') {
@@ -87,6 +97,15 @@ const PreviewOfferPage = () => {
   
   // Get background color based on offer type
   const getOfferTypeStyles = () => {
+    if (!previewData) {
+      // Return default styling if previewData is null
+      return {
+        badge: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white',
+        icon: <Tag className="text-gray-400 mr-1" size={16} />,
+        label: 'Loading...'
+      };
+    }
+
     switch (previewData.type) {
       case 'spotlight':
         return {
@@ -127,7 +146,7 @@ const PreviewOfferPage = () => {
               // Go back but with state to indicate which section to scroll to
               navigate('/create-offer', { 
                 state: { 
-                  scrollToSection: previewData.type,
+                  scrollToSection: previewData?.type || 'spotlight',
                   fromPreview: true
                 } 
               });
@@ -165,7 +184,18 @@ const PreviewOfferPage = () => {
       )}
       
       <div className="flex-1 flex flex-col p-4">
-        {/* Offer Card */}
+        {/* Show loading state if preview data is not yet loaded */}
+        {!previewData ? (
+          <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center justify-center">
+            <div className="animate-pulse flex flex-col items-center">
+              <div className="h-32 w-32 rounded-full bg-gray-200 mb-4"></div>
+              <div className="h-6 w-3/4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+            </div>
+            <p className="mt-4 text-gray-500">Loading offer preview...</p>
+          </div>
+        ) : (
+        /* Offer Card */
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transition-all hover:shadow-xl relative">
           {/* Offer Image */}
           <div className="w-full h-72 relative">
@@ -242,11 +272,23 @@ const PreviewOfferPage = () => {
               <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-4">
                 <div className="flex items-center text-amber-800 mb-2">
                   <Clock className="mr-2" size={20} />
-                  <h3 className="font-semibold">Happy Hours</h3>
+                  <h3 className="font-semibold">Happy Hours Special</h3>
                 </div>
-                <div className="bg-white/70 rounded-lg p-3 text-center">
-                  <p className="text-amber-900 text-lg font-medium">{getFormattedTime()}</p>
-                  <p className="text-amber-600 text-sm">Available every {previewData.selectedDay || 'Monday'}</p>
+                <div className="bg-white/70 rounded-lg p-3">
+                  <p className="text-amber-900 text-lg font-medium text-center">{getFormattedTime()}</p>
+                  <p className="text-amber-600 text-sm text-center mb-2">Limited-time exclusive pricing</p>
+                  
+                  {/* Happy Hours Timer */}
+                  <HappyHoursTimer 
+                    startTime={previewData.startTime} 
+                    endTime={previewData.endTime}
+                    validityDate={previewData.validityDate}
+                    startDate={previewData.startDate}
+                    className="mt-2"
+                  />
+                  <p className="text-xs text-amber-700 mt-2 text-center">
+                    This offer automatically refreshes each day during the offer period
+                  </p>
                 </div>
               </div>
             )}
@@ -280,7 +322,15 @@ const PreviewOfferPage = () => {
               <div className="flex items-center">
                 <Calendar size={18} className="text-gray-500 mr-2" />
                 <span className="text-gray-700">
-                  Valid till: <span className="font-medium">{previewData.validityPeriod || 'Not specified'}</span>
+                  {previewData.type === 'happyhours' ? (
+                    <>
+                      Valid from {formatDate(previewData.startDate) || 'today'} till <span className="font-medium">{formatDate(previewData.validityDate) || 'Not specified'}</span>
+                    </>
+                  ) : (
+                    <>
+                      Valid till: <span className="font-medium">{formatDate(previewData.validityDate || previewData.validTill) || 'Not specified'}</span>
+                    </>
+                  )}
                 </span>
               </div>
               
@@ -304,36 +354,35 @@ const PreviewOfferPage = () => {
             </div>
           </div>
           
-          {/* Customer Actions (simulated) */}
-          <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-            <div>
-              <span className="text-sm text-gray-500">22 people redeemed</span>
+          {/* Customer Engagement Info */}
+          <div className="px-5 py-3 bg-gray-50 border-t border-gray-100">
+            <div className="text-sm text-gray-500 flex items-center">
+              <span className="font-medium mr-1">Preview Mode</span> - This is how your customers will see the offer
             </div>
-            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium flex items-center shadow-sm hover:shadow-md transition-all">
-              <CheckCircle className="mr-1.5" size={18} />
-              Redeem Now
-            </button>
           </div>
         </div>
+        )}
       </div>
       
       {/* Action Buttons */}
-      <div className="p-4 pb-8 flex space-x-4 bg-white shadow-inner border-t border-gray-200">
-        <button 
-          onClick={handleEdit}
-          className="flex-1 py-4 border border-blue-600 text-blue-600 font-medium rounded-lg text-lg hover:bg-blue-50 transition-all flex items-center justify-center"
-        >
-          <Edit size={20} className="mr-2" />
-          Edit Offer
-        </button>
-        <button 
-          onClick={handlePublish}
-          className="flex-1 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg text-lg hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center shadow-md"
-        >
-          <CheckCircle size={20} className="mr-2" />
-          Publish Offer
-        </button>
-      </div>
+      {previewData && (
+        <div className="p-4 pb-8 flex space-x-4 bg-white shadow-inner border-t border-gray-200">
+          <button 
+            onClick={handleEdit}
+            className="flex-1 py-4 border border-blue-600 text-blue-600 font-medium rounded-lg text-lg hover:bg-blue-50 transition-all flex items-center justify-center"
+          >
+            <Edit size={20} className="mr-2" />
+            Edit Offer
+          </button>
+          <button 
+            onClick={handlePublish}
+            className="flex-1 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg text-lg hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center shadow-md"
+          >
+            <CheckCircle size={20} className="mr-2" />
+            Publish Offer
+          </button>
+        </div>
+      )}
     </div>
   );
 };

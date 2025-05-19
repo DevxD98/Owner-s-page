@@ -34,7 +34,7 @@ const CreateOfferPage = () => {
     imagePreview: null,
     notifyFollowers: false,
     spinnerOffers: ['', ''],
-    spinnerProbabilities: ['50', '50'],
+    spinnerProbabilities: ['', ''], // Empty values to rely on placeholder format
     selectedDay: 'Monday',
     slotCapacity: '',
     validityPeriod: '',
@@ -512,17 +512,31 @@ const CreateOfferPage = () => {
           </div>
           
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Number of Redemptions</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Redemption Per User</label>
             <input 
               name="redemptionsAllowed"
               value={offerData.redemptionsAllowed}
+              onChange={handleInputChange}
+              className="w-full rounded-xl border bg-gray-50 px-4 py-3.5 focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition-all outline-none" 
+              placeholder="1" 
+              type="number"
+              min="0"
+            />
+            <p className="text-xs text-gray-500 mt-1">Enter the maximum number of redemptions per user (leave empty for unlimited)</p>
+          </div>
+          
+          <div>
+            <label className="block text-base font-medium text-gray-700 mb-2">Total Slots Available</label>
+            <input 
+              name="slotCapacity"
+              value={offerData.slotCapacity}
               onChange={handleInputChange}
               className="w-full rounded-xl border bg-gray-50 px-4 py-3.5 focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition-all outline-none" 
               placeholder="100" 
               type="number"
               min="0"
             />
-            <p className="text-xs text-gray-500 mt-1">Enter the maximum number of redemptions (leave empty for unlimited)</p>
+            <p className="text-xs text-gray-500 mt-1">Enter the total number of slots available for this offer (leave empty for unlimited)</p>
           </div>
           
           <div>
@@ -666,7 +680,7 @@ const CreateOfferPage = () => {
           </div>
           
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Enter Spinner Offers</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Add Spin Wheel Prizes</label>
             {offerData.spinnerOffers.map((offer, index) => (
               <div key={index} className="flex items-center gap-2 mb-2">
                 <input

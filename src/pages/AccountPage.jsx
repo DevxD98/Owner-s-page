@@ -1,12 +1,25 @@
 import React from 'react';
-import { Pencil, ChevronRight, User, Clock, HelpCircle, Info, Bell, Settings, UserPlus } from 'lucide-react';
+import { Pencil, ChevronRight, User, Clock, HelpCircle, Info, Bell, Settings, UserPlus, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import { useApp } from '../contexts/AppContext';
+import { clearAllStoredData } from '../utils/localStorageHelper';
 
 const AccountPage = () => {
   const navigate = useNavigate();
-  const { storeName, storeLogo } = useApp();
+  const { storeName, storeLogo, setStoreName } = useApp();
+  
+  // Handle logout - clear local storage and reset app state
+  const handleLogout = () => {
+    // Clear all stored data
+    clearAllStoredData();
+    
+    // Reset the store name in context (which will redirect to create-account page)
+    setStoreName('');
+    
+    // Navigate to create account page
+    navigate('/create-account');
+  };
   
   // Get initials for the fallback logo
   const getInitials = (name) => {
@@ -184,6 +197,17 @@ const AccountPage = () => {
           >
             <UserPlus size={20} className="mr-2" />
             Create New Account
+          </button>
+        </div>
+        
+        {/* Logout Button */}
+        <div className="w-full px-4">
+          <button 
+            onClick={handleLogout} 
+            className="w-full border border-red-500 text-red-600 py-3 rounded-lg font-medium text-lg flex items-center justify-center mt-2 hover:bg-red-50 transition-colors"
+          >
+            <LogOut size={20} className="mr-2" />
+            Logout
           </button>
         </div>
         

@@ -193,7 +193,10 @@ const HelpPage = () => {
                       </div>
                       <span className="text-xs text-gray-500 ml-1">4.9</span>
                     </div>
-                    <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">Active</span>
+                    <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full flex items-center">
+                      <span className="w-2 h-2 rounded-full bg-green-600 mr-1"></span>
+                      Active
+                    </span>
                   </div>
                 </div>
               </div>

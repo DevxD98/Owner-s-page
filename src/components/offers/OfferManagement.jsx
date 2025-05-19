@@ -73,6 +73,9 @@ const OfferManagement = () => {
                 views={offer.views || 230}
                 showBoostButton={false}
                 type={offer.type}
+                startTime={offer.startTime}
+                endTime={offer.endTime}
+                validityDate={offer.validityDate}
               />
             </div>
           ))

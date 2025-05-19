@@ -31,6 +31,13 @@ const OfferManagementPage = () => {
               title={offer.title}
               validTill={offer.validTill}
               isActive={offer.isActive}
+              description={offer.description}
+              image={offer.imagePreview || offer.image}
+              views={offer.views}
+              showBoostButton={true}
+              isDraft={offer.isDraft}
+              isSponsored={offer.isSponsored}
+              type={offer.type}
             />
           ))
         ) : (

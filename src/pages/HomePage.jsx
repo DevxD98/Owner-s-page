@@ -40,21 +40,11 @@ const HomePage = () => {
       <LocationHeader />
       <div className="max-w-screen-md mx-auto px-4 relative z-10">
         <StatGrid />
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6 pb-16">
           <OfferManagement />
           <BookingStatusContainer />
           <RedemptionTracker />
           <ActiveSponsoredAds />
-        </div>
-        
-        {/* Footer section */}
-        <div className="mt-10 pt-6 pb-16 border-t border-gray-200 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} Merchant Dashboard</p>
-          <div className="flex justify-center gap-4 mt-2">
-            <a href="#" className="text-indigo-600 hover:text-indigo-800 transition-colors">Help</a>
-            <a href="#" className="text-indigo-600 hover:text-indigo-800 transition-colors">Privacy</a>
-            <a href="#" className="text-indigo-600 hover:text-indigo-800 transition-colors">Terms</a>
-          </div>
         </div>
       </div>
     </div>

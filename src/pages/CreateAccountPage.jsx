@@ -4,6 +4,8 @@ import { useApp } from '../contexts/AppContext';
 import PhoneInput from '../components/inputs/PhoneInput';
 import { validateEmail } from '../utils/emailValidation';
 import { Clock, Calendar, User, MapPin, Image, Upload, ChevronDown } from 'lucide-react';
+// Import our local storage helper - this file is ignored by git
+import { saveAccountInfo, loadAccountInfo } from '../utils/localStorageHelper';
 
 const CreateAccountPage = () => {
   const navigate = useNavigate();
@@ -112,6 +114,15 @@ const CreateAccountPage = () => {
     }
   }, [formData.email]);
 
+  // Check if account already exists when component mounts
+  useEffect(() => {
+    const accountInfo = loadAccountInfo();
+    if (accountInfo && accountInfo.hasAccount) {
+      // If account exists, redirect to home
+      navigate('/');
+    }
+  }, [navigate]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -151,6 +162,15 @@ const CreateAccountPage = () => {
     if (formData.storeLogo && setStoreLogo) {
       setStoreLogo(storeLogoPreview);
     }
+    
+    // Save account creation status to local storage
+    saveAccountInfo({ 
+      hasAccount: true,
+      createdAt: new Date().toISOString()
+    });
+
+    // Save account information to local storage
+    saveAccountInfo(formData);
 
     // Use setTimeout to ensure state updates have completed before navigation
     setTimeout(() => {

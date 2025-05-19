@@ -73,6 +73,9 @@ const RecentLiveOffers = () => {
                 views={offer.views || 230}
                 showBoostButton={true}
                 type={offer.type}
+                startTime={offer.startTime}
+                endTime={offer.endTime}
+                validityDate={offer.validityDate}
               />
             </div>
           ))

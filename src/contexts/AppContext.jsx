@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+// Import our temporary local storage helper - DO NOT COMMIT THIS IMPORT
+import { loadAccountInfo, saveAccountInfo, loadStoreInfo, saveStoreInfo } from '../utils/localStorageHelper';
 
 const defaultContext = {
   location: '',
@@ -26,18 +28,22 @@ const AppContext = createContext(defaultContext);
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
-  const [location, setLocation] = useState('');
-  const [storeName, setStoreName] = useState('');
-  const [storeCategory, setStoreCategory] = useState('');
-  const [storeAddress, setStoreAddress] = useState('');
-  const [storeLogo, setStoreLogo] = useState('');
-  const [storeImage, setStoreImage] = useState('');
-  const [storePhone, setStorePhone] = useState('');
-  const [storeHours, setStoreHours] = useState('');
-  const [storeEmail, setStoreEmail] = useState('');
-  const [cityState, setCityState] = useState('');
-  const [pincode, setPincode] = useState('');
-  const [googleMapLocation, setGoogleMapLocation] = useState('');
+  // Try to load store info from local storage first
+  const storedStoreInfo = loadStoreInfo() || {};
+  
+  // Initialize store-related state with values from local storage if available
+  const [location, setLocation] = useState(storedStoreInfo.location || '');
+  const [storeName, setStoreName] = useState(storedStoreInfo.storeName || '');
+  const [storeCategory, setStoreCategory] = useState(storedStoreInfo.storeCategory || '');
+  const [storeAddress, setStoreAddress] = useState(storedStoreInfo.storeAddress || '');
+  const [storeLogo, setStoreLogo] = useState(storedStoreInfo.storeLogo || '');
+  const [storeImage, setStoreImage] = useState(storedStoreInfo.storeImage || '');
+  const [storePhone, setStorePhone] = useState(storedStoreInfo.storePhone || '');
+  const [storeHours, setStoreHours] = useState(storedStoreInfo.storeHours || '');
+  const [storeEmail, setStoreEmail] = useState(storedStoreInfo.storeEmail || '');
+  const [cityState, setCityState] = useState(storedStoreInfo.cityState || '');
+  const [pincode, setPincode] = useState(storedStoreInfo.pincode || '');
+  const [googleMapLocation, setGoogleMapLocation] = useState(storedStoreInfo.googleMapLocation || '');
   
   // Sample stats data
   const [stats, setStats] = useState({
@@ -52,47 +58,27 @@ export const AppProvider = ({ children }) => {
   const [offers, setOffers] = useState([
     {
       id: "1",
-      title: "50% OFF on First Order",
-      description: "Get half off on your first purchase with us",
+      title: "Happy hours",
+      description: "Flat 30% OFF on ₹499+",
       validTill: "2025-07-20",
       isActive: true,
       isDraft: false,
       imagePreview: "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400&auto=format&fit=crop",
-      type: "spotlight",
-      category: "Food"
+      type: "happyhours",
+      category: "Food",
+      views: 230
     },
     {
       id: "2",
-      title: "Buy 2 Get 1 Free",
-      description: "Special weekend offer - buy two items and get one free",
+      title: "Spin to win !",
+      description: "Flat 30% OFF on ₹499+",
       validTill: "2025-06-25",
       isActive: true,
       isDraft: false,
       imagePreview: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400&auto=format&fit=crop",
-      type: "spotlight",
-      category: "Food"
-    },
-    {
-      id: "3",
-      title: "Happy Hour: 6PM-8PM",
-      description: "25% off on all menu items during happy hours",
-      validTill: "2025-08-15",
-      startTime: "6:00 PM",
-      endTime: "8:00 PM",
-      isActive: true,
-      isDraft: false,
-      type: "happyhours",
-      imagePreview: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=400&auto=format&fit=crop"
-    },
-    {
-      id: "4",
-      title: "Monday Special: Combo Deal",
-      description: "Get our special combo meal at a discounted price every Monday",
-      validTill: "2025-06-30",
-      isActive: false,
-      isDraft: false,
-      type: "spotlight",
-      imagePreview: "https://images.unsplash.com/photo-1493770348161-369560ae357d?q=80&w=400&auto=format&fit=crop"
+      type: "spintowin",
+      category: "Food",
+      views: 230
     }
   ]);
   
@@ -118,24 +104,6 @@ export const AppProvider = ({ children }) => {
       time: "6:00 PM",
       status: "confirmed",
       phoneNumber: "+91 89765 43210"
-    },
-    {
-      id: "b3",
-      customerName: "Arjun Khan",
-      service: "Dinner Reservation",
-      date: "2025-05-16",
-      time: "8:30 PM",
-      status: "completed",
-      phoneNumber: "+91 76543 21098"
-    },
-    {
-      id: "b4",
-      customerName: "Neha Singh",
-      service: "Lunch Reservation",
-      date: "2025-05-17",
-      time: "1:00 PM",
-      status: "cancelled",
-      phoneNumber: "+91 87654 32109"
     }
   ]);
   
@@ -144,7 +112,7 @@ export const AppProvider = ({ children }) => {
     {
       id: "r1",
       customerName: "Vikram Patel",
-      offerTitle: "50% OFF on First Order",
+      offerTitle: "Happy hours",
       redeemedOn: "2025-05-16",
       time: "7:45 PM",
       status: "completed"
@@ -152,25 +120,9 @@ export const AppProvider = ({ children }) => {
     {
       id: "r2",
       customerName: "Priya Joshi",
-      offerTitle: "Buy 2 Get 1 Free",
+      offerTitle: "Spin to win !",
       redeemedOn: "2025-05-16",
       time: "8:15 PM",
-      status: "completed"
-    },
-    {
-      id: "r3",
-      customerName: "Karan Gupta",
-      offerTitle: "Happy Hour: 6PM-8PM",
-      redeemedOn: "2025-05-15",
-      time: "7:20 PM",
-      status: "completed"
-    },
-    {
-      id: "r4",
-      customerName: "Deepika Malhotra",
-      offerTitle: "Monday Special: Combo Deal",
-      redeemedOn: "2025-05-13",
-      time: "1:00 PM",
       status: "completed"
     }
   ]);
@@ -251,6 +203,46 @@ export const AppProvider = ({ children }) => {
       booking.id === id ? { ...booking, ...updatedBooking } : booking
     ));
   };
+
+  // Save store info to local storage whenever relevant values change
+  useEffect(() => {
+    // Create a store info object with all relevant fields
+    const storeInfo = {
+      location,
+      storeName,
+      storeCategory,
+      storeAddress,
+      storeLogo,
+      storeImage,
+      storePhone,
+      storeHours,
+      storeEmail,
+      cityState,
+      pincode,
+      googleMapLocation
+    };
+    
+    // Save to local storage
+    saveStoreInfo(storeInfo);
+    
+    // Also save account info if we have a store name (indicating account creation)
+    if (storeName) {
+      saveAccountInfo({ hasAccount: true });
+    }
+  }, [
+    location, 
+    storeName, 
+    storeCategory, 
+    storeAddress, 
+    storeLogo, 
+    storeImage, 
+    storePhone, 
+    storeHours, 
+    storeEmail, 
+    cityState, 
+    pincode, 
+    googleMapLocation
+  ]);
 
   return (
     <AppContext.Provider

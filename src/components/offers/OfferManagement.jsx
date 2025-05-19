@@ -21,7 +21,7 @@ const OfferManagement = () => {
   useEffect(() => {
     if (isVisible && offers.length > 0) {
       const timers = [];
-      const displayOffers = offers.slice(0, 3);
+      const displayOffers = offers.slice(0, 2);
       
       displayOffers.forEach((_, index) => {
         const timer = setTimeout(() => {
@@ -57,11 +57,12 @@ const OfferManagement = () => {
 
       <div className="space-y-4">
         {publishedOffers.length > 0 ? (
-          publishedOffers.slice(0, 3).map((offer, index) => (
+          publishedOffers.slice(0, 2).map((offer, index) => (
             <div 
               key={offer.id} 
               className={`transition-all duration-500 transform ${loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
+              {/* Hide boost button on homepage */}
               <OfferItem
                 id={offer.id}
                 title={offer.title}
@@ -69,6 +70,9 @@ const OfferManagement = () => {
                 isActive={offer.isActive}
                 description={offer.description}
                 image={offer.imagePreview || offer.image}
+                views={offer.views || 230}
+                showBoostButton={false}
+                type={offer.type}
               />
             </div>
           ))

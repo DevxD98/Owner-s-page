@@ -38,6 +38,9 @@ const OfferManagementPage = () => {
               isDraft={offer.isDraft}
               isSponsored={offer.isSponsored}
               type={offer.type}
+              startTime={offer.startTime}
+              endTime={offer.endTime}
+              validityDate={offer.validityDate}
             />
           ))
         ) : (

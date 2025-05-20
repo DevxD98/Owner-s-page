@@ -134,22 +134,41 @@ const OfferItem = ({
           )}
           
           {/* Action buttons */}
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center gap-2">
-              <button 
-                className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
-                title="Edit offer"
-                onClick={handleEdit}
-              >
-                <Edit size={18} />
-              </button>
-              <button 
-                className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
-                title="Preview offer"
-                onClick={handlePreview}
-              >
-                <ExternalLink size={18} />
-              </button>
+          <div className="mt-3">
+            {/* Action buttons in a single row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button 
+                  className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
+                  title="Edit offer"
+                  onClick={handleEdit}
+                >
+                  <Edit size={18} />
+                </button>
+                <button 
+                  className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
+                  title="Preview offer"
+                  onClick={handlePreview}
+                >
+                  <ExternalLink size={18} />
+                </button>
+              </div>
+              
+              {/* Active/Inactive toggle switch - moved to right side */}
+              {!isDraft && (
+                <label className="relative inline-flex items-center cursor-pointer" title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}>
+                  <input 
+                    type="checkbox" 
+                    checked={isActive}
+                    onChange={() => toggleOffer(id)}
+                    className="sr-only peer" 
+                  />
+                  <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 ${
+                    isSponsored ? 'peer-focus:ring-purple-300 peer-checked:bg-purple-600' : 'peer-focus:ring-blue-300 peer-checked:bg-blue-600'
+                  } rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
+                </label>
+              )}
+              
               {showBoostButton && (
                 <button 
                   className="px-4 py-2.5 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-lg transition-all text-sm font-medium shadow-md hover:shadow-lg"
@@ -159,24 +178,6 @@ const OfferItem = ({
                 </button>
               )}
             </div>
-            
-            {!isDraft && (
-              <button
-                onClick={() => toggleOffer(id)}
-                title={isActive ? "Active (click to deactivate)" : "Inactive (click to activate)"}
-                className={`flex items-center justify-center rounded-md p-2.5 transition-all duration-200 shadow-sm hover:shadow border min-w-[44px] min-h-[44px] ${
-                  isActive 
-                    ? isSponsored ? 'text-purple-700 bg-purple-50 hover:bg-purple-100 border-purple-200' : 'text-green-700 bg-green-50 hover:bg-green-100 border-green-200'
-                    : 'text-gray-600 bg-gray-50 hover:bg-gray-100 border-gray-200'
-                }`}
-              >
-                {isActive ? (
-                  <ToggleRight size={24} />
-                ) : (
-                  <ToggleLeft size={24} />
-                )}
-              </button>
-            )}
           </div>
         </div>
       </div>

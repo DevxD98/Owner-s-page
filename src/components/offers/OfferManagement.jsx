@@ -10,6 +10,11 @@ const OfferManagement = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [loadedItems, setLoadedItems] = useState([]);
 
+  // Log the offers when component mounts or offers change
+  useEffect(() => {
+    console.log('OfferManagement - Current Offers:', offers);
+  }, [offers]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
@@ -19,9 +24,16 @@ const OfferManagement = () => {
   }, []);
   
   useEffect(() => {
-    if (isVisible && offers.length > 0) {
+    if (isVisible && offers && offers.length > 0) {
+      // Reset loaded items when offers change
+      setLoadedItems([]);
+      
       const timers = [];
-      const displayOffers = offers.slice(0, 2);
+      // Get the latest offers (sorted by ID in descending order)
+      const sortedOffers = [...offers]
+        .filter(offer => !offer.isDraft)
+        .sort((a, b) => b.id - a.id);
+      const displayOffers = sortedOffers.slice(0, 2);
       
       displayOffers.forEach((_, index) => {
         const timer = setTimeout(() => {
@@ -34,8 +46,10 @@ const OfferManagement = () => {
     }
   }, [isVisible, offers]);
 
-  // Filter out draft offers
-  const publishedOffers = offers.filter(offer => !offer.isDraft);
+  // Filter out draft offers and sort by newest first (latest created first)
+  const publishedOffers = offers
+    .filter(offer => !offer.isDraft)
+    .sort((a, b) => b.id - a.id); // Sort by id in descending order to show newest first
 
   return (
     <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -57,9 +71,10 @@ const OfferManagement = () => {
 
       <div className="space-y-4">
         {publishedOffers.length > 0 ? (
+          // Always show the most recent 2 offers
           publishedOffers.slice(0, 2).map((offer, index) => (
             <div 
-              key={offer.id} 
+              key={offer.id || index} // Add index as fallback for key
               className={`transition-all duration-500 transform ${loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
               {/* Hide boost button on homepage */}

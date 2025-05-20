@@ -139,18 +139,18 @@ const OfferItem = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <button 
-                  className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
+                  className={`p-2.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
                   title="Edit offer"
                   onClick={handleEdit}
                 >
-                  <Edit size={18} />
+                  <Edit size={20} className="md:w-5 md:h-5" />
                 </button>
                 <button 
-                  className={`p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
+                  className={`p-2.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
                   title="Preview offer"
                   onClick={handlePreview}
                 >
-                  <ExternalLink size={18} />
+                  <ExternalLink size={20} className="md:w-5 md:h-5" />
                 </button>
               </div>
               

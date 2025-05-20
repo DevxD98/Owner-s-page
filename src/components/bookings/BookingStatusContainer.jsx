@@ -64,13 +64,17 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
 
   return (
     <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-      <div className="flex items-center mb-4">
+      <div 
+        className="flex items-center mb-4 cursor-pointer group"
+        onClick={() => navigate('/booking-status')}
+      >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
             <Ticket size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800">Offer Bookings</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Offer Bookings</h2>
         </div>
+        <ChevronRight size={20} className="ml-auto text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-all" />
       </div>
 
       {showSearch && (

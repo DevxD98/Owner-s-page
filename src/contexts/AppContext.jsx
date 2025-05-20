@@ -90,20 +90,38 @@ export const AppProvider = ({ children }) => {
     {
       id: "b1",
       customerName: "Rahul Sharma",
-      service: "Table Reservation",
+      offerId: "1",
+      offerTitle: "50% OFF on Pizzas",
+      offerType: "happyhours",
       date: "2025-05-18",
       time: "7:30 PM",
+      validTill: "8:30 PM",
       status: "confirmed",
       phoneNumber: "+91 97654 32109"
     },
     {
       id: "b2",
       customerName: "Ananya Mehta",
-      service: "Birthday Party Booking",
+      offerId: "2",
+      offerTitle: "Win a Free Dessert",
+      offerType: "spintowin",
       date: "2025-05-22",
       time: "6:00 PM",
-      status: "confirmed",
+      validTill: "7:00 PM",
+      status: "pending",
       phoneNumber: "+91 89765 43210"
+    },
+    {
+      id: "b3",
+      customerName: "Vikram Singh",
+      offerId: "1",
+      offerTitle: "Buy 1 Get 1 Free Drinks",
+      offerType: "happyhours",
+      date: "2025-05-20",
+      time: "1:30 PM",
+      validTill: "2:30 PM",
+      status: "active",
+      phoneNumber: "+91 98765 12345"
     }
   ]);
   

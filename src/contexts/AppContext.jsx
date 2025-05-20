@@ -143,16 +143,21 @@ export const AppProvider = ({ children }) => {
   };
 
   const addOffer = (offer) => {
+    // Generate a timestamp-based ID to ensure newer offers have higher IDs
+    const timestamp = new Date().getTime();
     const newOffer = {
       ...offer,
-      id: String(offers.length + sponsoredAds.length + 1),
+      id: String(timestamp), // Use timestamp for guaranteed unique and sortable IDs
     };
+    
+    console.log('Adding new offer:', newOffer);
     
     // Check if this is a sponsored ad
     if (offer.isSponsored) {
       setSponsoredAds([...sponsoredAds, newOffer]);
     } else {
-      setOffers([...offers, newOffer]);
+      // Add the new offer to the beginning of the array to ensure it shows up first
+      setOffers([newOffer, ...offers]);
     }
   };
 

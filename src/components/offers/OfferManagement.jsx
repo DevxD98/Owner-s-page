@@ -75,49 +75,50 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
   const publishedOffers = getFilteredOffers();
 
   return (
-    <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-      <div 
-        className="flex justify-between items-center mb-4 cursor-pointer group"
-        onClick={() => navigate('/offer-management')}
+    <div className={`mt-4 sm:mt-6 p-3 sm:p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+      <div className={`flex justify-between items-center mb-3 sm:mb-4 ${!showAllItems ? 'cursor-pointer group' : ''}`}
+        onClick={() => !showAllItems && navigate('/offer-management')}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
-            <Sparkles size={20} className="text-white" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+            <Sparkles size={16} className="sm:size-20 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
         </div>
-        <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform" />
+        {!showAllItems && (
+          <ChevronRight size={18} className="sm:size-20 text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform" />
+        )}
       </div>
 
       {/* Only show search and filters if showSearch prop is true */}
       {showSearch && (
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-gray-400" />
+                <Search size={14} className="sm:size-16 text-gray-400" />
               </div>
               <input
                 type="text"
                 placeholder="Search offers..."
-                className="pl-10 w-full p-2.5 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                className="pl-9 sm:pl-10 w-full p-2 sm:p-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="p-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
+              className="p-2 sm:p-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
             >
-              <Filter size={18} className={showFilters ? "text-amber-600" : "text-gray-500"} />
+              <Filter size={16} className={showFilters ? "text-amber-600" : "text-gray-500"} />
             </button>
           </div>
           
           {showFilters && (
-            <div className="flex space-x-2 overflow-x-auto pb-3">
+            <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-3 scrollbar-hide">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 text-sm rounded-lg ${filter === 'all' 
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'all' 
                   ? 'bg-amber-500 text-white shadow-sm' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
               >
@@ -125,7 +126,7 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
               </button>
               <button
                 onClick={() => setFilter('active')}
-                className={`px-4 py-2 text-sm rounded-lg ${filter === 'active' 
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'active' 
                   ? 'bg-green-500 text-white shadow-sm' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
               >
@@ -133,7 +134,7 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
               </button>
               <button
                 onClick={() => setFilter('inactive')}
-                className={`px-4 py-2 text-sm rounded-lg ${filter === 'inactive' 
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'inactive' 
                   ? 'bg-gray-500 text-white shadow-sm' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
               >
@@ -144,7 +145,7 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {publishedOffers && publishedOffers.length > 0 ? (
           publishedOffers.slice(0, showAllItems ? undefined : 2).map((offer, index) => (
             <div 
@@ -165,14 +166,14 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
             </div>
           ))
         ) : (
-          <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-            <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <Sparkles size={24} className="text-gray-400" />
+          <div className="text-center py-6 sm:py-8 border-2 border-dashed border-gray-200 rounded-lg">
+            <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <Sparkles size={20} className="sm:size-24 text-gray-400" />
             </div>
-            <p className="text-gray-600 font-medium">
+            <p className="text-gray-600 font-medium text-sm sm:text-base">
               {searchTerm || filter !== 'all' ? 'No matching offers found' : 'No active offers yet'}
             </p>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-gray-500 text-xs sm:text-sm mt-1">
               {searchTerm || filter !== 'all' 
                 ? 'Try adjusting your search or filters' 
                 : 'Create your first offer to engage customers'}
@@ -180,19 +181,19 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
             {!searchTerm && filter === 'all' && (
               <button 
                 onClick={() => navigate('/create-offer')} 
-                className="mt-4 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center mx-auto"
+                className="mt-3 sm:mt-4 px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center mx-auto text-xs sm:text-sm"
               >
-                <Plus size={16} className="mr-2" />
+                <Plus size={14} className="sm:size-16 mr-1 sm:mr-2" />
                 Create Offer
               </button>
             )}
           </div>
         )}
         
-        {offers && offers.filter(o => !o.isDraft).length > 2 && (
+        {offers && offers.filter(o => !o.isDraft).length > 2 && !showAllItems && (
           <button 
             onClick={() => navigate('/offer-management')}
-            className="w-full py-2 mt-2 text-amber-600 bg-amber-50 rounded-lg text-center font-medium transition-colors hover:bg-amber-100"
+            className="w-full py-1.5 sm:py-2 mt-2 text-amber-600 bg-amber-50 rounded-lg text-center text-xs sm:text-sm font-medium transition-colors hover:bg-amber-100"
           >
             View all ({offers.filter(o => !o.isDraft).length}) offers
           </button>

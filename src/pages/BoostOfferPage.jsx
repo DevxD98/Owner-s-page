@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { ArrowLeft, TrendingUp, Zap, BarChart3, Users, Eye, Award } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Zap, Users, Eye, BarChart3 } from 'lucide-react';
 
 const BoostOfferPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { offers } = useApp();
   const [offer, setOffer] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // Boost parameters
+  const [views, setViews] = useState(300);
+  const [cost, setCost] = useState(100);
+  const minViews = 300;
+  const maxViews = 10000;
+  const viewsPerRupee = 3; // 3 views per rupee
+  
+  // For slider input value display
+  const viewsFormatted = new Intl.NumberFormat('en-IN').format(views);
+  const costFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(cost);
 
   // Get the offer ID from the URL query parameters
   const searchParams = new URLSearchParams(location.search);
@@ -28,60 +38,35 @@ const BoostOfferPage = () => {
     }
   }, [offerId, offers, navigate]);
 
-  const handleBoost = (plan) => {
-    setSelectedPlan(plan);
+  // Handle views/cost calculation
+  const handleViewsChange = (e) => {
+    const newViews = parseInt(e.target.value);
+    setViews(newViews);
+    setCost(Math.round(newViews / viewsPerRupee));
+  };
+  
+  const handleCostChange = (e) => {
+    const newCost = parseInt(e.target.value);
+    setCost(newCost);
+    setViews(newCost * viewsPerRupee);
+  };
+
+  const handleBoost = () => {
     setLoading(true);
     
     // Simulate API call to boost the offer
     setTimeout(() => {
       setLoading(false);
       // Show success message and redirect back
-      alert(`Offer "${offer?.title}" has been successfully boosted with the ${plan.name} plan!`);
+      alert(`Offer "${offer?.title}" has been successfully boosted to reach approximately ${viewsFormatted} views!`);
       navigate('/offer-management');
     }, 1500);
   };
 
-  const boostPlans = [
-    {
-      id: 'basic',
-      name: 'Basic Boost',
-      price: '₹499',
-      duration: '7 days',
-      features: [
-        'Increased visibility in search results',
-        'Featured in "Popular Offers" section',
-        'Basic analytics reports'
-      ],
-      icon: <TrendingUp size={24} className="text-blue-500" />
-    },
-    {
-      id: 'premium',
-      name: 'Premium Boost',
-      price: '₹999',
-      duration: '14 days',
-      features: [
-        'Top position in search results',
-        'Featured in "Top Picks" section',
-        'Detailed performance analytics',
-        'Social media promotion'
-      ],
-      icon: <Zap size={24} className="text-amber-500" />
-    },
-    {
-      id: 'ultimate',
-      name: 'Ultimate Boost',
-      price: '₹1,999',
-      duration: '30 days',
-      features: [
-        'Priority placement across all platforms',
-        'Featured in email newsletters',
-        'Advanced performance analytics',
-        'Push notification to nearby users',
-        'Personalized marketing strategy'
-      ],
-      icon: <BarChart3 size={24} className="text-purple-500" />
-    }
-  ];
+  // Calculate the estimated reach based on base views + boosted views
+  const totalReach = (offer?.views || 0) + views;
+
+  const totalReachFormatted = new Intl.NumberFormat('en-IN').format(totalReach);
 
   if (!offer) {
     return (
@@ -170,95 +155,116 @@ const BoostOfferPage = () => {
         </div>
       </div>
 
-      {/* Premium Boost Plans */}
+      {/* Boost with Slider Controls */}
       <div className="px-4 pt-6 pb-5">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold flex items-center">
             <span className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-1.5 rounded-lg mr-3 shadow-md">
-              <Zap size={18} />
+              <TrendingUp size={18} />
             </span>
-            Select Boost Plan
+            Boost Your Reach
           </h2>
-          <div className="text-xs bg-gray-100 px-3 py-1.5 rounded-full text-gray-500">
-            {selectedPlan ? '1 plan selected' : 'Choose a plan'}
+          <div className="text-sm bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 rounded-full text-indigo-700 font-medium">
+            <Eye size={14} className="inline mr-1" /> +{viewsFormatted} views
           </div>
         </div>
         
-        <div className="space-y-5">
-          {boostPlans.map((plan) => (
-            <div 
-              key={plan.id}
-              className={`bg-white p-5 rounded-2xl transition-all cursor-pointer relative ${
-                selectedPlan?.id === plan.id 
-                  ? 'border-2 border-indigo-500 shadow-lg transform scale-[1.02]' 
-                  : 'border border-gray-100 hover:border-indigo-300 hover:shadow-md'
-              }`}
-              onClick={() => setSelectedPlan(plan)}
-            >
-              {/* Removed Popular and Best Value tags */}
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className={`w-14 h-14 rounded-xl ${
-                    selectedPlan?.id === plan.id 
-                      ? 'bg-gradient-to-br from-indigo-100 to-purple-100' 
-                      : 'bg-gray-100'
-                  } flex items-center justify-center mr-4 transition-all shadow-sm`}>
-                    {plan.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800 text-lg">{plan.name}</h3>
-                    <p className="text-sm text-indigo-600 font-medium">{plan.duration}</p>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="font-bold text-right text-xl">{plan.price}</div>
-                  <div className="text-xs text-gray-500">one-time payment</div>
-                  
-                  {selectedPlan?.id === plan.id && (
-                    <div className="bg-indigo-100 text-indigo-600 text-xs px-2.5 py-1 rounded-full mt-2 flex items-center">
-                      <span className="mr-1.5 w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></span> Selected
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="mt-5 ml-3 border-t border-gray-100 pt-3">
-                <ul className="text-sm text-gray-600 space-y-2.5">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center">
-                      <span className={`flex-shrink-0 w-5 h-5 rounded-full ${
-                        selectedPlan?.id === plan.id 
-                          ? 'bg-indigo-100 text-indigo-600' 
-                          : 'bg-gray-100 text-gray-500'
-                      } flex items-center justify-center mr-3 transition-colors text-xs`}>
-                        ✓
-                      </span>
-                      <span className="font-medium">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              {/* Selection indicator */}
-              {selectedPlan?.id === plan.id && (
-                <div className="absolute top-0 left-0 w-full h-full rounded-2xl border-2 border-indigo-500 pointer-events-none"></div>
-              )}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          {/* Cost Display */}
+          <div className="text-center mb-6">
+            <div className="text-3xl font-bold text-gray-800 mb-1">{costFormatted}</div>
+            <p className="text-gray-500 text-sm">Estimated reach: {totalReachFormatted} views</p>
+          </div>
+          
+          {/* Views Slider */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="views-slider" className="text-sm font-medium text-gray-700">
+                <Eye size={16} className="inline mr-1" /> Views
+              </label>
+              <span className="text-sm font-medium text-indigo-600">{viewsFormatted}</span>
             </div>
-          ))}
+            <input
+              id="views-slider"
+              type="range"
+              min={minViews}
+              max={maxViews}
+              step="100"
+              value={views}
+              onChange={handleViewsChange}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:bg-gray-300 focus:outline-none focus:ring focus:ring-indigo-200"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>{minViews.toLocaleString()}</span>
+              <span>{maxViews.toLocaleString()}</span>
+            </div>
+          </div>
+          
+          {/* Cost Slider */}
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="cost-slider" className="text-sm font-medium text-gray-700">
+                <span className="inline-block">₹</span> Budget
+              </label>
+              <span className="text-sm font-medium text-indigo-600">{costFormatted}</span>
+            </div>
+            <input
+              id="cost-slider"
+              type="range"
+              min={minViews / viewsPerRupee}
+              max={maxViews / viewsPerRupee}
+              step="10"
+              value={cost}
+              onChange={handleCostChange}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:bg-gray-300 focus:outline-none focus:ring focus:ring-indigo-200"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>₹{(minViews / viewsPerRupee).toLocaleString()}</span>
+              <span>₹{(maxViews / viewsPerRupee).toLocaleString()}</span>
+            </div>
+          </div>
+          
+          {/* Boost Features */}
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Boost includes:</h3>
+            <ul className="text-sm text-gray-600 space-y-2">
+              <li className="flex items-center">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
+                  ✓
+                </span>
+                <span>Increased visibility in search results</span>
+              </li>
+              <li className="flex items-center">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
+                  ✓
+                </span>
+                <span>Featured in "Popular Offers" section</span>
+              </li>
+              <li className="flex items-center">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
+                  ✓
+                </span>
+                <span>Detailed performance analytics</span>
+              </li>
+              <li className="flex items-center">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
+                  ✓
+                </span>
+                <span>Boost active for 7 days</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      {/* Premium Action Buttons - Mobile style fixed bottom bar */}
+      {/* Action Buttons - Mobile style fixed bottom bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl z-20 backdrop-blur-md">
-        {selectedPlan && (
-          <div className="border-b border-gray-100 py-2.5 px-4 flex justify-between items-center bg-indigo-50/80">
-            <div className="text-sm font-medium text-gray-800">
-              Selected: <span className="text-indigo-600">{selectedPlan.name}</span>
-            </div>
-            <div className="text-indigo-700 font-bold">{selectedPlan.price}</div>
+        <div className="border-b border-gray-100 py-2.5 px-4 flex justify-between items-center bg-indigo-50/80">
+          <div className="text-sm font-medium text-gray-800">
+            Selected: <span className="text-indigo-600">Custom Boost</span>
           </div>
-        )}
+          <div className="text-indigo-700 font-bold">{costFormatted}</div>
+        </div>
         
         <div className="flex justify-between items-center p-4 max-w-md mx-auto">
           <button 
@@ -268,10 +274,10 @@ const BoostOfferPage = () => {
             Cancel
           </button>
           <button 
-            onClick={() => selectedPlan && handleBoost(selectedPlan)}
-            disabled={!selectedPlan || loading}
+            onClick={handleBoost}
+            disabled={loading}
             className={`flex-1 ml-4 py-3.5 rounded-xl text-white font-medium flex items-center justify-center ${
-              !selectedPlan || loading 
+              loading 
                 ? 'bg-gray-400 opacity-70 cursor-not-allowed' 
                 : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
             } transition-all shadow-md`}
@@ -286,7 +292,7 @@ const BoostOfferPage = () => {
               </span>
             ) : (
               <span className="flex items-center justify-center">
-                <Zap size={20} className="mr-2 animate-pulse-slow" /> Boost Now
+                <Zap size={20} className="mr-2 animate-pulse" /> Boost for {costFormatted}
               </span>
             )}
           </button>

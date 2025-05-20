@@ -12,7 +12,8 @@ const Layout = () => {
     '/booking-status',
     '/redemption-tracker',
     '/create-account',
-    '/help-support' // Hide navigation on help/demo pages
+    '/help-support', // Hide navigation on help/demo pages
+    '/boost-offer' // Hide navigation on boost offer page
   ];
   
   const hideNavigation = hideNavigationPaths.includes(location.pathname);

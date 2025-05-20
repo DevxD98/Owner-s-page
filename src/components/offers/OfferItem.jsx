@@ -1,6 +1,6 @@
 // filepath: /Users/devmondal/Downloads/project 10/src/components/offers/OfferItem.jsx
 import React from 'react';
-import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle, Clock } from 'lucide-react';
+import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle, Clock, Zap } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import HappyHoursTimer from './HappyHoursTimer';
@@ -55,10 +55,10 @@ const OfferItem = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg p-4 border ${isSponsored ? 'border-purple-200' : 'border-gray-100'} shadow-sm transition-all duration-300 hover:shadow-md group`}>
-      <div className="flex items-start gap-3">
+    <div className={`bg-white rounded-lg p-3 md:p-4 border ${isSponsored ? 'border-purple-200' : 'border-gray-100'} shadow-sm transition-all duration-300 hover:shadow-md group`}>
+      <div className="flex items-start gap-2 md:gap-3">
         {/* Image or placeholder */}
-        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+        <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
           {image ? (
             <img src={image} alt={title} className="w-full h-full object-cover" />
           ) : (
@@ -68,17 +68,17 @@ const OfferItem = ({
           )}
         </div>
         
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {type && (
             <div className="mb-1 text-xs text-gray-500 font-medium">
               {type === 'happyhours' ? 'Happy hours' : type === 'spintowin' ? 'Spin to win!' : ''}
             </div>
           )}
-          <div className="flex justify-between">
-            <h3 className={`font-semibold ${isSponsored ? 'text-purple-800 group-hover:text-purple-600' : 'text-gray-800 group-hover:text-amber-600'} transition-colors`}>
+          <div className="flex flex-wrap justify-between items-center gap-1">
+            <h3 className={`font-semibold text-sm md:text-base truncate ${isSponsored ? 'text-purple-800 group-hover:text-purple-600' : 'text-gray-800 group-hover:text-amber-600'} transition-colors`}>
               {title}
               {isSponsored && (
-                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                   Ad
                 </span>
               )}
@@ -86,12 +86,12 @@ const OfferItem = ({
             
             {/* Status Badge */}
             {isDraft ? (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                 Draft
               </span>
             ) : (
               <span 
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                   isActive 
                     ? isSponsored ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
@@ -121,8 +121,8 @@ const OfferItem = ({
           
           <div className="flex items-center mt-2">
             <div className="flex items-center text-xs text-gray-500">
-              <Calendar size={14} className="mr-1" />
-              <span>Valid till: {formatDate(validTill)}</span>
+              <Calendar size={12} className="mr-1 flex-shrink-0" />
+              <span className="truncate">Valid till: {formatDate(validTill)}</span>
             </div>
           </div>
           
@@ -133,51 +133,55 @@ const OfferItem = ({
             </div>
           )}
           
-          {/* Action buttons */}
-          <div className="mt-3">
-            {/* Action buttons in a single row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <button 
-                  className={`p-2.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
-                  title="Edit offer"
-                  onClick={handleEdit}
-                >
-                  <Edit size={20} className="md:w-5 md:h-5" />
-                </button>
-                <button 
-                  className={`p-2.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
-                  title="Preview offer"
-                  onClick={handlePreview}
-                >
-                  <ExternalLink size={20} className="md:w-5 md:h-5" />
-                </button>
-              </div>
-              
-              {/* Active/Inactive toggle switch - moved to right side */}
-              {!isDraft && (
-                <label className="relative inline-flex items-center cursor-pointer" title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}>
-                  <input 
-                    type="checkbox" 
-                    checked={isActive}
-                    onChange={() => toggleOffer(id)}
-                    className="sr-only peer" 
-                  />
-                  <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 ${
-                    isSponsored ? 'peer-focus:ring-purple-300 peer-checked:bg-purple-600' : 'peer-focus:ring-blue-300 peer-checked:bg-blue-600'
-                  } rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
-                </label>
-              )}
-              
-              {showBoostButton && (
-                <button 
-                  className="px-4 py-2.5 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-lg transition-all text-sm font-medium shadow-md hover:shadow-lg"
-                  onClick={handleBoost}
-                >
-                  Boost Offer
-                </button>
-              )}
+          {/* Action buttons - optimized for mobile */}
+          <div className="mt-4 md:mt-6 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+            {/* Left bottom: Edit and Preview */}
+            <div className="flex gap-2">
+              <button 
+                className={`flex items-center justify-center p-1.5 md:p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
+                title="Edit offer"
+                onClick={handleEdit}
+                style={{ width: 32, height: 32 }}
+              >
+                <Edit size={14} />
+              </button>
+              <button 
+                className={`flex items-center justify-center p-1.5 md:p-2 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-sm hover:shadow border border-gray-100`}
+                title="Preview offer"
+                onClick={handlePreview}
+                style={{ width: 32, height: 32 }}
+              >
+                <ExternalLink size={14} />
+              </button>
             </div>
+            
+            {/* Center: Boost Offer button */}
+            {showBoostButton && (
+              <button 
+                className="flex items-center justify-center px-2 sm:px-3 py-1.5 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-md transition-all text-xs font-medium shadow-sm hover:shadow"
+                style={{ height: 32 }}
+                onClick={handleBoost}
+              >
+                <Zap size={14} className="mr-1 flex-shrink-0" />
+                <span className="whitespace-nowrap">Boost Offer</span>
+              </button>
+            )}
+            
+            {/* Right: Toggle switch */}
+            {!isDraft && (
+              <label 
+                className="relative inline-flex items-center cursor-pointer ml-auto sm:ml-0"
+                title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}
+              >
+                <input 
+                  type="checkbox" 
+                  checked={isActive}
+                  onChange={() => toggleOffer(id)}
+                  className="sr-only peer" 
+                />
+                <div className="w-10 sm:w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            )}
           </div>
         </div>
       </div>

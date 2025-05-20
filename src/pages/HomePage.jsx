@@ -41,9 +41,9 @@ const HomePage = () => {
       <div className="max-w-screen-md mx-auto px-4 relative z-10">
         <StatGrid />
         <div className="mt-6 space-y-6 pb-16">
-          <OfferManagement />
-          <BookingStatusContainer />
-          <RedemptionTracker />
+          <OfferManagement showSearch={false} />
+          <BookingStatusContainer showSearch={false} />
+          <RedemptionTracker showSearch={false} />
           <ActiveSponsoredAds />
         </div>
       </div>

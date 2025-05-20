@@ -73,13 +73,17 @@ const RedemptionTracker = ({ showSearch = false, showAllItems = false }) => {
 
   return (
     <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-      <div className="flex items-center py-3 mb-1">
+      <div 
+        className="flex items-center py-3 mb-1 cursor-pointer group"
+        onClick={() => navigate('/redemption-tracker')}
+      >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
             <BarChart2 size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800">Redemption Tracker</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">Redemption Tracker</h2>
         </div>
+        <ChevronRight size={20} className="ml-auto text-gray-500 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
       </div>
       
       {/* Only show search and filters if showSearch prop is true */}

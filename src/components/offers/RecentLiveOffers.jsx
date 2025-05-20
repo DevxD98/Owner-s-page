@@ -10,6 +10,11 @@ const RecentLiveOffers = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [loadedItems, setLoadedItems] = useState([]);
 
+  // Log the offers when component mounts or offers change
+  useEffect(() => {
+    console.log('RecentLiveOffers - Current Offers:', offers);
+  }, [offers]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);

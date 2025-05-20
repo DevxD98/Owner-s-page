@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BookingStatus from './BookingStatus';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Calendar } from 'lucide-react';
+import { ChevronRight, Ticket } from 'lucide-react';
 
 const BookingHistory = () => {
   const { bookings } = useApp();
@@ -39,12 +39,12 @@ const BookingHistory = () => {
         onClick={() => navigate('/booking-status')}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
-            <Calendar size={20} className="text-white" />
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+            <Ticket size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">Booking History</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Offer Bookings</h2>
         </div>
-        <ChevronRight size={20} className="text-gray-500 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all" />
+        <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-all" />
       </div>
       <div className="space-y-4">
         {bookings && bookings.length > 0 ? (
@@ -55,6 +55,7 @@ const BookingHistory = () => {
             >
               <BookingStatus
                 customerName={booking.customerName}
+                offerTitle={booking.offerTitle}
                 offerType={booking.offerType}
                 date={booking.date}
                 time={booking.time}
@@ -66,19 +67,19 @@ const BookingHistory = () => {
         ) : (
           <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
             <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <Calendar size={24} className="text-gray-400" />
+              <Ticket size={24} className="text-gray-400" />
             </div>
-            <p className="text-gray-500 font-medium">No bookings available</p>
-            <p className="text-gray-400 text-sm mt-1">Future bookings will appear here</p>
+            <p className="text-gray-500 font-medium">No offer bookings yet</p>
+            <p className="text-gray-400 text-sm mt-1">Customer offer bookings will appear here</p>
           </div>
         )}
         
         {bookings && bookings.length > 3 && (
           <button 
             onClick={() => navigate('/booking-status')}
-            className="w-full py-2 mt-2 text-indigo-600 bg-indigo-50 rounded-lg text-center font-medium transition-colors hover:bg-indigo-100"
+            className="w-full py-2 mt-2 text-amber-600 bg-amber-50 rounded-lg text-center font-medium transition-colors hover:bg-amber-100"
           >
-            View all ({bookings.length}) bookings
+            View all ({bookings.length}) offer bookings
           </button>
         )}
       </div>

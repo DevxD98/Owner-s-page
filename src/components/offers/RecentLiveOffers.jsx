@@ -73,11 +73,15 @@ const RecentLiveOffers = ({ showSearch = false }) => {
       <div 
         className="flex justify-between items-center mb-4"
       >
-        <div className="flex items-center gap-3">
+        <div 
+          className="flex items-center gap-3 cursor-pointer group"
+          onClick={() => navigate('/offer-management')}
+        >
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
             <Sparkles size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800">Recent Live Offers</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
+          <ChevronRight size={20} className="ml-2 text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
       
@@ -185,7 +189,7 @@ const RecentLiveOffers = ({ showSearch = false }) => {
           </div>
         )}
         
-        {publishedOffers.length > 3 && (
+        {publishedOffers.length > 3 && !showAllItems && (
           <button 
             onClick={() => navigate('/offer-management')}
             className="w-full py-2 mt-4 text-amber-600 bg-amber-50 rounded-lg text-center font-medium transition-colors hover:bg-amber-100"

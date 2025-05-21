@@ -32,6 +32,17 @@ export const calculateHappyHoursTimeRemaining = (startTime, endTime, validityDat
   const validDate = new Date(validityDate);
   validDate.setHours(23, 59, 59, 999); // End of day
   
+  // Is the offer valid yet (started)?
+  if (now < validStartDate) {
+    return {
+      status: 'upcoming',
+      message: 'Offer starts in',
+      timeRemaining: validStartDate - now,
+      formattedTimeRemaining: formatTimeRemaining(validStartDate - now),
+      percentage: 0
+    };
+  }
+  
   // Is the offer still valid (not expired)?
   if (now > validDate) {
     return { 
@@ -123,6 +134,19 @@ export const calculateHappyHoursTimeRemaining = (startTime, endTime, validityDat
       percentage: 0
     };
   }
+};
+
+/**
+ * Format milliseconds to HH:MM:SS format
+ * @param {number} ms - Time in milliseconds
+ * @returns {string} Formatted time string (HH:MM:SS)
+ */
+const formatTimeRemaining = (ms) => {
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
 /**

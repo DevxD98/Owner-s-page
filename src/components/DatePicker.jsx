@@ -2,10 +2,13 @@ import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const CustomDatePicker = ({ value, onChange, placeholder = 'Select date' }) => {
+const CustomDatePicker = ({ value, onChange, placeholder = 'Select date', minDate = null }) => {
   // When creating a date from a string like "2025-05-19", it gets interpreted as UTC midnight
   // which may cause timezone issues. We need to preserve the local date exactly.
   const selectedDate = value ? new Date(value + 'T12:00:00') : null;
+  
+  // Convert minDate string to Date object if provided
+  const minimumDate = minDate ? new Date(minDate + 'T12:00:00') : null;
 
   const handleDateChange = (date) => {
     if (date) {
@@ -31,6 +34,7 @@ const CustomDatePicker = ({ value, onChange, placeholder = 'Select date' }) => {
         dateFormat="dd MMM yyyy" // <- This displays as "01 Apr 2025"
         className="w-full rounded-lg border bg-gray-100 px-4 py-2 text-left focus:outline-none"
         wrapperClassName='w-full'
+        minDate={minimumDate}
       />
     </div>
   );

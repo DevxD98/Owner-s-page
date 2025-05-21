@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 // Import our temporary local storage helper
 import { loadAccountInfo, saveAccountInfo, loadStoreInfo, saveStoreInfo } from '../utils/localStorageHelper.js';
+// Import image utility functions
+import { blobUrlToDataUrl, isValidImageUrl, getImageWithFallback } from '../utils/imageUtils.js';
 
 const defaultContext = {
   location: '',
@@ -54,96 +56,93 @@ export const AppProvider = ({ children }) => {
     storeVisits: 0
   });
   
-  // Sample offers data
-  const [offers, setOffers] = useState([
-    {
-      id: "1",
-      title: "Happy hours",
-      description: "Flat 30% OFF on ₹499+",
-      validTill: "2025-07-20",
-      isActive: true,
-      isDraft: false,
-      imagePreview: "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400&auto=format&fit=crop",
-      type: "happyhours",
-      category: "Food",
-      views: 230
-    },
-    {
-      id: "2",
-      title: "Spin to win !",
-      description: "Flat 30% OFF on ₹499+",
-      validTill: "2025-06-25",
-      isActive: true,
-      isDraft: false,
-      imagePreview: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400&auto=format&fit=crop",
-      type: "spintowin",
-      category: "Food",
-      views: 230
-    }
-  ]);
+  // Get current date in YYYY-MM-DD format
+  const getCurrentDateString = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  };
   
-  // Sample sponsored ads data
+  // Get date one week from now in YYYY-MM-DD format
+  const getOneWeekLaterString = () => {
+    const oneWeekLater = new Date();
+    oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+    return `${oneWeekLater.getFullYear()}-${String(oneWeekLater.getMonth() + 1).padStart(2, '0')}-${String(oneWeekLater.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Initialize offers array with sample data if not available in local storage
+  const [offers, setOffers] = useState(() => {
+    // Try to load from local storage first
+    const storedOffers = localStorage.getItem('offers');
+    if (storedOffers) {
+      try {
+        const parsedOffers = JSON.parse(storedOffers);
+        console.log('Loaded offers from local storage:', parsedOffers);
+        return parsedOffers;
+      } catch (e) {
+        console.error('Error parsing stored offers:', e);
+      }
+    }
+    
+    // If no stored offers or parsing error, return sample offers with images
+    return [
+      {
+        id: '1001',
+        title: 'Weekend Special: 20% Off',
+        description: 'Get 20% off on all items this weekend only!',
+        validTill: getOneWeekLaterString(),
+        startDate: getCurrentDateString(),
+        isActive: true,
+        isDraft: false,
+        type: 'spotlight',
+        views: 45,
+        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23fef3c7"%3E%3C/rect%3E%3Ctext x="50" y="50" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%23d97706"%3E20%25 OFF%3C/text%3E%3C/svg%3E',
+        imagePreview: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23fef3c7"%3E%3C/rect%3E%3Ctext x="50" y="50" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%23d97706"%3E20%25 OFF%3C/text%3E%3C/svg%3E'
+      },
+      {
+        id: '1002',
+        title: 'Happy Hour: Buy 1 Get 1 Free',
+        description: 'Buy one, get one free between 2-4pm daily',
+        validTill: getOneWeekLaterString(),
+        startDate: getCurrentDateString(),
+        startTime: '14:00',
+        endTime: '16:00',
+        isActive: true,
+        isDraft: false,
+        type: 'happyhours',
+        views: 78,
+        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23dbeafe"%3E%3C/rect%3E%3Ctext x="50" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EBUY 1%3C/text%3E%3Ctext x="50" y="60" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EGET 1 FREE%3C/text%3E%3C/svg%3E',
+        imagePreview: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23dbeafe"%3E%3C/rect%3E%3Ctext x="50" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EBUY 1%3C/text%3E%3Ctext x="50" y="60" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EGET 1 FREE%3C/text%3E%3C/svg%3E'
+      },
+      {
+        id: '1003',
+        title: 'Spin to Win a Free Dessert!',
+        description: 'Spin the wheel and win exciting prizes including a free dessert with your meal!',
+        validTill: getOneWeekLaterString(),
+        startDate: getCurrentDateString(),
+        isActive: true,
+        isDraft: false,
+        type: 'spintowin',
+        views: 122,
+        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f3e8ff"%3E%3C/rect%3E%3Ccircle cx="50" cy="50" r="35" stroke="%236d28d9" stroke-width="2" fill="%23ddd6fe"%3E%3C/circle%3E%3Ctext x="50" y="55" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%236d28d9"%3ESPIN TO WIN%3C/text%3E%3C/svg%3E',
+        imagePreview: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f3e8ff"%3E%3C/rect%3E%3Ccircle cx="50" cy="50" r="35" stroke="%236d28d9" stroke-width="2" fill="%23ddd6fe"%3E%3C/circle%3E%3Ctext x="50" y="55" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%236d28d9"%3ESPIN TO WIN%3C/text%3E%3C/svg%3E'
+      }
+    ];
+  });
+  
+  // Save offers to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('offers', JSON.stringify(offers));
+    console.log('Saved offers to localStorage:', offers);
+  }, [offers]);
+  
+  // Initialize sponsored ads array
   const [sponsoredAds, setSponsoredAds] = useState([]);
   
-  // Sample bookings data
-  const [bookings, setBookings] = useState([
-    {
-      id: "b1",
-      customerName: "Rahul Sharma",
-      offerId: "1",
-      offerTitle: "50% OFF on Pizzas",
-      offerType: "happyhours",
-      date: "2025-05-18",
-      time: "7:30 PM",
-      validTill: "8:30 PM",
-      status: "confirmed",
-      phoneNumber: "+91 97654 32109"
-    },
-    {
-      id: "b2",
-      customerName: "Ananya Mehta",
-      offerId: "2",
-      offerTitle: "Win a Free Dessert",
-      offerType: "spintowin",
-      date: "2025-05-22",
-      time: "6:00 PM",
-      validTill: "7:00 PM",
-      status: "pending",
-      phoneNumber: "+91 89765 43210"
-    },
-    {
-      id: "b3",
-      customerName: "Vikram Singh",
-      offerId: "1",
-      offerTitle: "Buy 1 Get 1 Free Drinks",
-      offerType: "happyhours",
-      date: "2025-05-20",
-      time: "1:30 PM",
-      validTill: "2:30 PM",
-      status: "active",
-      phoneNumber: "+91 98765 12345"
-    }
-  ]);
+  // Initialize empty bookings array - no more hardcoded example data
+  const [bookings, setBookings] = useState([]);
   
-  // Sample redemptions data
-  const [redemptions, setRedemptions] = useState([
-    {
-      id: "r1",
-      customerName: "Vikram Patel",
-      offerTitle: "Happy hours",
-      redeemedOn: "2025-05-16",
-      time: "7:45 PM",
-      status: "completed"
-    },
-    {
-      id: "r2",
-      customerName: "Priya Joshi",
-      offerTitle: "Spin to win !",
-      redeemedOn: "2025-05-16",
-      time: "8:15 PM",
-      status: "completed"
-    }
-  ]);
+  // Initialize empty redemptions array - no more hardcoded example data
+  const [redemptions, setRedemptions] = useState([]);
 
   const toggleOffer = (id) => {
     // Check in regular offers
@@ -160,13 +159,108 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const addOffer = (offer) => {
+  const addOffer = async (offer) => {
     // Generate a timestamp-based ID to ensure newer offers have higher IDs
     const timestamp = new Date().getTime();
+    
+    // Create a new offer with the ID
     const newOffer = {
       ...offer,
       id: String(timestamp), // Use timestamp for guaranteed unique and sortable IDs
+      isActive: true, // All newly created offers are active by default
+      isDraft: false, // All newly created offers are not drafts by default
+      views: 0, // Initialize view count
+      type: offer.type || 'spotlight' // Ensure a default type if none provided
     };
+    
+    // Log the offer type for debugging
+    console.log('Creating new offer with type:', newOffer.type);
+    
+    // Handle image to prevent blob URL errors
+    if (newOffer.imagePreview && newOffer.imagePreview.startsWith('blob:')) {
+      try {
+        console.log('Converting blob URL to data URL for persistence');
+        // Convert blob URL to data URL for persistence
+        const dataUrl = await blobUrlToDataUrl(newOffer.imagePreview);
+        if (dataUrl) {
+          newOffer.image = dataUrl;
+          newOffer.imagePreview = dataUrl; // Update both properties
+        } else {
+          console.warn('Failed to convert blob URL, using fallback');
+          newOffer.image = null;
+          newOffer.imagePreview = null;
+        }
+      } catch (error) {
+        console.error('Error handling image:', error);
+        newOffer.image = null;
+        newOffer.imagePreview = null;
+      }
+    } else if (newOffer.imagePreview) {
+      // Non-blob image URL (like http://) is already persistent
+      newOffer.image = newOffer.imagePreview;
+    }
+    
+    // Get current date and future date helper functions
+    const getCurrentDateString = () => {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    };
+    
+    const getOneWeekLaterString = () => {
+      const oneWeekLater = new Date();
+      oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+      return `${oneWeekLater.getFullYear()}-${String(oneWeekLater.getMonth() + 1).padStart(2, '0')}-${String(oneWeekLater.getDate()).padStart(2, '0')}`;
+    };
+    
+    // Ensure common fields are set regardless of type
+    newOffer.validTill = newOffer.validTill || getOneWeekLaterString();
+    
+    // Special handling for Happy Hours offers
+    if (offer.type === 'happyhours') {
+      // Make sure these properties are explicitly set with appropriate defaults
+      // Use dynamic dates instead of hardcoded ones
+      newOffer.startTime = offer.startTime || "14:00"; // Default: 2:00 PM
+      newOffer.endTime = offer.endTime || "16:00"; // Default: 4:00 PM
+      newOffer.validityDate = offer.validityDate || getOneWeekLaterString();
+      newOffer.startDate = offer.startDate || getCurrentDateString();
+      
+      console.log('Adding Happy Hours offer with timer data:', {
+        startTime: newOffer.startTime,
+        endTime: newOffer.endTime,
+        validityDate: newOffer.validityDate,
+        startDate: newOffer.startDate
+      });
+    } 
+    // Handle Spotlight offers
+    else if (offer.type === 'spotlight') {
+      // For spotlight offers, set both validTill and validityDate to match consistently
+      // Use provided dates or set defaults if not provided
+      newOffer.startDate = offer.startDate || getCurrentDateString();
+      newOffer.validityDate = offer.validityDate || offer.validTill || getOneWeekLaterString();
+      newOffer.validTill = newOffer.validityDate; // Ensure both are consistent
+      
+      console.log('Adding Spotlight offer with dates:', {
+        startDate: newOffer.startDate,
+        endDate: newOffer.validityDate
+      });
+    }
+    // Handle Spin to Win offers
+    else if (offer.type === 'spintowin') {
+      // For spin to win offers, set both validTill and validityDate to match consistently
+      // Use provided dates or set defaults if not provided
+      newOffer.startDate = offer.startDate || getCurrentDateString();
+      newOffer.validityDate = offer.validityDate || offer.validTill || getOneWeekLaterString();
+      newOffer.validTill = newOffer.validityDate; // Ensure both are consistent
+      
+      // Ensure spinnerOffers is always an array
+      newOffer.spinnerOffers = newOffer.spinnerOffers || [];
+      newOffer.spinnerProbabilities = newOffer.spinnerProbabilities || [];
+      
+      console.log('Adding Spin to Win offer with dates:', {
+        startDate: newOffer.startDate,
+        endDate: newOffer.validityDate
+      });
+    }
     
     console.log('Adding new offer:', newOffer);
     
@@ -176,10 +270,19 @@ export const AppProvider = ({ children }) => {
     } else {
       // Add the new offer to the beginning of the array to ensure it shows up first
       setOffers([newOffer, ...offers]);
+      console.log('New offers array:', [newOffer, ...offers]);
+      
+      // Debug log to check IDs
+      console.log('Offers IDs for sorting check:', [newOffer, ...offers].map(o => o.id));
     }
   };
 
-  const updateOffer = (id, updatedOffer) => {
+  const updateOffer = async (id, updatedOffer) => {
+    // Ensure the offer has a type
+    if (!updatedOffer.type) {
+      console.warn('Updating offer with missing type, setting default type:', id);
+      updatedOffer.type = 'spotlight';
+    }
     // Check if this offer is being converted to/from a sponsored ad
     if (updatedOffer.isSponsored !== undefined) {
       // If converting a regular offer to a sponsored ad
@@ -206,6 +309,129 @@ export const AppProvider = ({ children }) => {
       }
     }
     
+    // Handle image to prevent blob URL errors
+    if (updatedOffer.imagePreview && updatedOffer.imagePreview.startsWith('blob:')) {
+      try {
+        console.log('Converting blob URL to data URL for persistence in update');
+        // Convert blob URL to data URL for persistence
+        const dataUrl = await blobUrlToDataUrl(updatedOffer.imagePreview);
+        if (dataUrl) {
+          updatedOffer.image = dataUrl;
+          updatedOffer.imagePreview = dataUrl; // Update both properties
+        } else {
+          console.warn('Failed to convert blob URL in update, using previous image');
+          // Don't update the image, remove imagePreview from update to keep original
+          delete updatedOffer.imagePreview;
+        }
+      } catch (error) {
+        console.error('Error handling image in update:', error);
+        delete updatedOffer.imagePreview;
+      }
+    } else if (updatedOffer.imagePreview) {
+      // Non-blob image URL is already persistent
+      updatedOffer.image = updatedOffer.imagePreview;
+    }
+    
+    // Special handling for Happy Hours offers
+    if (updatedOffer.type === 'happyhours') {
+      // Get current date for dynamic defaults
+      const getCurrentDateString = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      };
+      
+      // Get date one week from now
+      const getOneWeekLaterString = () => {
+        const oneWeekLater = new Date();
+        oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+        return `${oneWeekLater.getFullYear()}-${String(oneWeekLater.getMonth() + 1).padStart(2, '0')}-${String(oneWeekLater.getDate()).padStart(2, '0')}`;
+      };
+      
+      // Ensure timer properties have defaults for Happy Hours offers
+      updatedOffer.startTime = updatedOffer.startTime || "14:00";
+      updatedOffer.endTime = updatedOffer.endTime || "16:00";
+      updatedOffer.validityDate = updatedOffer.validityDate || getOneWeekLaterString();
+      updatedOffer.startDate = updatedOffer.startDate || getCurrentDateString();
+      
+      console.log('Updating Happy Hours offer with timer data:', {
+        id,
+        startTime: updatedOffer.startTime,
+        endTime: updatedOffer.endTime,
+        validityDate: updatedOffer.validityDate,
+        startDate: updatedOffer.startDate
+      });
+    }
+    // Handle Spotlight offers
+    else if (updatedOffer.type === 'spotlight') {
+      // Get current date for dynamic defaults
+      const getCurrentDateString = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      };
+      
+      // Get date one week from now
+      const getOneWeekLaterString = () => {
+        const oneWeekLater = new Date();
+        oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+        return `${oneWeekLater.getFullYear()}-${String(oneWeekLater.getMonth() + 1).padStart(2, '0')}-${String(oneWeekLater.getDate()).padStart(2, '0')}`;
+      };
+      
+      // Get the existing offer
+      const existingOffer = offers.find(offer => offer.id === id);
+      
+      // Ensure spotlight-specific fields have defaults if they're being updated
+      if (updatedOffer.validityDate === undefined) {
+        updatedOffer.validityDate = existingOffer?.validityDate || getOneWeekLaterString();
+      }
+      if (updatedOffer.startDate === undefined) {
+        updatedOffer.startDate = existingOffer?.startDate || getCurrentDateString();
+      }
+      
+      // Always ensure validTill matches validityDate for consistent behavior
+      updatedOffer.validTill = updatedOffer.validityDate;
+      
+      console.log('Updating Spotlight offer with dates:', {
+        id,
+        startDate: updatedOffer.startDate,
+        endDate: updatedOffer.validityDate
+      });
+    }
+    // Handle Spin to Win offers
+    else if (updatedOffer.type === 'spintowin') {
+      // Get current date for dynamic defaults
+      const getCurrentDateString = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      };
+      
+      // Get date one week from now
+      const getOneWeekLaterString = () => {
+        const oneWeekLater = new Date();
+        oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+        return `${oneWeekLater.getFullYear()}-${String(oneWeekLater.getMonth() + 1).padStart(2, '0')}-${String(oneWeekLater.getDate()).padStart(2, '0')}`;
+      };
+      
+      // Get the existing offer
+      const existingOffer = offers.find(offer => offer.id === id);
+      
+      // Ensure spin-to-win-specific fields have defaults if they're being updated
+      if (updatedOffer.validityDate === undefined) {
+        updatedOffer.validityDate = existingOffer?.validityDate || getOneWeekLaterString();
+      }
+      if (updatedOffer.startDate === undefined) {
+        updatedOffer.startDate = existingOffer?.startDate || getCurrentDateString();
+      }
+      
+      // Always ensure validTill matches validityDate for consistent behavior
+      updatedOffer.validTill = updatedOffer.validityDate;
+      
+      console.log('Updating Spin to Win offer with dates:', {
+        id,
+        startDate: updatedOffer.startDate,
+        endDate: updatedOffer.validityDate
+      });
+    }
+    
     // Regular update without conversion
     setOffers(offers.map(offer => 
       offer.id === id ? { ...offer, ...updatedOffer } : offer
@@ -213,6 +439,11 @@ export const AppProvider = ({ children }) => {
     setSponsoredAds(sponsoredAds.map(ad => 
       ad.id === id ? { ...ad, ...updatedOffer } : ad
     ));
+
+    // Debug log to check IDs
+    console.log('Updated offers IDs for sorting check:', 
+      offers.map(offer => offer.id === id ? { ...offer, ...updatedOffer } : offer).map(o => o.id)
+    );
   };
 
   const updateRedemption = (id, updatedRedemption) => {

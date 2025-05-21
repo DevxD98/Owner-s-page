@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import LocationHeader from '../components/dashboard/LocationHeader';
 import StatGrid from '../components/dashboard/StatGrid';
 import OfferManagement from '../components/offers/OfferManagement';
@@ -8,6 +9,17 @@ import ActiveSponsoredAds from '../components/ads/ActiveSponsoredAds';
 
 const HomePage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [offerRefreshKey, setOfferRefreshKey] = useState(0);
+  const location = useLocation();
+  
+  // Check if coming from publishing an offer
+  useEffect(() => {
+    if (location.state?.fromPublish) {
+      console.log('Coming from offer publish, refreshing offers with timestamp:', location.state.timestamp);
+      // Force refresh of the offers component with a new key
+      setOfferRefreshKey(prev => prev + 1);
+    }
+  }, [location.state]);
   
   useEffect(() => {
     // Smooth entrance animation
@@ -41,7 +53,8 @@ const HomePage = () => {
       <div className="max-w-screen-md mx-auto px-4 relative z-10">
         <StatGrid />
         <div className="mt-6 space-y-6 pb-16">
-          <OfferManagement showSearch={false} />
+          {/* Use key to force re-render when offers change */}
+          <OfferManagement key={`offer-management-${offerRefreshKey}`} showSearch={false} />
           <BookingStatusContainer showSearch={false} />
           <RedemptionTracker showSearch={false} />
           <ActiveSponsoredAds />

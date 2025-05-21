@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Calendar, Clock, Info, Tag, MapPin, Award, ChevronRight, AlertCircle, Edit, Share2, CheckCircle } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import HappyHoursTimer from '../components/offers/HappyHoursTimer';
+import { blobUrlToDataUrl } from '../utils/imageUtils.js';
+import { createNavigationState } from '../utils/routeUtils.js';
 
 const PreviewOfferPage = () => {
   const navigate = useNavigate();
@@ -34,17 +36,55 @@ const PreviewOfferPage = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
   
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (previewData) {
       // Remove preview flag and set as published (not draft)
       const publishPayload = {
         ...previewData,
         isPreview: false,
-        isDraft: false,
-        // Check if this is a sponsored ad based on the offer type or settings
-        // This is a simplified check - you can expand based on your business logic
-        isSponsored: previewData.isSponsored || previewData.type === 'spotlight'
+        isDraft: false, // Explicitly set isDraft to false
+        // Only set as sponsored if explicitly marked by user, not automatically for spotlight offers
+        isSponsored: previewData.isSponsored || false
       };
+      
+      // Log full payload for debugging
+      console.log('Full publish payload:', JSON.stringify(publishPayload));
+      
+      // For imagePreview URLs that are blob:, convert to data URLs
+      if (publishPayload.imagePreview && publishPayload.imagePreview.startsWith('blob:')) {
+        try {
+          console.log('Converting blob URL to data URL for publishing');
+          const dataUrl = await blobUrlToDataUrl(publishPayload.imagePreview);
+          if (dataUrl) {
+            publishPayload.image = dataUrl;
+            publishPayload.imagePreview = dataUrl; // Update both properties
+          } else {
+            console.warn('Failed to convert blob URL in publish, clearing image');
+            publishPayload.image = null;
+            publishPayload.imagePreview = null;
+          }
+        } catch (error) {
+          console.error('Error converting image for publish:', error);
+          publishPayload.image = null;
+          publishPayload.imagePreview = null;
+        }
+      } else if (publishPayload.imagePreview) {
+        // Non-blob URLs are already persistent
+        publishPayload.image = publishPayload.imagePreview;
+      }
+      
+      // Ensure Happy Hours timer properties are preserved
+      if (previewData.type === 'happyhours') {
+        // Preserve all timer properties exactly as they were entered in the creation form
+        // No fallbacks here - we want to use exactly what the user provided
+        
+        console.log('Publishing Happy Hours offer with timer data:', {
+          startTime: publishPayload.startTime,
+          endTime: publishPayload.endTime,
+          validityDate: publishPayload.validityDate,
+          startDate: publishPayload.startDate
+        });
+      }
       
       if (editMode && editId) {
         updateOffer(editId, publishPayload);
@@ -56,7 +96,19 @@ const PreviewOfferPage = () => {
       sessionStorage.removeItem('offerPreview');
       
       // Redirect to home page to show in Recent Live Offers
-      navigate('/');
+      // Use a timestamp to force component refresh
+      navigate('/', createNavigationState({ 
+        fromPublish: true, 
+        newOfferId: publishPayload.id,
+        timestamp: Date.now() // Add timestamp to ensure state is unique
+      }));
+      
+      // Debug log all offers after adding
+      console.log('All offers after publishing:', 
+        editMode && editId 
+          ? offers.map(o => o.id === editId ? { ...o, ...publishPayload } : o)
+          : [publishPayload, ...offers]
+      );
     }
   };
   
@@ -87,10 +139,13 @@ const PreviewOfferPage = () => {
       return "";
     }
     
-    if (previewData.type === 'happyhours' && previewData.startTime && previewData.endTime) {
-      return `${previewData.startTime} - ${previewData.endTime}`;
-    } else if (previewData.type === 'happyhours') {
-      return "2 - 4 pm"; // Default time if not specified
+    if (previewData.type === 'happyhours') {
+      // Always use the values as they are - don't modify the previewData object
+      // This ensures we're displaying exactly what the user entered
+      const startTimeDisplay = previewData.startTime || "Not set";
+      const endTimeDisplay = previewData.endTime || "Not set";
+      
+      return `${startTimeDisplay} - ${endTimeDisplay}`;
     }
     return "";
   };
@@ -280,8 +335,8 @@ const PreviewOfferPage = () => {
                   
                   {/* Happy Hours Timer */}
                   <HappyHoursTimer 
-                    startTime={previewData.startTime} 
-                    endTime={previewData.endTime}
+                    startTime={previewData.startTime || "14:00"} 
+                    endTime={previewData.endTime || "16:00"}
                     validityDate={previewData.validityDate}
                     startDate={previewData.startDate}
                     className="mt-2"
@@ -322,15 +377,10 @@ const PreviewOfferPage = () => {
               <div className="flex items-center">
                 <Calendar size={18} className="text-gray-500 mr-2" />
                 <span className="text-gray-700">
-                  {previewData.type === 'happyhours' ? (
-                    <>
-                      Valid from {formatDate(previewData.startDate) || 'today'} till <span className="font-medium">{formatDate(previewData.validityDate) || 'Not specified'}</span>
-                    </>
-                  ) : (
-                    <>
-                      Valid till: <span className="font-medium">{formatDate(previewData.validityDate || previewData.validTill) || 'Not specified'}</span>
-                    </>
-                  )}
+                  {/* All offer types now show start and end dates */}
+                  <>
+                    Valid from <span className="font-medium">{formatDate(previewData.startDate) || 'Undefined'}</span> till <span className="font-medium">{formatDate(previewData.validityDate || previewData.validTill) || 'Undefined'}</span>
+                  </>
                 </span>
               </div>
               

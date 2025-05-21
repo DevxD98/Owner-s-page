@@ -12,11 +12,25 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
   const [loadedItems, setLoadedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // Add a key to force refresh
 
   // Log the offers when component mounts or offers change
   useEffect(() => {
     console.log('OfferManagement - Current Offers:', offers);
+    
+    // Reset the loadedItems state to trigger re-animation
+    setLoadedItems([]);
+    
+    // Log offers IDs to verify correct sorting
+    if (offers && offers.length > 0) {
+      console.log('OfferManagement - Offer IDs:', offers.map(o => o.id));
+      console.log('OfferManagement - Non-draft offers:', offers.filter(o => !o.isDraft).length);
+    }
+    
+    // Force a refresh whenever offers change
+    setRefreshKey(prev => prev + 1);
   }, [offers]);
 
   useEffect(() => {
@@ -34,28 +48,60 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
       
       const timers = [];
       // Get the latest offers (sorted by ID in descending order)
-      const displayOffers = getFilteredOffers().slice(0, 2);
+      const displayOffers = getFilteredOffers();
+      const limitedOffers = showAllItems ? displayOffers : displayOffers.slice(0, 2);
       
-      displayOffers.forEach((_, index) => {
+      console.log(`OfferManagement - Displaying ${limitedOffers.length} offers out of ${displayOffers.length} total`);
+      
+      limitedOffers.forEach((_, index) => {
         const timer = setTimeout(() => {
           setLoadedItems(prev => [...prev, index]);
-        }, index * 100 + 200);
+        }, index * 50 + 100); // Faster animation
         timers.push(timer);
       });
       
       return () => timers.forEach(timer => clearTimeout(timer));
     }
-  }, [isVisible, offers, filter, searchTerm]);
+  }, [isVisible, offers, filter, typeFilter, searchTerm, showAllItems, refreshKey]);
 
   // Filter and sort offers
   const getFilteredOffers = () => {
-    let filtered = offers ? offers.filter(offer => !offer.isDraft) : [];
+    // Debug the offers array first
+    console.log('OfferManagement - Original offers in getFilteredOffers:', offers);
+    
+    if (!offers || !Array.isArray(offers)) {
+      console.error('OfferManagement - Offers is not a valid array:', offers);
+      return [];
+    }
+    
+    // Make sure to check if offers is defined and handle each offer having required properties
+    let filtered = offers.filter(offer => {
+      const isDraftValid = offer && typeof offer.isDraft !== 'undefined';
+      // Debug any problematic offers
+      if (!isDraftValid) {
+        console.warn('OfferManagement - Offer with incomplete data:', offer);
+      }
+      
+      // Ensure offer has a type property - set spotlight as default if missing
+      if (offer && !offer.type) {
+        console.warn('OfferManagement - Offer missing type, setting default:', offer.id);
+        offer.type = 'spotlight';
+      }
+      
+      // Filter out drafts
+      return isDraftValid && !offer.isDraft;
+    });
     
     // Apply status filter
     if (filter !== 'all') {
       filtered = filtered.filter(offer => 
         filter === 'active' ? offer.isActive : !offer.isActive
       );
+    }
+    
+    // Apply type filter
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(offer => offer.type === typeFilter);
     }
     
     // Apply search filter
@@ -67,8 +113,29 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
       );
     }
     
-    // Sort by newest first
-    return filtered.sort((a, b) => b.id - a.id);
+    // Sort by newest first - using numeric parsing for string IDs
+    // This ensures newest offers (with highest IDs) appear first
+    const sorted = filtered.sort((a, b) => {
+      // Make sure both have IDs
+      if (!a.id || !b.id) {
+        console.warn('OfferManagement - Offer missing ID for sorting:', !a.id ? a : b);
+        return 0;
+      }
+      
+      // Convert string IDs to numbers for proper sorting
+      const aId = parseInt(a.id);
+      const bId = parseInt(b.id);
+      
+      if (isNaN(aId) || isNaN(bId)) {
+        console.warn('OfferManagement - Invalid offer ID detected:', {aId: a.id, bId: b.id});
+        return 0;
+      }
+      
+      return bId - aId; // Newest first (higher ID = newer)
+    });
+    
+    console.log('OfferManagement - Filtered and sorted offers:', sorted.map(o => ({id: o.id, title: o.title})));
+    return sorted;
   };
 
   // Filter out draft offers and sort by newest first (latest created first)
@@ -80,13 +147,13 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
         onClick={() => !showAllItems && navigate('/offer-management')}
       >
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
-            <Sparkles size={16} className="sm:size-20 text-white" />
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+            <Sparkles size={20} className="text-white" />
           </div>
           <h2 className="text-lg sm:text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
         </div>
         {!showAllItems && (
-          <ChevronRight size={18} className="sm:size-20 text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform" />
+          <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform" />
         )}
       </div>
 
@@ -96,7 +163,7 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
           <div className="flex items-center gap-2 mb-3">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={14} className="sm:size-16 text-gray-400" />
+                <Search size={16} className="text-gray-400" />
               </div>
               <input
                 type="text"
@@ -110,36 +177,77 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
               onClick={() => setShowFilters(!showFilters)}
               className="p-2 sm:p-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
             >
-              <Filter size={16} className={showFilters ? "text-amber-600" : "text-gray-500"} />
+              <Filter size={18} className={showFilters ? "text-amber-600" : "text-gray-500"} />
             </button>
           </div>
           
           {showFilters && (
-            <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-3 scrollbar-hide">
-              <button
-                onClick={() => setFilter('all')}
+            <div className="space-y-2">
+              <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">              <button
+                onClick={() => {
+                  setFilter('all');
+                  setTypeFilter('all'); // Clear type filter when showing all offers
+                }}
                 className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'all' 
                   ? 'bg-amber-500 text-white shadow-sm' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
               >
                 All Offers
               </button>
-              <button
-                onClick={() => setFilter('active')}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'active' 
-                  ? 'bg-green-500 text-white shadow-sm' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
-              >
-                Active
-              </button>
-              <button
-                onClick={() => setFilter('inactive')}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'inactive' 
-                  ? 'bg-gray-500 text-white shadow-sm' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
-              >
-                Inactive
-              </button>
+                <button
+                  onClick={() => setFilter('active')}
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'active' 
+                    ? 'bg-green-500 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
+                >
+                  Active
+                </button>
+                <button
+                  onClick={() => setFilter('inactive')}
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg ${filter === 'inactive' 
+                    ? 'bg-gray-500 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
+                >
+                  Inactive
+                </button>
+              </div>
+              
+              {/* Offer type filter - this is the new section we're adding */}
+              <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                <span className="text-xs font-medium text-gray-500 self-center mr-1">Types:</span>
+                <button
+                  onClick={() => setTypeFilter('all')}
+                  className={`px-3 py-1 text-xs rounded-lg ${typeFilter === 'all' 
+                    ? 'bg-amber-500 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setTypeFilter('spotlight')}
+                  className={`px-3 py-1 text-xs rounded-lg ${typeFilter === 'spotlight' 
+                    ? 'bg-amber-500 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
+                >
+                  Spotlight
+                </button>
+                <button
+                  onClick={() => setTypeFilter('happyhours')}
+                  className={`px-3 py-1 text-xs rounded-lg ${typeFilter === 'happyhours' 
+                    ? 'bg-blue-500 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
+                >
+                  Happy Hours
+                </button>
+                <button
+                  onClick={() => setTypeFilter('spintowin')}
+                  className={`px-3 py-1 text-xs rounded-lg ${typeFilter === 'spintowin' 
+                    ? 'bg-purple-500 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
+                >
+                  Spin to Win
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -158,10 +266,15 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
                 validTill={offer.validTill}
                 isActive={offer.isActive}
                 description={offer.description}
-                image={offer.imagePreview || offer.image}
+                image={offer.image}
+                imagePreview={offer.imagePreview}
                 views={offer.views || 0}
                 showBoostButton={showBoostButtons}
                 type={offer.type}
+                startTime={offer.startTime}
+                endTime={offer.endTime}
+                validityDate={offer.validityDate}
+                startDate={offer.startDate}
               />
             </div>
           ))

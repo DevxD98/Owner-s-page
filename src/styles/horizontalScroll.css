@@ -1,0 +1,45 @@
+/* Custom styles for horizontal scrolling elements */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Image gallery styles */
+.catalog-image {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.catalog-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+}
+
+.catalog-image:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dot indicator animation */
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.dot-active {
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+/* Active dot indicator */
+.dot-indicator.active {
+  background-color: theme('colors.indigo.500');
+  transform: scale(1.2);
+}

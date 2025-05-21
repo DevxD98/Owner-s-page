@@ -13,10 +13,37 @@ const RecentLiveOffers = ({ showSearch = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllItems, setShowAllItems] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // Add a key to force refresh
 
   // Log the offers when component mounts or offers change
   useEffect(() => {
     console.log('RecentLiveOffers - Current Offers:', offers);
+    
+    // Reset loadedItems when offers change to ensure animations work correctly
+    setLoadedItems([]);
+    
+    // Check happy hours offers for date issues
+    if (offers && offers.length > 0) {
+      const happyHoursOffers = offers.filter(offer => offer.type === 'happyhours');
+      if (happyHoursOffers.length > 0) {
+        console.log('Happy Hours Offers with dates:', happyHoursOffers.map(o => ({
+          id: o.id,
+          title: o.title,
+          startDate: o.startDate,
+          validityDate: o.validityDate,
+          startTime: o.startTime,
+          endTime: o.endTime
+        })));
+      }
+      
+      // Log all offers IDs for debugging sorting issues
+      console.log('All offers IDs:', offers.map(o => o.id));
+      console.log('Filtered offers:', getFilteredOffers().map(o => o.id));
+    }
+    
+    // Force a refresh whenever offers change
+    setRefreshKey(prev => prev + 1);
   }, [offers]);
 
   useEffect(() => {
@@ -29,23 +56,54 @@ const RecentLiveOffers = ({ showSearch = false }) => {
   
   useEffect(() => {
     if (isVisible && offers && offers.length > 0) {
-      const timers = [];
-      const displayOffers = getFilteredOffers().slice(0, 2); // Display only 2 items
+      // Reset loadedItems first
+      setLoadedItems([]);
       
+      const timers = [];
+      const displayOffers = getFilteredOffers().slice(0, showAllItems ? 10 : 2); // Display up to 10 items when showing all
+      
+      // Log the offers that will be displayed
+      console.log('Displaying offers:', displayOffers.map(o => ({id: o.id, title: o.title})));
+      
+      // Use a shorter timeout to make items appear quickly
       displayOffers.forEach((_, index) => {
         const timer = setTimeout(() => {
           setLoadedItems(prev => [...prev, index]);
-        }, index * 100 + 200);
+        }, index * 50 + 100); // Faster animations
         timers.push(timer);
       });
       
       return () => timers.forEach(timer => clearTimeout(timer));
     }
-  }, [isVisible, offers, filter, searchTerm]);
+  }, [isVisible, offers, filter, searchTerm, showAllItems, refreshKey]); // Add refreshKey dependency
 
   // Filter out draft offers and apply search/filters
   const getFilteredOffers = () => {
-    let filtered = offers ? offers.filter(offer => !offer.isDraft) : [];
+    // Debug the offers array first
+    console.log('Original offers in getFilteredOffers:', offers);
+    
+    if (!offers || !Array.isArray(offers)) {
+      console.error('Offers is not a valid array:', offers);
+      return [];
+    }
+    
+    // Make sure to check if offers is defined and handle each offer having required properties
+    let filtered = offers.filter(offer => {
+      const isDraftValid = offer && offer.isDraft !== undefined;
+      // Debug any problematic offers
+      if (!isDraftValid) {
+        console.warn('Offer with incomplete data:', offer);
+      }
+      
+      // Ensure offer has a type property - set spotlight as default if missing
+      if (offer && !offer.type) {
+        console.warn('Offer missing type, setting default:', offer.id);
+        offer.type = 'spotlight';
+      }
+      
+      // Filter out drafts
+      return isDraftValid && !offer.isDraft;
+    });
     
     // Apply status filter
     if (filter !== 'all') {
@@ -63,10 +121,26 @@ const RecentLiveOffers = ({ showSearch = false }) => {
       );
     }
     
-    return filtered;
+    // Sort by newest first - using numeric parsing for string IDs
+    // This ensures newest offers (with highest IDs) appear first
+    const sorted = filtered.sort((a, b) => {
+      // Make sure both have IDs
+      if (!a.id || !b.id) {
+        console.warn('Offer missing ID for sorting:', !a.id ? a : b);
+        return 0;
+      }
+      // Convert string IDs to numbers for proper sorting
+      return parseInt(b.id) - parseInt(a.id);
+    });
+    
+    console.log('Filtered and sorted offers:', sorted);
+    return sorted;
   };
   
   const publishedOffers = getFilteredOffers();
+  
+  // Debug log when component renders
+  console.log('RecentLiveOffers - rendering with', publishedOffers.length, 'offers and loadedItems =', loadedItems);
 
   return (
     <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -142,25 +216,31 @@ const RecentLiveOffers = ({ showSearch = false }) => {
 
       <div className="space-y-4">
         {publishedOffers.length > 0 ? (
-          publishedOffers.slice(0, 2).map((offer, index) => (
+          publishedOffers.slice(0, showAllItems ? 10 : 2).map((offer, index) => (
             <div 
               key={offer.id || index} 
-              className={`transition-all duration-500 transform ${loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              className={`transition-all duration-300 transform ${
+                loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
             >
-              {/* Use actual views data if available, or default to 230 as shown in the mockup */}
+              {/* Debug info - remove in production */}
+              {/* <div className="text-xs text-gray-400 mb-1">ID: {offer.id}, Has Image: {offer.image ? 'Yes' : 'No'}</div> */}
+              
               <OfferItem
                 id={offer.id}
                 title={offer.title}
                 validTill={offer.validTill}
                 isActive={offer.isActive}
                 description={offer.description}
-                image={offer.imagePreview || offer.image}
+                image={offer.image}
+                imagePreview={offer.imagePreview}
                 views={offer.views || 230}
                 showBoostButton={false}
                 type={offer.type}
                 startTime={offer.startTime}
                 endTime={offer.endTime}
                 validityDate={offer.validityDate}
+                startDate={offer.startDate}
               />
             </div>
           ))
@@ -189,12 +269,18 @@ const RecentLiveOffers = ({ showSearch = false }) => {
           </div>
         )}
         
-        {publishedOffers.length > 3 && !showAllItems && (
+        {publishedOffers.length > 2 && (
           <button 
-            onClick={() => navigate('/offer-management')}
+            onClick={() => {
+              if (!showAllItems) {
+                setShowAllItems(true);
+              } else {
+                navigate('/offer-management');
+              }
+            }}
             className="w-full py-2 mt-4 text-amber-600 bg-amber-50 rounded-lg text-center font-medium transition-colors hover:bg-amber-100"
           >
-            View all ({publishedOffers.length}) offers
+            {showAllItems ? `View all (${publishedOffers.length}) offers in management` : `View all (${publishedOffers.length}) offers`}
           </button>
         )}
       </div>

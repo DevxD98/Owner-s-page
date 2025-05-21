@@ -29,6 +29,13 @@ const DraftOffersPage = () => {
               title={offer.title}
               validTill={offer.validTill}
               isActive={offer.isActive}
+              description={offer.description}
+              image={offer.imagePreview || offer.image}
+              type={offer.type}
+              startTime={offer.startTime}
+              endTime={offer.endTime}
+              validityDate={offer.validityDate}
+              startDate={offer.startDate}
             />
           ))
         ) : (

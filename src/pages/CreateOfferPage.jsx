@@ -7,6 +7,7 @@ import SpintoWinIcon from '../components/icons/SpintoWinIcon';
 import CameraIcon from '../components/icons/CameraIcon';
 import DatePicker from '../components/DatePicker';
 import { useApp } from '../contexts/AppContext';
+import { blobUrlToDataUrl } from '../utils/imageUtils.js';
 
 const offerTypes = [
   { id: 'spotlight', icon: <Sparkles size={24} className="mx-auto" />, label: 'Spotlight' },
@@ -46,6 +47,7 @@ const CreateOfferPage = () => {
     description: '',
     category: '',
     validityDate: '',
+    startDate: '', // Added explicit startDate field
     minPurchase: '',
     startTime: '',
     endTime: '',
@@ -114,6 +116,13 @@ const CreateOfferPage = () => {
         });
       }
     }
+    
+    // Cleanup function to revoke any blob URLs
+    return () => {
+      if (offerData.imagePreview && offerData.imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(offerData.imagePreview);
+      }
+    };
   }, [offers, location.search]);
 
   // Handle selected offer type when returning from preview
@@ -155,11 +164,17 @@ const CreateOfferPage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Create a blob URL for preview
+      const blobUrl = URL.createObjectURL(file);
+      
+      // Store both the file and the blob URL for preview
       setOfferData({
         ...offerData,
         offerImage: file,
-        imagePreview: URL.createObjectURL(file)
+        imagePreview: blobUrl
       });
+      
+      console.log('Image file selected:', file.name, 'size:', file.size, 'type:', file.type);
     }
   };
 
@@ -207,10 +222,35 @@ const CreateOfferPage = () => {
       spinnerOffers: newOffers,
       spinnerProbabilities: newProbs
     });
-  };
-
-  const handleSubmit = (e) => {
+  };  const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Check for required fields
+    if (!offerData.title) {
+      alert('Please enter an offer name.');
+      return;
+    }
+    
+    if (!offerData.startDate) {
+      alert('Please select a start date for your offer.');
+      return;
+    }
+    
+    if (!offerData.validityDate) {
+      alert('Please select an end date for your offer.');
+      return;
+    }
+    
+    // Validate dates - ensure start date comes before end date
+    if (offerData.startDate && offerData.validityDate) {
+      const startDate = new Date(offerData.startDate);
+      const endDate = new Date(offerData.validityDate);
+      
+      if (startDate > endDate) {
+        alert('Start date must be before end date. Please adjust your dates.');
+        return;
+      }
+    }
 
     // Create the preview payload
     const previewPayload = {
@@ -221,26 +261,70 @@ const CreateOfferPage = () => {
       isPreview: true
     };
 
-    // For Happy Hours offers, automatically set today's date as the start date
-    // and use the selected validity date as the end date
+    // General date handling for all offer types
+    const todayDate = new Date();
+    const formattedTodayDate = todayDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+    // Process dates for all offer types (common logic)
+    if (selectedOfferType === 'spotlight' || selectedOfferType === 'spintowin' || selectedOfferType === 'happyhours') {
+      // Only set default start date if user didn't provide one
+      if (!previewPayload.startDate) {
+        previewPayload.startDate = formattedTodayDate;
+      }
+      
+      // If no validityDate (end date) is provided, set a default (1 week from start date)
+      if (!previewPayload.validityDate) {
+        // Use the start date as reference, or today if no start date
+        const referenceDate = previewPayload.startDate 
+          ? new Date(previewPayload.startDate + 'T12:00:00') 
+          : new Date(todayDate);
+          
+        const defaultEndDate = new Date(referenceDate);
+        defaultEndDate.setDate(defaultEndDate.getDate() + 7);
+        previewPayload.validityDate = defaultEndDate.toISOString().split('T')[0];
+      }
+
+      // For spotlight and spin to win, ensure both validityDate and validTill are set
+      if (selectedOfferType === 'spotlight' || selectedOfferType === 'spintowin') {
+        previewPayload.validTill = previewPayload.validityDate;
+      }
+    }
+
+    // For Happy Hours offers, add additional time processing
     if (selectedOfferType === 'happyhours') {
-      // Set today's date as start date (May 19, 2025, as specified in requirements)
-      const todayDate = new Date(2025, 4, 19); // Month is 0-indexed (4 = May)
+      const todayDate = new Date(); // Use current date instead of hardcoded date
       const formattedTodayDate = todayDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
       
-      // Set today as the start date and the selected validity date as the end date
-      previewPayload.startDate = formattedTodayDate;
+      // Only set default start date if user didn't provide one
+      if (!previewPayload.startDate) {
+        previewPayload.startDate = formattedTodayDate;
+      }
       
-      // If no validityDate is provided, set a default (1 week from today)
+      // If no validityDate (end date) is provided, set a default (1 week from start date)
       if (!previewPayload.validityDate) {
-        const defaultEndDate = new Date(todayDate);
+        // Use the start date as reference, or today if no start date
+        const referenceDate = previewPayload.startDate 
+          ? new Date(previewPayload.startDate + 'T12:00:00') 
+          : new Date(todayDate);
+          
+        const defaultEndDate = new Date(referenceDate);
         defaultEndDate.setDate(defaultEndDate.getDate() + 7);
         previewPayload.validityDate = defaultEndDate.toISOString().split('T')[0];
       }
       
-      console.log('Happy Hours offer dates set:', {
+      // Set default times if not provided
+      if (!previewPayload.startTime) {
+        previewPayload.startTime = "14:00"; // Default to 2:00 PM
+      }
+      if (!previewPayload.endTime) {
+        previewPayload.endTime = "16:00"; // Default to 4:00 PM
+      }
+      
+      console.log('Happy Hours offer data set:', {
         startDate: previewPayload.startDate,
-        endDate: previewPayload.validityDate
+        endDate: previewPayload.validityDate,
+        startTime: previewPayload.startTime,
+        endTime: previewPayload.endTime
       });
     }
 
@@ -378,17 +462,35 @@ const CreateOfferPage = () => {
             <p className="text-xs text-gray-500 mt-1">Choose a category that best fits your offer</p>
           </div>
           
-          {/* Set Offer Validity Date */}
+          {/* Set Offer Start Date */}
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Set Validity Date</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">
+              Start Date <span className="text-red-500">*</span>
+            </label>
+            <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
+              <DatePicker
+                value={offerData.startDate}
+                onChange={(date) => setOfferData({ ...offerData, startDate: date })}
+                placeholder="Start Date"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Choose the date when this offer becomes active and visible to customers</p>
+          </div>
+          
+          {/* Set Offer End Date */}
+          <div>
+            <label className="block text-base font-medium text-gray-700 mb-2">
+              End Date <span className="text-red-500">*</span>
+            </label>
             <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
               <DatePicker
                 value={offerData.validityDate}
                 onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
-                placeholder="Date"
+                placeholder="End Date"
+                minDate={offerData.startDate}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Choose the date until which this offer will be valid</p>
+            <p className="text-xs text-gray-500 mt-1">Choose the date when this offer will expire and no longer be available to customers</p>
           </div>
           
           {/* Min Purchase (optional) */}
@@ -605,15 +707,36 @@ const CreateOfferPage = () => {
           </div>
           
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Validity Date</label>
-            <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
-              <DatePicker
-                value={offerData.validityDate}
-                onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
-                placeholder="Select end date"
-              />
+            <label className="block text-base font-medium text-gray-700 mb-2">Validity Period</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Start Date <span className="text-red-500">*</span>
+                </label>
+                <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
+                  <DatePicker
+                    value={offerData.startDate}
+                    onChange={(date) => setOfferData({ ...offerData, startDate: date })}
+                    placeholder="Start date"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  End Date <span className="text-red-500">*</span>
+                </label>
+                <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
+                  <DatePicker
+                    value={offerData.validityDate}
+                    onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
+                    placeholder="End date"
+                    minDate={offerData.startDate}
+                  />
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">This offer will be valid from today (May 19, 2025) until the date you select above</p>
+            <p className="text-xs text-gray-500 mt-1">Set the start and end dates for your Happy Hours offer promotion period</p>
           </div>
           
           <div>
@@ -856,15 +979,32 @@ const CreateOfferPage = () => {
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Offer Valid From</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">
+              Start Date <span className="text-red-500">*</span>
+            </label>
             <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
               <DatePicker
-                value={offerData.validityPeriod}
-                onChange={(date) => setOfferData({ ...offerData, validityPeriod: date })}
-                placeholder="Date"
+                value={offerData.startDate}
+                onChange={(date) => setOfferData({ ...offerData, startDate: date })}
+                placeholder="Start Date"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Select the date when this offer becomes active</p>
+            <p className="text-xs text-gray-500 mt-1">Choose the date when this offer becomes active and visible to customers</p>
+          </div>
+          
+          <div>
+            <label className="block text-base font-medium text-gray-700 mb-2">
+              End Date <span className="text-red-500">*</span>
+            </label>
+            <div className="w-full rounded-xl border bg-gray-50 focus-within:ring-2 focus-within:ring-blue-300 focus-within:border-blue-500 transition-all">
+              <DatePicker
+                value={offerData.validityDate}
+                onChange={(date) => setOfferData({ ...offerData, validityDate: date })}
+                placeholder="End Date"
+                minDate={offerData.startDate}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Choose the date when this offer will expire and no longer be available to customers</p>
           </div>
 
           <div>

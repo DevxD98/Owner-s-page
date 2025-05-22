@@ -22,7 +22,8 @@ const OfferItem = ({
   startTime,
   endTime,
   validityDate,
-  startDate
+  startDate,
+  showDetailedInfo = true // Add new prop with default true to maintain backward compatibility
 }) => {
   // Add a state to handle animation for views counter
   const [showViewsAnimation, setShowViewsAnimation] = React.useState(true);
@@ -94,10 +95,10 @@ const OfferItem = ({
       {!isDraft && (
         <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
           <span 
-            className={`inline-flex items-center px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-xs font-medium shadow-sm ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
               isActive 
-                ? isSponsored ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800 border border-green-200'
-                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                ? isSponsored ? 'bg-purple-100 text-purple-800' : 'bg-green-50 text-green-700'
+                : 'bg-gray-100 text-gray-700'
             }`}
           >
             {isActive ? 'Active' : 'Inactive'}
@@ -106,7 +107,7 @@ const OfferItem = ({
       )}
       {isDraft && (
         <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
-          <span className="inline-flex items-center px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200 shadow-sm">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
             Draft
           </span>
         </div>
@@ -162,24 +163,23 @@ const OfferItem = ({
             )}
           </div>
           
-          {/* Views counter positioned below image */}
-          <div className={`mt-1 px-2 py-0.5 rounded-md text-2xs md:text-xs font-medium flex items-center w-max ${
+          {/* Views counter positioned below image - styled similar to boost page */}
+          <div className={`mt-1 px-2.5 py-0.5 rounded-full text-2xs md:text-xs font-medium flex items-center w-max ${
             views > 0 
-              ? views > 100 
-                ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' 
-                : 'bg-blue-50 text-blue-600 border border-blue-100'
-              : 'bg-gray-50 text-gray-600 border border-gray-100'
-          } shadow-sm ${showViewsAnimation ? 'animate-pulse' : ''}`}>
-            <ViewsIcon size={10} className={`mr-1 flex-shrink-0 ${views > 100 ? 'text-indigo-500' : 'text-blue-500'}`} />
-            <span>{views.toLocaleString()}</span>
+              ? 'bg-indigo-100 text-indigo-600 shadow-sm' 
+              : 'bg-gray-50 text-gray-500'
+          } ${showViewsAnimation ? 'animate-pulse' : ''}`}
+          style={views > 0 ? { boxShadow: '0 0 0 1px rgba(79, 70, 229, 0.1)' } : {}}>
+            <ViewsIcon size={10} className="mr-1.5 flex-shrink-0 text-indigo-500" />
+            <span>{views > 0 ? `+${views.toLocaleString()} views` : '0 views'}</span>
           </div>
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-1 mb-1.5">
             {offerType && (
-              <div className="text-xs text-gray-500 font-medium flex items-center">
-                <span className={`inline-block w-2 h-2 mr-1 rounded-full ${
+              <div className="text-xs text-gray-600 font-medium flex items-center">
+                <span className={`inline-flex items-center justify-center w-2 h-2 mr-1.5 rounded-full ${
                   offerType === 'happyhours' 
                     ? 'bg-blue-500' 
                     : offerType === 'spintowin'
@@ -206,8 +206,8 @@ const OfferItem = ({
             <p className="text-gray-600 text-sm mt-2 line-clamp-2">{description}</p>
           )}
           
-          {/* Display Happy Hours Timer for happy hours offers */}
-          {offerType === 'happyhours' && (
+          {/* Display Happy Hours Timer for happy hours offers - only when showDetailedInfo is true */}
+          {offerType === 'happyhours' && showDetailedInfo && (
             <div className="mt-2 mb-1">
               <HappyHoursTimer
                 startTime={startTime}
@@ -226,10 +226,19 @@ const OfferItem = ({
           <div className="flex flex-col mt-2">
             {type === 'happyhours' ? (
               <>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock size={12} className="mr-1 flex-shrink-0" />
-                  <span className="truncate">Hours: {startTime || "Undefined"} - {endTime || "Undefined"}</span>
-                </div>
+                {showDetailedInfo ? (
+                  // Show detailed happy hours info only when showDetailedInfo is true
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Clock size={12} className="mr-1 flex-shrink-0" />
+                    <span className="truncate">Hours: {startTime || "Undefined"} - {endTime || "Undefined"}</span>
+                  </div>
+                ) : (
+                  // Show simplified info - just indicate it's a happy hours offer when on home page
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Clock size={12} className="mr-1 flex-shrink-0" />
+                    <span className="truncate">Happy Hours Offer</span>
+                  </div>
+                )}
                 <div className="flex items-center text-xs text-gray-500 mt-1">
                   <Calendar size={12} className="mr-1 flex-shrink-0" />
                   {(startDate && (validityDate || validTill)) ? (

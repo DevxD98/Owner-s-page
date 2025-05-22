@@ -12,7 +12,7 @@ const BookingStatusPage = () => {
         <button onClick={() => navigate(-1)} className="mr-2">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold">Offer Bookings</h1>
+        <h1 className="text-xl font-bold">Booking History</h1>
       </div>
       
       <BookingStatusContainer showSearch={true} showAllItems={true} />

@@ -11,9 +11,9 @@ const BoostOfferPage = () => {
   const [loading, setLoading] = useState(false);
   
   // Boost parameters
-  const [views, setViews] = useState(300);
-  const [cost, setCost] = useState(100);
-  const minViews = 300;
+  const [views, setViews] = useState(0);
+  const [cost, setCost] = useState(0);
+  const minViews = 0;
   const maxViews = 10000;
   const viewsPerRupee = 3; // 3 views per rupee
   
@@ -40,15 +40,23 @@ const BoostOfferPage = () => {
 
   // Handle views/cost calculation
   const handleViewsChange = (e) => {
-    const newViews = parseInt(e.target.value);
-    setViews(newViews);
-    setCost(Math.round(newViews / viewsPerRupee));
+    const value = e.target.value;
+    const newViews = value === "" ? 0 : parseInt(value);
+    
+    if (!isNaN(newViews) && newViews >= 0 && newViews <= maxViews) {
+      setViews(newViews);
+      setCost(Math.round(newViews / viewsPerRupee));
+    }
   };
   
   const handleCostChange = (e) => {
-    const newCost = parseInt(e.target.value);
-    setCost(newCost);
-    setViews(newCost * viewsPerRupee);
+    const value = e.target.value;
+    const newCost = value === "" ? 0 : parseInt(value);
+    
+    if (!isNaN(newCost) && newCost >= 0 && newCost <= maxViews / viewsPerRupee) {
+      setCost(newCost);
+      setViews(newCost * viewsPerRupee);
+    }
   };
 
   const handleBoost = () => {
@@ -130,7 +138,11 @@ const BoostOfferPage = () => {
             <div className="mt-4 border-t border-gray-100 pt-3">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">Spin to win!</div>
+                  <div className="text-sm text-gray-500">
+                    {offer.type === 'spintowin' ? 'Spin to win!' : 
+                     offer.type === 'happyhours' ? 'Happy hours offer' : 
+                     'Special offer'}
+                  </div>
                   <div className="font-medium">Flat 30% OFF on ₹499+</div>
                 </div>
                 
@@ -170,9 +182,29 @@ const BoostOfferPage = () => {
         </div>
         
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          {/* Cost Display */}
-          <div className="text-center mb-6">
-            <div className="text-3xl font-bold text-gray-800 mb-1">{costFormatted}</div>
+          {/* Cost Display - Now Editable */}
+          <div className="text-center mb-6 relative">
+            <div className="inline-flex items-center">
+              <span className="text-3xl font-bold text-gray-800">₹</span>
+              <input 
+                type="number" 
+                value={cost === 0 ? "" : cost}
+                min={0}
+                max={maxViews / viewsPerRupee}
+                placeholder="0"
+                onChange={(e) => {
+                  // Handle empty input as 0
+                  const inputVal = e.target.value === "" ? 0 : parseInt(e.target.value);
+                  
+                  // Make sure we have a valid number
+                  if (!isNaN(inputVal) && inputVal >= 0 && inputVal <= maxViews / viewsPerRupee) {
+                    setCost(inputVal);
+                    setViews(inputVal * viewsPerRupee);
+                  }
+                }}
+                className="text-3xl font-bold text-gray-800 mb-1 w-28 bg-transparent border-b-2 border-indigo-300 focus:border-indigo-600 outline-none text-center hover:bg-gray-50 transition-all"
+              />
+            </div>
             <p className="text-gray-500 text-sm">Estimated reach: {totalReachFormatted} views</p>
           </div>
           
@@ -182,12 +214,14 @@ const BoostOfferPage = () => {
               <label htmlFor="views-slider" className="text-sm font-medium text-gray-700">
                 <Eye size={16} className="inline mr-1" /> Views
               </label>
-              <span className="text-sm font-medium text-indigo-600">{viewsFormatted}</span>
+              <div className="text-sm font-medium text-indigo-600">
+                {views === 0 ? "0" : viewsFormatted}
+              </div>
             </div>
             <input
               id="views-slider"
               type="range"
-              min={minViews}
+              min={0}
               max={maxViews}
               step="100"
               value={views}
@@ -195,7 +229,7 @@ const BoostOfferPage = () => {
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:bg-gray-300 focus:outline-none focus:ring focus:ring-indigo-200"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>{minViews.toLocaleString()}</span>
+              <span>0</span>
               <span>{maxViews.toLocaleString()}</span>
             </div>
           </div>
@@ -211,7 +245,7 @@ const BoostOfferPage = () => {
             <input
               id="cost-slider"
               type="range"
-              min={minViews / viewsPerRupee}
+              min={0}
               max={maxViews / viewsPerRupee}
               step="10"
               value={cost}
@@ -219,7 +253,7 @@ const BoostOfferPage = () => {
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:bg-gray-300 focus:outline-none focus:ring focus:ring-indigo-200"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>₹{(minViews / viewsPerRupee).toLocaleString()}</span>
+              <span>₹0</span>
               <span>₹{(maxViews / viewsPerRupee).toLocaleString()}</span>
             </div>
           </div>

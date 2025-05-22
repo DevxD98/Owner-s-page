@@ -69,12 +69,12 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
         onClick={() => navigate('/booking-status')}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
             <Ticket size={20} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Offer Bookings</h2>
+          <h2 className="text-xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">Booking History</h2>
         </div>
-        <ChevronRight size={20} className="ml-auto text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-all" />
+        <ChevronRight size={20} className="ml-auto text-gray-500 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all" />
       </div>
 
       {showSearch && (
@@ -96,7 +96,7 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
               onClick={() => setShowFilters(!showFilters)}
               className="p-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
             >
-              <Filter size={18} className={showFilters ? "text-amber-600" : "text-gray-500"} />
+              <Filter size={18} className={showFilters ? "text-indigo-600" : "text-gray-500"} />
             </button>
           </div>
           
@@ -105,7 +105,7 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
               <button
                 onClick={() => setFilter('all')}
                 className={`px-4 py-2 text-sm rounded-lg ${filter === 'all' 
-                  ? 'bg-amber-500 text-white shadow-sm' 
+                  ? 'bg-indigo-600 text-white shadow-sm' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
               >
                 All Bookings
@@ -171,16 +171,16 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
           ))
         ) : (
           <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-            <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <Ticket size={24} className="text-gray-400" />
+            <div className="mx-auto w-16 h-16 mb-4 rounded-full bg-indigo-50 flex items-center justify-center">
+              <Ticket size={24} className="text-indigo-400" />
             </div>
             <p className="text-gray-500 font-medium">
-              {searchTerm || filter !== 'all' ? 'No matching bookings found' : 'No offer bookings yet'}
+              {searchTerm || filter !== 'all' ? 'No matching bookings found' : 'No booking history yet'}
             </p>
             <p className="text-gray-400 text-sm mt-1">
               {searchTerm || filter !== 'all' 
                 ? 'Try adjusting your search or filters'
-                : 'Customer offer bookings will appear here'}
+                : 'Your booking history will appear here'}
             </p>
           </div>
         )}
@@ -188,9 +188,9 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
         {bookings && bookings.length > 3 && !showAllItems && (
           <button 
             onClick={() => navigate('/booking-status')}
-            className="w-full py-2 mt-2 text-amber-600 bg-amber-50 rounded-lg text-center font-medium transition-colors hover:bg-amber-100"
+            className="w-full py-2 mt-2 text-indigo-600 bg-indigo-50 rounded-lg text-center font-medium transition-colors hover:bg-indigo-100"
           >
-            View all ({bookings.length}) offer bookings
+            View all ({bookings.length}) booking history
           </button>
         )}
       </div>

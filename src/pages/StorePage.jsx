@@ -20,11 +20,11 @@ const StorePage = () => {
   
   const [selectedTab, setSelectedTab] = useState('catalogue');
   const [showCatalogEditor, setShowCatalogEditor] = useState(true); // Start with editor open
-  const [catalogImages, setCatalogImages] = useState(Array(4).fill(null)); // Start with 4 images for 2x2 grid
+  const [catalogImages, setCatalogImages] = useState(Array(4).fill(null)); // Start with 4 images
   const [storeBanner, setStoreBanner] = useState(contextStoreImage || "");
   const [storeLogo, setStoreLogo] = useState(contextStoreLogo || "");
   const [isLoaded, setIsLoaded] = useState(false);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [activePage, setActivePage] = useState(0); // Track active page instead of image
   const [uploadFeedback, setUploadFeedback] = useState({ show: false, index: null });
   const scrollContainerRef = useRef(null);
   
@@ -46,15 +46,17 @@ const StorePage = () => {
   
   const bannerInputRef = useRef(null);
   const logoInputRef = useRef(null);
-  const catalogInputRefs = useRef(Array(4).fill(null).map(() => React.createRef())); // Update to 4 refs for 2x2 grid
+  const catalogInputRefs = useRef(Array(4).fill(null).map(() => React.createRef())); // Start with 4 refs
 
-  // Function to add more photo placeholders
+  // Function to add more photo placeholders (add 4 at a time for a new row)
   const addMorePhotos = () => {
-    const newImages = [...catalogImages, null, null];
+    // Add 4 new image slots (for a new row)
+    const newImages = [...catalogImages, ...Array(4).fill(null)];
     setCatalogImages(newImages);
     
-    // Add more refs
-    catalogInputRefs.current = [...catalogInputRefs.current, React.createRef(), React.createRef()];
+    // Add more refs for the new images
+    const newRefs = Array(4).fill(null).map(() => React.createRef());
+    catalogInputRefs.current = [...catalogInputRefs.current, ...newRefs];
     
     // Wait for DOM to update and scroll to new photos
     setTimeout(() => {
@@ -64,8 +66,9 @@ const StorePage = () => {
           behavior: 'smooth'
         });
         
-        // Update active index to the last added image
-        setActiveImageIndex(newImages.length - 2);
+        // Update active page to show the new row
+        const newPageIndex = Math.floor(newImages.length / 4) - 1;
+        setActivePage(newPageIndex);
       }
     }, 100);
   };
@@ -84,26 +87,27 @@ const StorePage = () => {
     
     const scrollPosition = scrollContainerRef.current.scrollLeft;
     const containerWidth = scrollContainerRef.current.clientWidth;
-    const newActiveIndex = Math.round(scrollPosition / (containerWidth / 2));
+    // Calculate which row is visible
+    const newActivePage = Math.round(scrollPosition / containerWidth);
     
-    if (newActiveIndex !== activeImageIndex && newActiveIndex < catalogImages.length) {
-      setActiveImageIndex(newActiveIndex);
+    if (newActivePage !== activePage && newActivePage < Math.ceil(catalogImages.length / 4)) {
+      setActivePage(newActivePage);
     }
   };
   
-  // Function to scroll to a specific image when clicking on dot
-  const scrollToImage = (index) => {
+  // Function to scroll to a specific page
+  const scrollToPage = (pageIndex) => {
     if (!scrollContainerRef.current) return;
     
     const containerWidth = scrollContainerRef.current.clientWidth;
-    const scrollAmount = index * (containerWidth / 2);
+    const scrollAmount = pageIndex * containerWidth;
     
     scrollContainerRef.current.scrollTo({
       left: scrollAmount,
       behavior: 'smooth'
     });
     
-    setActiveImageIndex(index);
+    setActivePage(pageIndex);
   };
 
   return (
@@ -246,7 +250,7 @@ const StorePage = () => {
 
       {/* White Section */}
       <div className="bg-white w-full flex flex-col items-center text-center px-4 pt-20">
-        <h1 className="text-lg font-semibold">“Here’s How Your Store Looks to Customers”</h1>
+        <h1 className="text-lg font-semibold">"Here's How Your Store Looks to Customers"</h1>
         <h2 className="text-xl font-medium mt-2">{storeName || 'Shop Name'}</h2>
         <p className="text-gray-500 mb-6">{storeAddress || 'Address'}</p>
 
@@ -292,7 +296,7 @@ const StorePage = () => {
                     <p className="text-gray-600 font-medium">Showcase your best products with photos</p>
                     <span className="text-xs text-gray-500">
                       {catalogImages.some(img => img !== null) 
-                        ? `${activeImageIndex + 1} / ${catalogImages.length}`
+                        ? `${activePage * 4 + 1}-${Math.min((activePage + 1) * 4, catalogImages.length)} / ${catalogImages.length}`
                         : '0 / 0'
                       }
                     </span>
@@ -303,156 +307,164 @@ const StorePage = () => {
                     {/* Left scroll button */}
                     <button 
                       onClick={() => {
-                        const newIndex = Math.max(0, activeImageIndex - 1);
-                        scrollToImage(newIndex);
+                        const newPage = Math.max(0, activePage - 1);
+                        scrollToPage(newPage);
                       }}
                       className={`absolute left-0 top-1/2 z-10 transform -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-1.5 shadow-md transition-all ${
-                        activeImageIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-100'
+                        activePage === 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-100'
                       }`}
-                      disabled={activeImageIndex === 0}
+                      disabled={activePage === 0}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M15 18l-6-6 6-6"/>
                       </svg>
                     </button>
                     
-                    {/* Horizontal scrollable image gallery */}
+                    {/* Horizontal scrollable image gallery with rows of 4 images */}
                     <div 
                       ref={scrollContainerRef}
-                      className="flex overflow-x-auto pb-4 px-1 gap-3 mb-2 hide-scrollbar snap-x snap-mandatory" 
+                      className="flex overflow-x-auto pb-4 px-1 gap-6 mb-2 hide-scrollbar snap-x snap-mandatory" 
                       onWheel={handleHorizontalScroll}
                       onScroll={handleScroll}
                       style={{scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch'}}
                     >
-                    {catalogImages.map((image, index) => (
-                      <div 
-                        key={index}
-                        className="flex-shrink-0 snap-center pl-0.5 first:pl-0.5"
-                        style={{width: 'calc(60% - 8px)', minWidth: '180px', maxWidth: '250px'}}
-                      >
+                      {/* Group images into rows of 4 */}
+                      {Array(Math.ceil(catalogImages.length / 4)).fill().map((_, rowIndex) => (
                         <div 
-                          className="aspect-square bg-gray-100 rounded-xl shadow-sm border border-gray-200 flex items-center justify-center overflow-hidden transition-all hover:shadow-md w-full catalog-image"
-                          onClick={() => catalogInputRefs.current[index].current.click()}
+                          key={`row-${rowIndex}`}
+                          className="flex-shrink-0 snap-center w-full min-w-full"
                         >
-                          {image ? (
-                            <div className="relative w-full h-full group">
-                              <img 
-                                src={image} 
-                                alt={`Catalog ${index}`} 
-                                className="w-full h-full object-cover cursor-pointer" 
-                                title="Click to change image"
-                              />
-                              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-medium">
-                                Product {index + 1}
-                              </div>
-                              
-                              {/* Action buttons overlay */}
-                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="flex space-x-1">
-                                  <button 
-                                    className="bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const newImages = [...catalogImages];
-                                      newImages[index] = null;
-                                      setCatalogImages(newImages);
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {catalogImages.slice(rowIndex * 4, (rowIndex + 1) * 4).map((image, idx) => {
+                              const actualIndex = rowIndex * 4 + idx;
+                              return (
+                                <div 
+                                  key={`img-${actualIndex}`}
+                                  className="aspect-square bg-gray-100 rounded-xl shadow-sm border border-gray-200 flex items-center justify-center overflow-hidden transition-all hover:shadow-md w-full catalog-image"
+                                  onClick={() => catalogInputRefs.current[actualIndex]?.current?.click()}
+                                >
+                                  {image ? (
+                                    <div className="relative w-full h-full group">
+                                      <img 
+                                        src={image} 
+                                        alt={`Catalog ${actualIndex + 1}`}
+                                        className="w-full h-full object-cover cursor-pointer" 
+                                        title="Click to change image"
+                                      />
+                                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-medium">
+                                        Product {actualIndex + 1}
+                                      </div>
+                                      
+                                      {/* Action buttons overlay */}
+                                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex space-x-1">
+                                          <button 
+                                            className="bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const newImages = [...catalogImages];
+                                              newImages[actualIndex] = null;
+                                              setCatalogImages(newImages);
+                                            }}
+                                            title="Remove image"
+                                          >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="M18 6L6 18"></path>
+                                              <path d="M6 6l12 12"></path>
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      </div>
+                                      {uploadFeedback.show && uploadFeedback.index === actualIndex && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 animate-fadeIn">
+                                          <div className="bg-white rounded-lg p-2 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 mr-1">
+                                              <path d="M20 6L9 17l-5-5"></path>
+                                            </svg>
+                                            <span className="text-sm font-medium">Uploaded!</span>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center text-gray-400 text-sm p-2 relative">
+                                      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 opacity-60"></div>
+                                      <div className="relative z-10 flex flex-col items-center">
+                                        <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+                                            <circle cx="12" cy="13" r="4"></circle>
+                                            <path d="M12 8v.01"></path>
+                                            <path d="M8 21l4-4 4 4"></path>
+                                          </svg>
+                                        </div>
+                                        <span className="font-medium text-gray-500">Tap to Add Photo</span>
+                                        <span className="text-xs mt-1">{actualIndex + 1} of {catalogImages.length}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  <input 
+                                    type="file" 
+                                    ref={catalogInputRefs.current[actualIndex]} 
+                                    className="hidden" 
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        // Create blob URL first
+                                        const blobUrl = URL.createObjectURL(e.target.files[0]);
+                                        
+                                        try {
+                                          // Convert to data URL for persistence
+                                          const dataUrl = await blobUrlToDataUrl(blobUrl);
+                                          
+                                          // Update the array with the data URL
+                                          const newImages = [...catalogImages];
+                                          newImages[actualIndex] = dataUrl;
+                                          setCatalogImages(newImages);
+                                          
+                                          // Release the blob URL
+                                          URL.revokeObjectURL(blobUrl);
+                                          
+                                          // Show feedback
+                                          setUploadFeedback({ show: true, index: actualIndex });
+                                          setTimeout(() => {
+                                            setUploadFeedback({ show: false, index: null });
+                                          }, 2000);
+                                        } catch (error) {
+                                          console.error('Error processing catalog image:', error);
+                                          
+                                          // Fallback to using blob URL if conversion fails
+                                          const newImages = [...catalogImages];
+                                          newImages[actualIndex] = blobUrl;
+                                          setCatalogImages(newImages);
+                                          
+                                          // Show feedback
+                                          setUploadFeedback({ show: true, index: actualIndex });
+                                          setTimeout(() => {
+                                            setUploadFeedback({ show: false, index: null });
+                                          }, 2000);
+                                        }
+                                      }
                                     }}
-                                    title="Remove image"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M18 6L6 18"></path>
-                                      <path d="M6 6l12 12"></path>
-                                    </svg>
-                                  </button>
+                                  />
                                 </div>
-                              </div>
-                              {uploadFeedback.show && uploadFeedback.index === index && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 animate-fadeIn">
-                                  <div className="bg-white rounded-lg p-2 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 mr-1">
-                                      <path d="M20 6L9 17l-5-5"></path>
-                                    </svg>
-                                    <span className="text-sm font-medium">Uploaded!</span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="flex flex-col items-center justify-center text-gray-400 text-sm p-2 relative">
-                              <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 opacity-60"></div>
-                              <div className="relative z-10 flex flex-col items-center">
-                                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
-                                    <circle cx="12" cy="13" r="4"></circle>
-                                    <path d="M12 8v.01"></path>
-                                    <path d="M8 21l4-4 4 4"></path>
-                                  </svg>
-                                </div>
-                                <span className="font-medium text-gray-500">Tap to Add Photo</span>
-                                <span className="text-xs mt-1">{index + 1} of {catalogImages.length}</span>
-                              </div>
-                            </div>
-                          )}
-                          <input 
-                            type="file" 
-                            ref={catalogInputRefs.current[index]} 
-                            className="hidden" 
-                            accept="image/*"
-                            onChange={async (e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                // Create blob URL first
-                                const blobUrl = URL.createObjectURL(e.target.files[0]);
-                                
-                                try {
-                                  // Convert to data URL for persistence
-                                  const dataUrl = await blobUrlToDataUrl(blobUrl);
-                                  
-                                  // Update the array with the data URL
-                                  const newImages = [...catalogImages];
-                                  newImages[index] = dataUrl;
-                                  setCatalogImages(newImages);
-                                  
-                                  // Release the blob URL
-                                  URL.revokeObjectURL(blobUrl);
-                                  
-                                  // Show feedback
-                                  setUploadFeedback({ show: true, index });
-                                  setTimeout(() => {
-                                    setUploadFeedback({ show: false, index: null });
-                                  }, 2000);
-                                } catch (error) {
-                                  console.error('Error processing catalog image:', error);
-                                  
-                                  // Fallback to using blob URL if conversion fails
-                                  const newImages = [...catalogImages];
-                                  newImages[index] = blobUrl;
-                                  setCatalogImages(newImages);
-                                  
-                                  // Show feedback
-                                  setUploadFeedback({ show: true, index });
-                                  setTimeout(() => {
-                                    setUploadFeedback({ show: false, index: null });
-                                  }, 2000);
-                                }
-                              }
-                            }}
-                          />
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
                     
                     {/* Right scroll button */}
                     <button 
                       onClick={() => {
-                        const newIndex = Math.min(catalogImages.length - 1, activeImageIndex + 1);
-                        scrollToImage(newIndex);
+                        const newPage = Math.min(Math.ceil(catalogImages.length / 4) - 1, activePage + 1);
+                        scrollToPage(newPage);
                       }}
                       className={`absolute right-0 top-1/2 z-10 transform -translate-y-1/2 bg-white/70 hover:bg-white rounded-full p-1.5 shadow-md transition-all ${
-                        activeImageIndex >= catalogImages.length - 1 ? 'opacity-30 cursor-not-allowed' : 'opacity-100'
+                        activePage >= Math.ceil(catalogImages.length / 4) - 1 ? 'opacity-30 cursor-not-allowed' : 'opacity-100'
                       }`}
-                      disabled={activeImageIndex >= catalogImages.length - 1}
+                      disabled={activePage >= Math.ceil(catalogImages.length / 4) - 1}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 18l6-6-6-6"/>
@@ -460,18 +472,18 @@ const StorePage = () => {
                     </button>
                   </div>
                   
-                  {/* Pagination dots for mobile */}
+                  {/* Pagination dots for rows */}
                   <div className="flex justify-center gap-1.5 mt-2 mb-4">
-                    {catalogImages.map((_, index) => (
+                    {Array(Math.ceil(catalogImages.length / 4)).fill().map((_, index) => (
                       <button
                         key={`dot-${index}`}
-                        onClick={() => scrollToImage(index)}
+                        onClick={() => scrollToPage(index)}
                         className={`w-2.5 h-2.5 rounded-full transition-all ${
-                          activeImageIndex === index 
+                          activePage === index 
                             ? 'bg-indigo-500 dot-active'
                             : 'bg-gray-300 hover:bg-gray-400'
                         }`}
-                        aria-label={`Go to image ${index + 1}`}
+                        aria-label={`Go to row ${index + 1}`}
                       />
                     ))}
                   </div>
@@ -521,8 +533,6 @@ const StorePage = () => {
             </div>
           )}
         </div>
-
-        {/* Upload Catalog Button removed - editor is shown directly */}
       </div>
     </div>
   );

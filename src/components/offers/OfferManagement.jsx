@@ -4,8 +4,13 @@ import OfferItem from './OfferItem';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
-// Add showSearch, showAllItems, and showBoostButtons props with default values
-const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostButtons = false }) => {
+// Add props with default values
+const OfferManagement = ({ 
+  showSearch = false, 
+  showAllItems = false, 
+  showBoostButtons = false,
+  showDetailedInfo = showAllItems // By default, only show detailed info on the full page view
+}) => {
   const { offers } = useApp();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
@@ -275,6 +280,7 @@ const OfferManagement = ({ showSearch = false, showAllItems = false, showBoostBu
                 endTime={offer.endTime}
                 validityDate={offer.validityDate}
                 startDate={offer.startDate}
+                showDetailedInfo={showDetailedInfo}
               />
             </div>
           ))

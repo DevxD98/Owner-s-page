@@ -172,8 +172,8 @@ const RecentLiveOffers = ({
             <Sparkles size={20} className="text-white" />
           </div>
           <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
-          <ChevronRight size={20} className="ml-2 text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform" />
         </div>
+        <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform cursor-pointer" onClick={() => navigate('/offer-management')} />
       </div>
       
       {/* Only show search and filters if showSearch prop is true */}
@@ -231,7 +231,7 @@ const RecentLiveOffers = ({
         </div>
       )}
 
-      <div className={showDetailedView ? 'space-y-4' : 'grid sm:grid-cols-2 gap-4'}>
+      <div className="space-y-4">
         {publishedOffers.length > 0 ? (
           publishedOffers.slice(0, showDetailedView ? (showAllItems ? publishedOffers.length : maxItems) : Math.min(maxItems, 2)).map((offer, index) => (
             <div 

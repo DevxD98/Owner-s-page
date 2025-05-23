@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LocationHeader from '../components/dashboard/LocationHeader';
 import StatGrid from '../components/dashboard/StatGrid';
-import OfferManagement from '../components/offers/OfferManagement';
+import RecentLiveOffers from '../components/offers/RecentLiveOffers';
 import BookingStatusContainer from '../components/bookings/BookingStatusContainer';
 import RedemptionTracker from '../components/redemptions/RedemptionTracker';
 import ActiveSponsoredAds from '../components/ads/ActiveSponsoredAds';
@@ -54,7 +54,12 @@ const HomePage = () => {
         <StatGrid />
         <div className="mt-6 space-y-6 pb-16">
           {/* Use key to force re-render when offers change */}
-          <OfferManagement key={`offer-management-${offerRefreshKey}`} showSearch={false} />
+          <RecentLiveOffers 
+            key={`recent-offers-${offerRefreshKey}`} 
+            showSearch={false}
+            showDetailedView={false}
+            maxItems={2} /* Only show 2 most recent offers on home page */
+          />
           <BookingStatusContainer showSearch={false} />
           <RedemptionTracker showSearch={false} />
           <ActiveSponsoredAds />

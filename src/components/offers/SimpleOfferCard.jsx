@@ -58,19 +58,6 @@ const SimpleOfferCard = ({
     }
   };
 
-  // Get button color based on offer type
-  const getButtonColorClass = () => {
-    switch(type) {
-      case 'happyhours':
-        return 'bg-blue-500 hover:bg-blue-600 shadow-blue-100';
-      case 'spintowin':
-        return 'bg-purple-500 hover:bg-purple-600 shadow-purple-100';
-      case 'spotlight':
-      default:
-        return 'bg-amber-500 hover:bg-amber-600 shadow-amber-100';
-    }
-  };
-
   // Get icon color based on offer type
   const getIconColorClass = () => {
     switch(type) {
@@ -129,13 +116,12 @@ const SimpleOfferCard = ({
     <div 
       className={`rounded-xl border relative shadow-sm ${getBackgroundColorClass()} transition-all hover:shadow-md`}
     >
-      {/* Edit button positioned at top right with more space */}
+      {/* Edit button positioned at top right */}
       <div className="absolute top-2 right-2 z-10">
         <button 
           className="bg-white p-1.5 rounded-full shadow-sm hover:shadow hover:bg-gray-50"
           onClick={(e) => {
             e.stopPropagation();
-            // Use the onEdit handler passed from parent
             if (onEdit) {
               onEdit(id);
             }
@@ -148,55 +134,58 @@ const SimpleOfferCard = ({
       {/* Card content - clickable area */}
       <div className="p-3.5 cursor-pointer" onClick={onClick}>
         <div className="flex flex-col">
-          {/* Type tag with colored dot - added right margin to prevent overlap with edit button */}
-          <div className="flex items-start justify-between mb-2 pr-6">
-            <div className={`text-xs font-medium px-2 py-0.5 rounded-full ${getTagColorClass()} flex items-center`}>
-              <span className={`w-1.5 h-1.5 rounded-full mr-1 ${
-                type === 'happyhours' ? 'bg-blue-600' : 
-                type === 'spintowin' ? 'bg-purple-600' : 
-                'bg-amber-600'
-              }`}></span>
-              {getTypeLabel()}
+          {/* Content section */}
+          <div className="w-full">
+            {/* Type tag with colored dot */}
+            <div className="flex items-start justify-between mb-1">
+              <div className={`text-xs font-medium px-2 py-0.5 rounded-full ${getTagColorClass()} flex items-center`}>
+                <span className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                  type === 'happyhours' ? 'bg-blue-600' : 
+                  type === 'spintowin' ? 'bg-purple-600' : 
+                  'bg-amber-600'
+                }`}></span>
+                {getTypeLabel()}
+              </div>
+              {isActive && 
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 mr-8">
+                  Active
+                </span>
+              }
             </div>
-            {isActive && 
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                Active
-              </span>
-            }
-          </div>
-          
-          {/* Title */}
-          <h3 className="font-semibold mb-1.5 line-clamp-2 text-gray-800">{title}</h3>
-          
-          {/* Only validity period information */}
-          <div className="text-xs text-gray-500 mb-2">
-            <div className="flex items-center">
-              <Calendar size={12} className={`mr-1.5 ${getIconColorClass()}`} />
-              <span>Valid: {formatDate(startDate || validTill)} - {formatDate(endDate || validTill)}</span>
-            </div>
-          </div>
-          
-          {/* Stats only - no boost button */}
-          <div className="flex justify-between items-center">
-            {renderStats()}
             
-            {/* Toggle switch - styled like in OfferItem */}
-            <label 
-              className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-auto"
-              title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <input 
-                type="checkbox" 
-                checked={isActive}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  toggleOffer(id);
-                }}
-                className="sr-only peer" 
-              />
-              <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 shadow-md"></div>
-            </label>
+            {/* Title */}
+            <h3 className="font-semibold mb-1 line-clamp-2 text-gray-800">{title}</h3>
+          
+            {/* Only validity period information */}
+            <div className="text-xs text-gray-500 mb-2">
+              <div className="flex items-center">
+                <Calendar size={12} className={`mr-1.5 ${getIconColorClass()}`} />
+                <span>Valid: {formatDate(startDate || validTill)} - {formatDate(endDate || validTill)}</span>
+              </div>
+            </div>
+            
+            {/* Stats only - no boost button */}
+            <div className="flex justify-between items-center">
+              {renderStats()}
+              
+              {/* Toggle switch - styled like in OfferItem */}
+              <label 
+                className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-auto"
+                title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input 
+                  type="checkbox" 
+                  checked={isActive}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    toggleOffer(id);
+                  }}
+                  className="sr-only peer" 
+                />
+                <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 shadow-md"></div>
+              </label>
+            </div>
           </div>
         </div>
       </div>

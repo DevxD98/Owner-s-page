@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import OfferManagement from '../components/offers/OfferManagement';
+import RecentLiveOffers from '../components/offers/RecentLiveOffers';
 
 const OfferManagementPage = () => {
   const navigate = useNavigate();
@@ -15,7 +15,11 @@ const OfferManagementPage = () => {
         <h1 className="text-xl font-bold">Recent Live Offers</h1>
       </div>
 
-      <OfferManagement showSearch={true} showAllItems={true} showBoostButtons={true} />
+      <RecentLiveOffers 
+        showSearch={true} 
+        showDetailedView={true} 
+        maxItems={50} // Show a large number of offers by default
+      />
     </div>
   );
 };

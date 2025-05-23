@@ -3,9 +3,14 @@ import { ChevronRight, Sparkles, Plus, Search, Filter } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import OfferItem from './OfferItem';
+import SimpleOfferCard from './SimpleOfferCard';
 
-// Add showSearch prop with default value of false
-const RecentLiveOffers = ({ showSearch = false }) => {
+// Add props with default values
+const RecentLiveOffers = ({ 
+  showSearch = false,
+  showDetailedView = false, // If true, shows the full offer items, if false shows the simplified cards
+  maxItems = 3 // Maximum number of items to show in simplified view
+}) => {
   const { offers } = useApp();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
@@ -60,10 +65,22 @@ const RecentLiveOffers = ({ showSearch = false }) => {
       setLoadedItems([]);
       
       const timers = [];
-      const displayOffers = getFilteredOffers().slice(0, showAllItems ? 10 : 2); // Display up to 10 items when showing all
+      // Different display limits based on context:
+      // 1. In detailed view (offer management page) with showAllItems: show all
+      // 2. In detailed view without showAllItems: respect maxItems
+      // 3. In simple view (home page): limit to 2 items
+      let displayLimit;
+      if (showDetailedView) {
+        displayLimit = showAllItems ? getFilteredOffers().length : maxItems;
+      } else {
+        displayLimit = Math.min(maxItems, 2); // Home page always shows max 2
+      }
+      
+      const displayOffers = getFilteredOffers().slice(0, displayLimit); 
       
       // Log the offers that will be displayed
       console.log('Displaying offers:', displayOffers.map(o => ({id: o.id, title: o.title})));
+      console.log('Display limit:', displayLimit, 'maxItems:', maxItems, 'showDetailedView:', showDetailedView);
       
       // Use a shorter timeout to make items appear quickly
       displayOffers.forEach((_, index) => {
@@ -75,7 +92,7 @@ const RecentLiveOffers = ({ showSearch = false }) => {
       
       return () => timers.forEach(timer => clearTimeout(timer));
     }
-  }, [isVisible, offers, filter, searchTerm, showAllItems, refreshKey]); // Add refreshKey dependency
+  }, [isVisible, offers, filter, searchTerm, showAllItems, refreshKey, maxItems, showDetailedView]); // Add showDetailedView dependency
 
   // Filter out draft offers and apply search/filters
   const getFilteredOffers = () => {
@@ -214,34 +231,52 @@ const RecentLiveOffers = ({ showSearch = false }) => {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className={showDetailedView ? 'space-y-4' : 'grid sm:grid-cols-2 gap-4'}>
         {publishedOffers.length > 0 ? (
-          publishedOffers.slice(0, showAllItems ? 10 : 2).map((offer, index) => (
+          publishedOffers.slice(0, showDetailedView ? (showAllItems ? publishedOffers.length : maxItems) : Math.min(maxItems, 2)).map((offer, index) => (
             <div 
               key={offer.id || index} 
               className={`transition-all duration-300 transform ${
                 loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
             >
-              {/* Debug info - remove in production */}
-              {/* <div className="text-xs text-gray-400 mb-1">ID: {offer.id}, Has Image: {offer.image ? 'Yes' : 'No'}</div> */}
-              
-              <OfferItem
-                id={offer.id}
-                title={offer.title}
-                validTill={offer.validTill}
-                isActive={offer.isActive}
-                description={offer.description}
-                image={offer.image}
-                imagePreview={offer.imagePreview}
-                views={offer.views || 230}
-                showBoostButton={false}
-                type={offer.type}
-                startTime={offer.startTime}
-                endTime={offer.endTime}
-                validityDate={offer.validityDate}
-                startDate={offer.startDate}
-              />
+              {showDetailedView ? (
+                <OfferItem
+                  id={offer.id}
+                  title={offer.title}
+                  validTill={offer.validTill}
+                  isActive={offer.isActive}
+                  description={offer.description}
+                  image={offer.image}
+                  imagePreview={offer.imagePreview}
+                  views={offer.views || 0}
+                  showBoostButton={false}
+                  type={offer.type}
+                  startTime={offer.startTime}
+                  endTime={offer.endTime}
+                  validityDate={offer.validityDate}
+                  startDate={offer.startDate}
+                  // Only show the timer on the detailed view
+                  showDetailedInfo={true}
+                />
+              ) : (
+                <SimpleOfferCard
+                  id={offer.id}
+                  title={offer.title}
+                  validTill={offer.validTill}
+                  type={offer.type}
+                  isActive={offer.isActive}
+                  views={offer.views || 0}
+                  bookings={offer.bookings || 0}
+                  spins={offer.spins || 0}
+                  startDate={offer.startDate}
+                  endDate={offer.validityDate || offer.validTill}
+                  startTime={offer.startTime}
+                  endTime={offer.endTime}
+                  onClick={() => navigate('/offer-management')}
+                  onEdit={(id) => navigate(`/create-offer?id=${id}`)} // Add proper edit handler
+                />
+              )}
             </div>
           ))
         ) : (
@@ -269,18 +304,20 @@ const RecentLiveOffers = ({ showSearch = false }) => {
           </div>
         )}
         
-        {publishedOffers.length > 2 && (
+        {((!showDetailedView && publishedOffers.length > 2) || (showDetailedView && publishedOffers.length > maxItems && !showAllItems)) && (
           <button 
             onClick={() => {
-              if (!showAllItems) {
+              if (showDetailedView && !showAllItems) {
                 setShowAllItems(true);
               } else {
                 navigate('/offer-management');
               }
             }}
-            className="w-full py-2 mt-4 text-amber-600 bg-amber-50 rounded-lg text-center font-medium transition-colors hover:bg-amber-100"
+            className={`w-full py-2.5 mt-4 text-amber-600 bg-amber-50 rounded-xl text-center font-medium transition-colors hover:bg-amber-100 shadow-sm border border-amber-100 ${!showDetailedView ? 'col-span-full' : ''}`}
           >
-            {showAllItems ? `View all (${publishedOffers.length}) offers in management` : `View all (${publishedOffers.length}) offers`}
+            {showDetailedView && !showAllItems 
+              ? `View all (${publishedOffers.length}) offers` 
+              : `View all (${publishedOffers.length}) offers in management`}
           </button>
         )}
       </div>

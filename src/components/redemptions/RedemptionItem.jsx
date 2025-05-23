@@ -44,16 +44,16 @@ const RedemptionItem = ({
 
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start mb-3">
         <div>
-          <div className="flex items-center space-x-1 mb-2">
-            {getStatusBadge()}
-          </div>
           <h3 className="font-medium text-gray-800 text-lg">{customerName}</h3>
+        </div>
+        <div>
+          {getStatusBadge()}
         </div>
       </div>
       
-      <div className="mt-3 space-y-2">
+      <div className="space-y-2">
         <div className="flex items-center text-gray-700">
           <Award size={16} className="mr-2 text-blue-500" />
           <span className="font-medium">{offerTitle}</span>

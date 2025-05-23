@@ -138,11 +138,49 @@ export const AppProvider = ({ children }) => {
   // Initialize sponsored ads array
   const [sponsoredAds, setSponsoredAds] = useState([]);
   
-  // Initialize empty bookings array - no more hardcoded example data
-  const [bookings, setBookings] = useState([]);
+  // Initialize bookings array with demo data
+  const [bookings, setBookings] = useState([
+    {
+      id: 'B123456',
+      customerName: 'Sarah Johnson',
+      offerTitle: 'Weekend Special: 20% Off',
+      offerType: 'spotlight',
+      date: '2025-05-20',
+      time: '15:30',
+      validTill: '07:30 PM',
+      status: 'Confirmed'
+    },
+    {
+      id: 'B789012',
+      customerName: 'Mike Roberts',
+      offerTitle: 'Happy Hour: Buy 1 Get 1 Free',
+      offerType: 'happyhours',
+      date: '2025-05-22',
+      time: '14:45',
+      validTill: '04:45 PM',
+      status: 'Pending'
+    }
+  ]);
   
-  // Initialize empty redemptions array - no more hardcoded example data
-  const [redemptions, setRedemptions] = useState([]);
+  // Initialize redemptions array with demo data
+  const [redemptions, setRedemptions] = useState([
+    {
+      id: 'R567890',
+      customerName: 'Emma Wilson',
+      offerTitle: 'Weekend Special: 20% Off',
+      redeemedOn: '2025-05-19',
+      time: '13:45',
+      status: 'Completed'
+    },
+    {
+      id: 'R123489',
+      customerName: 'James Taylor',
+      offerTitle: 'Spin to Win a Free Dessert!',
+      redeemedOn: '2025-05-22',
+      time: '18:20',
+      status: 'Pending'
+    }
+  ]);
 
   const toggleOffer = (id) => {
     // Check in regular offers

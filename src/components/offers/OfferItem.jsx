@@ -115,8 +115,8 @@ const OfferItem = ({
       <div className="flex items-start gap-3 md:gap-4">
         {/* Image and Views section */}
         <div className="flex flex-col items-center">
-          {/* Image or placeholder */}
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-inner">
+          {/* Image or placeholder - Keep square aspect ratio only on mobile, use rectangular on desktop */}
+          <div className="w-16 h-16 md:w-20 md:h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-inner">
             {displayImage ? (
               <img 
                 src={displayImage} 

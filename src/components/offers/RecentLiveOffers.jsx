@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Sparkles, Plus, Search, Filter } from 'lucide-react';
+import { ChevronRight, Sparkles, Plus, Search } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import OfferItem from './OfferItem';
@@ -8,8 +8,10 @@ import SimpleOfferCard from './SimpleOfferCard';
 // Add props with default values
 const RecentLiveOffers = ({ 
   showSearch = false,
-  showDetailedView = false, // If true, shows the full offer items, if false shows the simplified cards
-  maxItems = 3 // Maximum number of items to show in simplified view
+  showDetailedView = false, 
+  maxItems = 3,
+  showBoostButton = false,
+  showHeader = true // New prop to control header visibility
 }) => {
   const { offers } = useApp();
   const navigate = useNavigate();
@@ -17,9 +19,8 @@ const RecentLiveOffers = ({
   const [loadedItems, setLoadedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
   const [showAllItems, setShowAllItems] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0); // Add a key to force refresh
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Log the offers when component mounts or offers change
   useEffect(() => {
@@ -27,25 +28,6 @@ const RecentLiveOffers = ({
     
     // Reset loadedItems when offers change to ensure animations work correctly
     setLoadedItems([]);
-    
-    // Check happy hours offers for date issues
-    if (offers && offers.length > 0) {
-      const happyHoursOffers = offers.filter(offer => offer.type === 'happyhours');
-      if (happyHoursOffers.length > 0) {
-        console.log('Happy Hours Offers with dates:', happyHoursOffers.map(o => ({
-          id: o.id,
-          title: o.title,
-          startDate: o.startDate,
-          validityDate: o.validityDate,
-          startTime: o.startTime,
-          endTime: o.endTime
-        })));
-      }
-      
-      // Log all offers IDs for debugging sorting issues
-      console.log('All offers IDs:', offers.map(o => o.id));
-      console.log('Filtered offers:', getFilteredOffers().map(o => o.id));
-    }
     
     // Force a refresh whenever offers change
     setRefreshKey(prev => prev + 1);
@@ -65,22 +47,15 @@ const RecentLiveOffers = ({
       setLoadedItems([]);
       
       const timers = [];
-      // Different display limits based on context:
-      // 1. In detailed view (offer management page) with showAllItems: show all
-      // 2. In detailed view without showAllItems: respect maxItems
-      // 3. In simple view (home page): limit to 2 items
+      // Different display limits based on context
       let displayLimit;
       if (showDetailedView) {
         displayLimit = showAllItems ? getFilteredOffers().length : maxItems;
       } else {
-        displayLimit = Math.min(maxItems, 2); // Home page always shows max 2
+        displayLimit = Math.min(maxItems, 2);
       }
       
       const displayOffers = getFilteredOffers().slice(0, displayLimit); 
-      
-      // Log the offers that will be displayed
-      console.log('Displaying offers:', displayOffers.map(o => ({id: o.id, title: o.title})));
-      console.log('Display limit:', displayLimit, 'maxItems:', maxItems, 'showDetailedView:', showDetailedView);
       
       // Use a shorter timeout to make items appear quickly
       displayOffers.forEach((_, index) => {
@@ -92,44 +67,54 @@ const RecentLiveOffers = ({
       
       return () => timers.forEach(timer => clearTimeout(timer));
     }
-  }, [isVisible, offers, filter, searchTerm, showAllItems, refreshKey, maxItems, showDetailedView]); // Add showDetailedView dependency
+  }, [isVisible, offers, filter, searchTerm, showAllItems, refreshKey, maxItems, showDetailedView]);
 
   // Filter out draft offers and apply search/filters
   const getFilteredOffers = () => {
-    // Debug the offers array first
-    console.log('Original offers in getFilteredOffers:', offers);
-    
     if (!offers || !Array.isArray(offers)) {
-      console.error('Offers is not a valid array:', offers);
       return [];
     }
     
-    // Make sure to check if offers is defined and handle each offer having required properties
     let filtered = offers.filter(offer => {
-      const isDraftValid = offer && offer.isDraft !== undefined;
-      // Debug any problematic offers
-      if (!isDraftValid) {
-        console.warn('Offer with incomplete data:', offer);
-      }
+      // Ensure offer has all required properties
+      const isOfferValid = offer && typeof offer === 'object';
       
-      // Ensure offer has a type property - set spotlight as default if missing
-      if (offer && !offer.type) {
-        console.warn('Offer missing type, setting default:', offer.id);
+      // Set default values if missing
+      if (isOfferValid && !offer.type) {
         offer.type = 'spotlight';
       }
       
-      // Filter out drafts
-      return isDraftValid && !offer.isDraft;
+      // Set default values for isDraft and isBoosted if they're undefined
+      if (isOfferValid) {
+        offer.isDraft = offer.isDraft !== undefined ? offer.isDraft : false;
+        offer.isBoosted = offer.isBoosted !== undefined ? offer.isBoosted : false;
+      }
+      
+      // Only return valid offers
+      return isOfferValid;
     });
     
-    // Apply status filter
-    if (filter !== 'all') {
-      filtered = filtered.filter(offer => 
-        filter === 'active' ? offer.isActive : !offer.isActive
-      );
+    // Apply filters based on the selected filter
+    if (filter === 'all') {
+      // For "All Offers" filter, exclude drafts
+      filtered = filtered.filter(offer => !offer.isDraft);
+    } else {
+      filtered = filtered.filter(offer => {
+        switch (filter) {
+          case 'active':
+            return offer.isActive && !offer.isDraft;
+          case 'inactive':
+            return !offer.isActive && !offer.isDraft;
+          case 'draft':
+            return offer.isDraft === true;
+          case 'boosted':
+            return offer.isBoosted === true && !offer.isDraft;
+          default:
+            return true;
+        }
+      });
     }
     
-    // Apply search filter
     if (searchTerm.trim() !== '') {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(offer => 
@@ -138,48 +123,41 @@ const RecentLiveOffers = ({
       );
     }
     
-    // Sort by newest first - using numeric parsing for string IDs
-    // This ensures newest offers (with highest IDs) appear first
     const sorted = filtered.sort((a, b) => {
-      // Make sure both have IDs
       if (!a.id || !b.id) {
-        console.warn('Offer missing ID for sorting:', !a.id ? a : b);
         return 0;
       }
-      // Convert string IDs to numbers for proper sorting
       return parseInt(b.id) - parseInt(a.id);
     });
     
-    console.log('Filtered and sorted offers:', sorted);
     return sorted;
   };
   
   const publishedOffers = getFilteredOffers();
   
-  // Debug log when component renders
-  console.log('RecentLiveOffers - rendering with', publishedOffers.length, 'offers and loadedItems =', loadedItems);
-
   return (
-    <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-      <div 
-        className="flex justify-between items-center mb-4"
-      >
+    <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'} ${showHeader ? 'mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100' : 'px-4'}`}>
+      {showHeader && (
         <div 
-          className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => navigate('/offer-management')}
+          className="flex justify-between items-center mb-4"
         >
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
-            <Sparkles size={20} className="text-white" />
+          <div 
+            className="flex items-center gap-3 cursor-pointer group"
+            onClick={() => navigate('/offer-management')}
+          >
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+              <Sparkles size={20} className="text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Offer Management</h2>
           </div>
-          <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Recent Live Offers</h2>
+          <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform cursor-pointer" onClick={() => navigate('/offer-management')} />
         </div>
-        <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform cursor-pointer" onClick={() => navigate('/offer-management')} />
-      </div>
+      )}
       
       {/* Only show search and filters if showSearch prop is true */}
       {showSearch && (
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="my-4">
+          <div className="flex items-center mb-3">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search size={16} className="text-gray-400" />
@@ -187,51 +165,62 @@ const RecentLiveOffers = ({
               <input
                 type="text"
                 placeholder="Search offers..."
-                className="pl-10 w-full p-2.5 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                className="pl-10 w-full p-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 bg-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+          </div>
+          
+          {/* Filter tabs - always visible */}
+          <div className="flex overflow-x-auto pb-2 gap-1 mb-2">
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="p-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'all' 
+                ? 'bg-amber-500 text-white shadow-sm' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
             >
-              <Filter size={18} className={showFilters ? "text-amber-600" : "text-gray-500"} />
+              All Offers
+            </button>
+            <button
+              onClick={() => setFilter('active')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'active' 
+                ? 'bg-green-500 text-white shadow-sm' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+            >
+              Active
+            </button>
+            <button
+              onClick={() => setFilter('inactive')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'inactive' 
+                ? 'bg-gray-500 text-white shadow-sm' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+            >
+              Inactive
+            </button>
+            <button
+              onClick={() => setFilter('draft')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'draft' 
+                ? 'bg-amber-400 text-white shadow-sm' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+            >
+              Draft
+            </button>
+            <button
+              onClick={() => setFilter('boosted')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'boosted' 
+                ? 'bg-orange-500 text-white shadow-sm' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+            >
+              Boosted
             </button>
           </div>
           
-          {showFilters && (
-            <div className="flex space-x-2 overflow-x-auto pb-3">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 text-sm rounded-lg ${filter === 'all' 
-                  ? 'bg-amber-500 text-white shadow-sm' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
-              >
-                All Offers
-              </button>
-              <button
-                onClick={() => setFilter('active')}
-                className={`px-4 py-2 text-sm rounded-lg ${filter === 'active' 
-                  ? 'bg-green-500 text-white shadow-sm' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
-              >
-                Active
-              </button>
-              <button
-                onClick={() => setFilter('inactive')}
-                className={`px-4 py-2 text-sm rounded-lg ${filter === 'inactive' 
-                  ? 'bg-gray-500 text-white shadow-sm' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} whitespace-nowrap`}
-              >
-                Inactive
-              </button>
-            </div>
-          )}
+          {/* Filter by offer type section removed */}
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-3 mt-2">
         {publishedOffers.length > 0 ? (
           publishedOffers.slice(0, showDetailedView ? (showAllItems ? publishedOffers.length : maxItems) : Math.min(maxItems, 2)).map((offer, index) => (
             <div 
@@ -249,15 +238,18 @@ const RecentLiveOffers = ({
                   description={offer.description}
                   image={offer.image}
                   imagePreview={offer.imagePreview}
+                  isDraft={offer.isDraft}
+                  isBoosted={offer.isBoosted}
+                  boostedViews={offer.boostedViews || 0}
                   views={offer.views || 0}
-                  showBoostButton={false}
+                  showBoostButton={showBoostButton}
                   type={offer.type}
                   startTime={offer.startTime}
                   endTime={offer.endTime}
                   validityDate={offer.validityDate}
                   startDate={offer.startDate}
-                  // Only show the timer on the detailed view
                   showDetailedInfo={true}
+                  initialShowTimer={offer.type === 'happyhours'}
                 />
               ) : (
                 <SimpleOfferCard
@@ -274,7 +266,7 @@ const RecentLiveOffers = ({
                   startTime={offer.startTime}
                   endTime={offer.endTime}
                   onClick={() => navigate('/offer-management')}
-                  onEdit={(id) => navigate(`/create-offer?id=${id}`)} // Add proper edit handler
+                  onEdit={(id) => navigate(`/create-offer?id=${id}`)}
                 />
               )}
             </div>

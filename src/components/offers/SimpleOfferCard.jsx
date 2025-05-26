@@ -32,16 +32,16 @@ const SimpleOfferCard = ({
     }
   };
 
-  // Get background color based on offer type
-  const getBackgroundColorClass = () => {
+  // Get border color based on offer type, but keep background white
+  const getBorderColorClass = () => {
     switch(type) {
       case 'happyhours':
-        return 'bg-blue-50 border-blue-200';
+        return 'border-blue-200';
       case 'spintowin':
-        return 'bg-purple-50 border-purple-200';
+        return 'border-purple-200';
       case 'spotlight':
       default:
-        return 'bg-amber-50 border-amber-200';
+        return 'border-amber-200';
     }
   };
 
@@ -76,16 +76,28 @@ const SimpleOfferCard = ({
     switch(type) {
       case 'happyhours':
         return (
-          <div className="flex items-center text-sm text-gray-600">
-            <User size={13} className="mr-1.5" />
-            <span>{bookings > 0 ? `${bookings} bookings` : 'No bookings'}</span>
+          <div className="flex items-center gap-3 text-sm text-gray-600">
+            <div className="flex items-center">
+              <User size={13} className="mr-1.5" />
+              <span>{bookings > 0 ? `${bookings} bookings` : 'No bookings'}</span>
+            </div>
+            <div className="flex items-center">
+              <ViewsIcon size={13} className="mr-1.5" />
+              <span>{views > 0 ? `+${views}` : '0'} views</span>
+            </div>
           </div>
         );
       case 'spintowin':
         return (
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="w-3.5 h-3.5 flex items-center justify-center mr-1.5">🎮</span>
-            <span>{spins > 0 ? `${spins} spins` : 'No spins'}</span>
+          <div className="flex items-center gap-3 text-sm text-gray-600">
+            <div className="flex items-center">
+              <span className="w-3.5 h-3.5 flex items-center justify-center mr-1.5">🎮</span>
+              <span>{spins > 0 ? `${spins} spins` : 'No spins'}</span>
+            </div>
+            <div className="flex items-center">
+              <ViewsIcon size={13} className="mr-1.5" />
+              <span>{views > 0 ? `+${views}` : '0'} views</span>
+            </div>
           </div>
         );
       case 'spotlight':
@@ -93,7 +105,7 @@ const SimpleOfferCard = ({
         return (
           <div className="flex items-center text-sm text-gray-600">
             <ViewsIcon size={13} className="mr-1.5" />
-            <span>{views > 0 ? `${views} views` : 'No views'}</span>
+            <span>{views > 0 ? `+${views} views` : 'No views'}</span>
           </div>
         );
     }
@@ -114,7 +126,7 @@ const SimpleOfferCard = ({
 
   return (
     <div 
-      className={`rounded-xl border relative shadow-sm ${getBackgroundColorClass()} transition-all hover:shadow-md`}
+      className={`rounded-xl border relative shadow-sm bg-white ${getBorderColorClass()} transition-all hover:shadow-md`}
     >
       {/* Edit button positioned at top right */}
       <div className="absolute top-2 right-2 z-10">
@@ -165,12 +177,14 @@ const SimpleOfferCard = ({
             </div>
             
             {/* Stats only - no boost button */}
-            <div className="flex justify-between items-center">
-              {renderStats()}
+            <div className="flex justify-between items-center flex-wrap">
+              <div className="flex-1 min-w-0 mr-2">
+                {renderStats()}
+              </div>
               
               {/* Toggle switch - styled like in OfferItem */}
               <label 
-                className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-auto"
+                className="relative inline-flex items-center cursor-pointer flex-shrink-0"
                 title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}
                 onClick={(e) => e.stopPropagation()}
               >

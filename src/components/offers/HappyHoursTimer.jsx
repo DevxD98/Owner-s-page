@@ -99,41 +99,11 @@ const HappyHoursTimer = ({ startTime, endTime, validityDate, startDate, classNam
     progressColor = 'bg-yellow-500';
   }
   
-  // Format the date range for display
-  const formatDateRange = () => {
-    try {
-      const start = effectiveStartDate ? new Date(effectiveStartDate) : null;
-      const end = effectiveValidityDate ? new Date(effectiveValidityDate) : null;
-      
-      if (start && end) {
-        // Log the dates for debugging
-        console.log('Formatting date range:', { 
-          rawStartDate: effectiveStartDate, 
-          rawEndDate: effectiveValidityDate,
-          parsedStart: start, 
-          parsedEnd: end 
-        });
-        
-        // Check if dates are valid
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-          console.error('Invalid date detected in formatDateRange');
-          return 'Invalid date range';
-        }
-        
-        const startFmt = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const endFmt = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        return `${startFmt} - ${endFmt}`;
-      }
-      return 'No defined date range';
-    } catch(e) {
-      console.error('Error formatting date range:', e);
-      return 'Error formatting dates';
-    }
-  };
+  // No need for the formatDateRange function anymore as we've removed the validity display
 
   return (
-    <div className={`rounded-lg overflow-hidden ${bgColor} ${className || ''}`}>
-      <div className="px-3 py-2 text-xs flex items-center justify-between">
+    <div className={`rounded-lg overflow-hidden ${bgColor} border-2 border-blue-200 shadow-sm ${className || ''}`}>
+      <div className="px-3 py-3 text-xs flex items-center justify-between">
         <div className="font-medium">
           {timeInfo.message}
         </div>
@@ -141,16 +111,11 @@ const HappyHoursTimer = ({ startTime, endTime, validityDate, startDate, classNam
           {timeInfo.formattedTimeRemaining}
         </div>
       </div>
-      <div className="w-full h-1 bg-gray-200 relative">
+      <div className="w-full h-2 bg-gray-200 relative">
         <div 
           className={`h-full ${progressColor} transition-all duration-1000 ease-linear`}
           style={{ width: `${timeInfo.percentage}%` }}
         ></div>
-      </div>
-      
-      {/* Always display validity period, showing error message if dates are invalid */}
-      <div className="bg-white/50 px-3 py-1 text-xs text-gray-600 text-center border-t border-gray-100">
-        Valid: {formatDateRange() || 'Invalid date range, please edit the offer'}
       </div>
     </div>
   );

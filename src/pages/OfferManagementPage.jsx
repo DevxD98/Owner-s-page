@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import RecentLiveOffers from '../components/offers/RecentLiveOffers';
 
@@ -7,18 +7,27 @@ const OfferManagementPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="p-4 pb-20 max-w-4xl mx-auto">
-      <div className="flex items-center mb-6">
-        <button onClick={() => navigate(-1)} className="mr-2">
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-xl font-bold">Recent Live Offers</h1>
+    <div className="pb-20">
+      {/* Header with fixed padding */}
+      <div className="sticky top-0 z-10 bg-white p-4 border-b border-gray-200">
+        <div className="flex items-center">
+          <button onClick={() => navigate(-1)} className="mr-3">
+            <ArrowLeft size={20} />
+          </button>
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md mr-3">
+            <Sparkles size={20} className="text-white" />
+          </div>
+          <h1 className="text-xl font-bold">Offer Management</h1>
+        </div>
       </div>
 
+      {/* Full-width content */}
       <RecentLiveOffers 
         showSearch={true} 
         showDetailedView={true} 
-        maxItems={50} // Show a large number of offers by default
+        showBoostButton={true} 
+        maxItems={50} 
+        showHeader={false} // Hide the header since we have it in the page
       />
     </div>
   );

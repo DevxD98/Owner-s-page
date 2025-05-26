@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
-import { ArrowLeft, TrendingUp, Zap, Users, Eye, BarChart3 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Zap, Users, Eye, BarChart3, Calendar, ChevronDown, Info } from 'lucide-react';
 
 const BoostOfferPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { offers } = useApp();
+  const { offers, updateOffer } = useApp();
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [durationText, setDurationText] = useState("0 Days");
+  const [inputError, setInputError] = useState("");
   
   // Boost parameters
-  const [views, setViews] = useState(0);
-  const [cost, setCost] = useState(0);
+  const [views, setViews] = useState(0); // Start with 0 views
+  const [cost, setCost] = useState(0); // Start with 0 cost
   const minViews = 0;
-  const maxViews = 10000;
-  const viewsPerRupee = 3; // 3 views per rupee
+  const maxViews = 15000;
+  const viewsPerRupee = 3; // 100 rupees = 300 views, so 3 views per rupee
+  const maxCost = 5000; // Maximum budget of ₹5000
+  
+  // UI States
+  const [isDragging, setIsDragging] = useState(false);
   
   // For slider input value display
   const viewsFormatted = new Intl.NumberFormat('en-IN').format(views);
@@ -38,42 +46,106 @@ const BoostOfferPage = () => {
     }
   }, [offerId, offers, navigate]);
 
+  // Format duration text based on number of days
+  const formatDurationText = (days) => {
+    if (days === 0) return "0 Days";
+    return days === 1 ? "1 Day" : `${days} Days`;
+  };
+
+  useEffect(() => {
+    setDurationText(formatDurationText(duration));
+  }, [duration]);
+
+  // Calculate estimated stats
+  const estimatedClicks = Math.round(views * 0.05); // Assuming 5% click rate
+  const estimatedConversions = Math.round(estimatedClicks * 0.15); // Assuming 15% conversion rate from clicks
+  
   // Handle views/cost calculation
   const handleViewsChange = (e) => {
     const value = e.target.value;
+    setInputError("");
     const newViews = value === "" ? 0 : parseInt(value);
     
-    if (!isNaN(newViews) && newViews >= 0 && newViews <= maxViews) {
-      setViews(newViews);
-      setCost(Math.round(newViews / viewsPerRupee));
+    if (!isNaN(newViews)) {
+      if (newViews >= minViews && newViews <= maxViews) {
+        setViews(newViews);
+        setCost(Math.round(newViews / viewsPerRupee));
+      } else {
+        setInputError(`Views must be between ${minViews} and ${maxViews.toLocaleString()}`);
+      }
     }
   };
   
   const handleCostChange = (e) => {
     const value = e.target.value;
+    setInputError("");
     const newCost = value === "" ? 0 : parseInt(value);
     
-    if (!isNaN(newCost) && newCost >= 0 && newCost <= maxViews / viewsPerRupee) {
+    if (!isNaN(newCost)) {
+      if (newCost >= 0 && newCost <= maxCost) {
+        setCost(newCost);
+        setViews(newCost * viewsPerRupee);
+      } else {
+        setInputError(`Budget must be between ₹0 and ₹${maxCost.toLocaleString()}`);
+      }
+    }
+  };
+  
+  const handleDurationChange = (e) => {
+    const value = e.target.value;
+    const days = value === "" ? 0 : parseInt(value);
+    
+    if (!isNaN(days) && days >= 0 && days <= 30) {
+      setDuration(days);
+    }
+  };
+  
+  const handleSliderChange = (e) => {
+    const value = e.target.value;
+    const newCost = parseInt(value);
+    setInputError("");
+    
+    if (!isNaN(newCost)) {
       setCost(newCost);
       setViews(newCost * viewsPerRupee);
     }
   };
 
   const handleBoost = () => {
+    if (!agreeToTerms) {
+      alert("Please agree to the Sponsored Ads Terms before proceeding.");
+      return;
+    }
+    
+    if (cost === 0) {
+      alert("Please select a budget for your promotion.");
+      return;
+    }
+    
     setLoading(true);
     
     // Simulate API call to boost the offer
     setTimeout(() => {
-      setLoading(false);
-      // Show success message and redirect back
-      alert(`Offer "${offer?.title}" has been successfully boosted to reach approximately ${viewsFormatted} views!`);
-      navigate('/offer-management');
+      if (offer) {
+        // Update the offer with boosted flag and additional views
+        updateOffer(offer.id, { 
+          isBoosted: true, 
+          views: (offer.views || 0) + views, 
+          boostedViews: views,
+          boostDuration: duration,
+          boostCost: cost
+        });
+        
+        setLoading(false);
+        // Show success message and redirect back
+        alert(`Offer "${offer?.title}" has been successfully boosted to reach approximately ${viewsFormatted} additional views!`);
+        navigate('/offer-management');
+      }
     }, 1500);
   };
 
   // Calculate the estimated reach based on base views + boosted views
   const totalReach = (offer?.views || 0) + views;
-
   const totalReachFormatted = new Intl.NumberFormat('en-IN').format(totalReach);
 
   if (!offer) {
@@ -86,208 +158,186 @@ const BoostOfferPage = () => {
 
   return (
     <div 
-      className="min-h-screen pb-24 relative bg-gray-50"
-      style={{
-        backgroundImage: `
-          linear-gradient(to bottom, rgba(248, 250, 255, 0.97), rgba(248, 250, 255, 0.99)),
-          url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23667eea' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E")
-        `,
-        backgroundAttachment: 'fixed'
-      }}
+      className="min-h-screen pb-24 relative bg-white"
     >
-      {/* Premium Header */}
-      <div className="bg-gradient-to-r from-indigo-700 to-purple-700 p-4 shadow-md flex items-center sticky top-0 z-10">
+      {/* Header */}
+      <div className="bg-white p-4 shadow-sm flex items-center sticky top-0 z-10 border-b border-gray-200">
         <button 
           onClick={() => navigate(-1)} 
-          className="mr-3 rounded-full p-2 hover:bg-white/20 text-white transition-all"
+          className="mr-3 rounded-full p-2 hover:bg-gray-100 text-gray-700 transition-all"
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold flex items-center text-white">
-          <span className="bg-white/20 text-white p-1.5 rounded-md mr-2 shadow-inner backdrop-blur-sm">
-            <Zap size={20} className="inline" />
-          </span>
+        <h1 className="text-xl font-bold text-gray-800">
           Boost Your Offer
-          <span className="ml-2 bg-yellow-300 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium">Premium</span>
         </h1>
       </div>
       
-      {/* Removed Exclusive Offer banner */}
+      {/* Main content with padding */}
+      <div className="px-5 pt-6 pb-2 max-w-md mx-auto">
 
-      {/* Offer Information - Similar to Recent Live Offers */}
-      <div className="px-4 pt-6 pb-2">
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-          {/* Left vertical accent */}
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600"></div>
-          
-          {/* Status Indicator */}
-          <div className="absolute top-4 right-4 bg-green-100 text-green-700 px-2 py-1 text-xs rounded-full font-medium flex items-center">
-            <span className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
-            Active
+      {/* Duration selector */}
+      <div className="mb-7">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">Duration</h2>
+        <div className="flex items-center">
+          <div className="relative w-full">
+            <input
+              type="number"
+              min="0"
+              max="30"
+              value={duration}
+              onChange={handleDurationChange}
+              className="w-full p-4 pr-12 border border-gray-300 rounded-lg text-left bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition-all"
+              placeholder="Enter days"
+            />
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+              {durationText.split(" ")[1]}
+            </div>
           </div>
           
-          <div className="pl-4">
-            <h2 className="text-lg font-bold text-gray-800">{offer.title}</h2>
-            
-            <div className="mt-3">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                {offer.description}
-              </p>
-            </div>
-            
-            <div className="mt-4 border-t border-gray-100 pt-3">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    {offer.type === 'spintowin' ? 'Spin to win!' : 
-                     offer.type === 'happyhours' ? 'Happy hours offer' : 
-                     'Special offer'}
-                  </div>
-                  <div className="font-medium">Flat 30% OFF on ₹499+</div>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Eye size={16} className="mr-1.5 text-indigo-500" />
-                      <span>{offer.views || 230} views</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Users size={16} className="mr-1.5 text-indigo-500" />
-                      <span>{offer.claimed || 0} claimed</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Created {offer.createdAt || '2 weeks ago'}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center ml-4">
+            <button className="p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-all">
+              <Calendar size={20} className="text-gray-500" />
+            </button>
+            <span className="ml-3 text-gray-600 text-sm">Starts today</span>
           </div>
         </div>
       </div>
-
-      {/* Boost with Slider Controls */}
-      <div className="px-4 pt-6 pb-5">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold flex items-center">
-            <span className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-1.5 rounded-lg mr-3 shadow-md">
-              <TrendingUp size={18} />
-            </span>
-            Boost Your Reach
-          </h2>
-          <div className="text-sm bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 rounded-full text-indigo-700 font-medium">
-            <Eye size={14} className="inline mr-1" /> +{viewsFormatted} views
+      
+      {/* Set Budget section */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">Set Your Budget</h2>
+        
+        <div className="mb-6 flex items-center">
+          <div className="w-6 h-6 rounded-full bg-purple-700 mr-2 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <p className="text-gray-600">Adjust your spend to reach more users</p>
+        </div>
+        
+        <div className="relative mb-6">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-lg font-semibold text-gray-700">₹{cost}</span>
+            <span className="text-lg font-semibold text-gray-700">₹{maxCost.toLocaleString()}</span>
+          </div>
+          
+          <div className="relative h-9 flex items-center">
+            <input
+              type="range"
+              min="0"
+              max={maxCost}
+              step="100"
+              value={cost}
+              onChange={handleSliderChange}
+              onMouseDown={() => setIsDragging(true)}
+              onMouseUp={() => setIsDragging(false)}
+              onTouchStart={() => setIsDragging(true)}
+              onTouchEnd={() => setIsDragging(false)}
+              className="absolute w-full h-6 opacity-0 cursor-pointer z-10"
+            />
+            <div className="absolute w-full h-1.5 bg-gray-200 rounded-full">
+              <div 
+                className="h-1.5 bg-purple-600 rounded-full" 
+                style={{ width: `${(cost / maxCost) * 100}%` }}
+              ></div>
+            </div>
+            
+            <div 
+              className={`absolute top-0 left-0 w-6 h-6 bg-purple-600 rounded-full -mt-2 -ml-3 shadow-md flex items-center justify-center transition-transform ${isDragging ? 'scale-125 shadow-lg' : ''}`}
+              style={{ left: `${cost === 0 ? '0%' : `${(cost / maxCost) * 100}%`}` }}
+            >
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+            </div>
+          </div>
+          
+          <div className="flex justify-between items-center mt-1">
+            <span className="text-sm font-medium text-gray-600">Min</span>
+            <span className="text-sm font-medium text-gray-600">Max</span>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          {/* Cost Display - Now Editable */}
-          <div className="text-center mb-6 relative">
-            <div className="inline-flex items-center">
-              <span className="text-3xl font-bold text-gray-800">₹</span>
-              <input 
-                type="number" 
-                value={cost === 0 ? "" : cost}
-                min={0}
-                max={maxViews / viewsPerRupee}
-                placeholder="0"
-                onChange={(e) => {
-                  // Handle empty input as 0
-                  const inputVal = e.target.value === "" ? 0 : parseInt(e.target.value);
-                  
-                  // Make sure we have a valid number
-                  if (!isNaN(inputVal) && inputVal >= 0 && inputVal <= maxViews / viewsPerRupee) {
-                    setCost(inputVal);
-                    setViews(inputVal * viewsPerRupee);
-                  }
-                }}
-                className="text-3xl font-bold text-gray-800 mb-1 w-28 bg-transparent border-b-2 border-indigo-300 focus:border-indigo-600 outline-none text-center hover:bg-gray-50 transition-all"
-              />
-            </div>
-            <p className="text-gray-500 text-sm">Estimated reach: {totalReachFormatted} views</p>
-          </div>
-          
-          {/* Views Slider */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <label htmlFor="views-slider" className="text-sm font-medium text-gray-700">
-                <Eye size={16} className="inline mr-1" /> Views
-              </label>
-              <div className="text-sm font-medium text-indigo-600">
-                {views === 0 ? "0" : viewsFormatted}
-              </div>
-            </div>
-            <input
-              id="views-slider"
-              type="range"
-              min={0}
-              max={maxViews}
-              step="100"
-              value={views}
-              onChange={handleViewsChange}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:bg-gray-300 focus:outline-none focus:ring focus:ring-indigo-200"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>0</span>
-              <span>{maxViews.toLocaleString()}</span>
-            </div>
-          </div>
-          
-          {/* Cost Slider */}
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <label htmlFor="cost-slider" className="text-sm font-medium text-gray-700">
-                <span className="inline-block">₹</span> Budget
-              </label>
-              <span className="text-sm font-medium text-indigo-600">{costFormatted}</span>
-            </div>
-            <input
-              id="cost-slider"
-              type="range"
-              min={0}
-              max={maxViews / viewsPerRupee}
-              step="10"
-              value={cost}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-gray-600 mb-1.5">Or manually enter budget</p>
+            <input 
+              type="number" 
+              placeholder="e.g. 1800"
+              value={cost || ""}
               onChange={handleCostChange}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:bg-gray-300 focus:outline-none focus:ring focus:ring-indigo-200"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition-all"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>₹0</span>
-              <span>₹{(maxViews / viewsPerRupee).toLocaleString()}</span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 mb-1.5">Or manually enter reach</p>
+            <input 
+              type="number" 
+              placeholder="e.g. 9000"
+              value={views || ""}
+              onChange={handleViewsChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition-all"
+            />
+          </div>
+        </div>
+        
+        {inputError && (
+          <div className="mt-2 text-red-500 text-sm flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="mr-1">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {inputError}
+          </div>
+        )}
+        
+        <div className="mt-5 p-4 bg-gray-100 rounded-lg">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-lg font-bold text-purple-700">Est. Reach: <span className="text-gray-800">{viewsFormatted}</span></h3>
+              <p className="text-gray-600">users</p>
+            </div>
+            <div className="flex items-center">
+              <Eye size={18} className="text-gray-600 mr-2" />
+              <span className="text-gray-600 text-sm">Visible to all app users nearby</span>
             </div>
           </div>
-          
-          {/* Boost Features */}
-          <div className="mt-6 pt-4 border-t border-gray-100">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Boost includes:</h3>
-            <ul className="text-sm text-gray-600 space-y-2">
-              <li className="flex items-center">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
-                  ✓
-                </span>
-                <span>Increased visibility in search results</span>
-              </li>
-              <li className="flex items-center">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
-                  ✓
-                </span>
-                <span>Featured in "Popular Offers" section</span>
-              </li>
-              <li className="flex items-center">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
-                  ✓
-                </span>
-                <span>Detailed performance analytics</span>
-              </li>
-              <li className="flex items-center">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-xs">
-                  ✓
-                </span>
-                <span>Boost active for 7 days</span>
-              </li>
-            </ul>
+        </div>
+
+        {cost > 0 && (
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div className="p-3 bg-indigo-50 rounded-lg">
+              <div className="flex items-center">
+                <TrendingUp size={16} className="text-indigo-600 mr-1.5" />
+                <span className="text-sm font-medium text-gray-700">Est. Clicks</span>
+              </div>
+              <p className="text-lg font-bold text-indigo-700 mt-1">{estimatedClicks.toLocaleString()}</p>
+            </div>
+            <div className="p-3 bg-indigo-50 rounded-lg">
+              <div className="flex items-center">
+                <Users size={16} className="text-indigo-600 mr-1.5" />
+                <span className="text-sm font-medium text-gray-700">Est. Conversions</span>
+              </div>
+              <p className="text-lg font-bold text-indigo-700 mt-1">{estimatedConversions.toLocaleString()}</p>
+            </div>
           </div>
+        )}
+        
+        <div className="mt-6 flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-700">Total Budget</h3>
+          <p className="text-2xl font-bold text-purple-700">₹{cost.toLocaleString()}</p>
+        </div>
+        
+        <div className="mt-4 flex items-center">
+          <input 
+            type="checkbox" 
+            id="termsAgreement" 
+            checked={agreeToTerms}
+            onChange={() => setAgreeToTerms(!agreeToTerms)}
+            className="w-5 h-5 rounded text-purple-600 focus:ring-purple-500 mr-2"
+          />
+          <label htmlFor="termsAgreement" className="text-gray-700">
+            I agree to the <span className="text-purple-700">Sponsored Ads Terms</span>.
+          </label>
         </div>
       </div>
 
@@ -309,9 +359,9 @@ const BoostOfferPage = () => {
           </button>
           <button 
             onClick={handleBoost}
-            disabled={loading}
+            disabled={loading || !agreeToTerms || cost === 0}
             className={`flex-1 ml-4 py-3.5 rounded-xl text-white font-medium flex items-center justify-center ${
-              loading 
+              loading || !agreeToTerms || cost === 0
                 ? 'bg-gray-400 opacity-70 cursor-not-allowed' 
                 : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
             } transition-all shadow-md`}
@@ -331,6 +381,7 @@ const BoostOfferPage = () => {
             )}
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

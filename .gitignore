@@ -28,3 +28,4 @@ dist-ssr
 
 # Local development files - not to be committed
 # src/utils/localStorageHelper.js is now included in the repository
+*.backup*

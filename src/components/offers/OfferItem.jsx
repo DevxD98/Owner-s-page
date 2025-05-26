@@ -1,6 +1,6 @@
-// filepath: /Users/devmondal/Downloads/project 10/src/components/offers/OfferItem.jsx
+// filepath: /Users/devmondal/Owner-s-page-3/src/components/offers/OfferItem.jsx
 import React from 'react';
-import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle, Clock, Zap } from 'lucide-react';
+import { Edit, ExternalLink, Calendar, ToggleLeft, ToggleRight, AlertCircle, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import HappyHoursTimer from './HappyHoursTimer';
@@ -15,7 +15,9 @@ const OfferItem = ({
   image, 
   imagePreview,
   isDraft, 
-  isSponsored, 
+  isSponsored,
+  isBoosted,  
+  boostedViews = 0,
   views = 0, 
   showBoostButton = false, 
   type,
@@ -23,10 +25,19 @@ const OfferItem = ({
   endTime,
   validityDate,
   startDate,
-  showDetailedInfo = true // Add new prop with default true to maintain backward compatibility
+  showDetailedInfo = true, // Add new prop with default true to maintain backward compatibility
+  initialShowTimer = false // Control initial timer visibility - default false to ensure timer is hidden by default
 }) => {
   // Add a state to handle animation for views counter
   const [showViewsAnimation, setShowViewsAnimation] = React.useState(true);
+  // Add state to toggle timer display for happy hours offers - always initialize as false to ensure timer is hidden by default
+  const [showTimer, setShowTimer] = React.useState(false);
+  // Add hover state to enhance the visual feedback for happy hours offers
+  const [isHovered, setIsHovered] = React.useState(false);
+  // Add state to toggle description expansion
+  const [showFullDescription, setShowFullDescription] = React.useState(false);
+  const descriptionRef = React.useRef(null);
+  const [descriptionOverflows, setDescriptionOverflows] = React.useState(false);
   
   // After component mount, turn off the animation effect
   React.useEffect(() => {
@@ -36,8 +47,35 @@ const OfferItem = ({
     
     return () => clearTimeout(timer);
   }, []);
+  
+  // After component mount, check if description overflows to know if we need to show the "read more" option
+  // Skip this check for spintowin offers as they don't need the read more functionality
+  React.useEffect(() => {
+    if (descriptionRef.current && type !== 'spintowin') {
+      const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
+      setDescriptionOverflows(isOverflowing);
+    } else if (type === 'spintowin') {
+      setDescriptionOverflows(false); // Ensure we never show read more for spintowin
+    }
+  }, [description, type]);
+  
+  // Set max-height based on the content to ensure consistent sizing
+  const [timerHeight, setTimerHeight] = React.useState(100); // Default height to ensure visibility
+  const timerRef = React.useRef(null);
+  
+  // Update timer height whenever showTimer changes or component mounts
+  React.useEffect(() => {
+    if (timerRef.current) {
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        const height = timerRef.current.scrollHeight;
+        console.log("Timer height calculated:", height);
+        setTimerHeight(Math.max(height, 100)); // Ensure minimum height
+      }, 50); // Slightly longer timeout for better reliability
+    }
+  }, [showTimer]);
   // Log props received for debugging purposes
-  console.log(`OfferItem props for "${title}":`, { 
+  console.log("OfferItem props for " + title + ":", { 
     id, 
     title, 
     validTill, 
@@ -59,18 +97,27 @@ const OfferItem = ({
   // Use image or imagePreview or null (in that order)
   const displayImage = image || imagePreview || null;
   
+  // Handler for clicking on the offer item to toggle timer (for happy hours offers)
+  const handleOfferClick = (e) => {
+    // Only toggle if the click is directly on the offer container, not on buttons or other interactive elements
+    if (offerType === 'happyhours' && e.target === e.currentTarget) {
+      console.log("Offer clicked directly, toggling timer");
+      setShowTimer(prev => !prev);
+    }
+  };
+  
   const handleEdit = () => {
     // Navigate to create-offer page with the offer ID for editing
-    navigate(`/create-offer?id=${id}`);
+    navigate("/create-offer?id=" + id);
   };
   
   const handlePreview = () => {
-    navigate(`/preview-offer?id=${id}`);
+    navigate("/preview-offer?id=" + id);
   };
   
   const handleBoost = () => {
     // Navigate to boost offer page
-    navigate(`/boost-offer?id=${id}`);
+    navigate("/boost-offer?id=" + id);
   };
   
   // Format date to more readable format without showing the year
@@ -89,8 +136,23 @@ const OfferItem = ({
     }
   };
 
+  // Toggle description expansion
+  const handleToggleDescription = (e) => {
+    e.stopPropagation();
+    setShowFullDescription(prev => !prev);
+  };
+
   return (
-    <div className={`bg-white rounded-lg p-4 pt-5 md:p-5 md:pt-6 border ${isSponsored ? 'border-purple-200' : 'border-gray-100'} shadow-sm transition-all duration-300 hover:shadow-md group relative`}>
+    <div 
+      className={`bg-white rounded-lg border ${isSponsored ? 'border-purple-200' : offerType === 'happyhours' ? 'border-blue-100 hover:border-blue-300' : 'border-gray-100'} shadow-sm transition-all duration-500 hover:shadow-md group relative ${offerType === 'happyhours' ? 'cursor-pointer' : ''}`}
+      onClick={handleOfferClick}
+      onMouseEnter={offerType === 'happyhours' ? () => setIsHovered(true) : undefined}
+      onMouseLeave={offerType === 'happyhours' ? () => setIsHovered(false) : undefined}
+      style={{
+        height: (offerType === 'happyhours' && showTimer) || showFullDescription ? 'auto' : 'auto',
+        transition: 'height 0.3s ease-in-out'
+      }}
+    >
       {/* Status Badge - Positioned at top right corner */}
       {!isDraft && (
         <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
@@ -112,24 +174,30 @@ const OfferItem = ({
           </span>
         </div>
       )}
-      <div className="flex items-start gap-3 md:gap-4">
-        {/* Image and Views section */}
-        <div className="flex flex-col items-center">
-          {/* Image or placeholder - Keep square aspect ratio only on mobile, use rectangular on desktop */}
-          <div className="w-16 h-16 md:w-20 md:h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-inner">
+      
+      {/* Shopping Bag Style Layout - Matching the reference image */}
+      <div className="flex">
+        {/* Left: Image with rectangular dimensions taking full height - wider for better appearance with fixed height */}
+        <div className="flex-shrink-0">
+          <div className="w-28 md:w-36 rounded-l-lg overflow-hidden relative" style={{ 
+            height: offerType === 'happyhours' ? '180px' : '140px', 
+            minHeight: offerType === 'happyhours' ? '180px' : '140px', 
+            maxHeight: offerType === 'happyhours' ? '180px' : '140px' 
+          }}>
             {displayImage ? (
               <img 
                 src={displayImage} 
                 alt={title} 
-                className="w-full h-full object-cover" 
+                className={`w-full h-full ${offerType === 'happyhours' ? 'object-cover object-center' : 'object-cover'}`}
+                style={{ height: offerType === 'happyhours' ? '180px' : '140px' }}
                 onError={(e) => {
-                  console.log(`Error loading image for offer ${id}`, e);
+                  console.log("Error loading image for offer " + id, e);
                   e.target.onerror = null; // Prevent infinite fallback loop
                   
                   // Create different fallback SVGs based on offer type
                   let fallbackSvg;
                   if (offerType === 'happyhours') {
-                    fallbackSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dbeafe'/%3E%3Ccircle cx='50' cy='45' r='25' fill='%2393c5fd'/%3E%3Cpath d='M40 55 L60 55 L65 70 L35 70 Z' fill='%233b82f6'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' text-anchor='middle' fill='%23ffffff'%3EHAPPY%3C/text%3E%3Ctext x='50' y='64' font-family='Arial' font-size='10' text-anchor='middle' fill='%23ffffff'%3EHOURS%3C/text%3E%3C/svg%3E";
+                    fallbackSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='%23dbeafe'/%3E%3Ccircle cx='50' cy='45' r='25' fill='%2393c5fd'/%3E%3Cpath d='M40 55 L60 55 L65 70 L35 70 Z' fill='%233b82f6'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' text-anchor='middle' fill='%23ffffff'%3EHAPPY%3C/text%3E%3Ctext x='50' y='64' font-family='Arial' font-size='10' text-anchor='middle' fill='%23ffffff'%3EHOURS%3C/text%3E%3C/svg%3E";
                   } else if (offerType === 'spintowin') {
                     fallbackSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3e8ff'/%3E%3Ccircle cx='50' cy='50' r='30' fill='%23ddd6fe' stroke='%238b5cf6' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%238b5cf6'/%3E%3Cpath d='M50 50 L50 20' stroke='%238b5cf6' stroke-width='2'/%3E%3Ctext x='50' y='86' font-family='Arial' font-size='10' text-anchor='middle' fill='%238b5cf6'%3ESPIN TO WIN%3C/text%3E%3C/svg%3E";
                   } else {
@@ -141,16 +209,16 @@ const OfferItem = ({
                 }}
               />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center ${
+              <div className={`w-full h-full flex items-center justify-center bg-white border-r ${
                 isSponsored 
-                  ? 'bg-gradient-to-br from-purple-100 to-pink-100' 
+                  ? 'border-purple-200' 
                   : offerType === 'happyhours' 
-                    ? 'bg-gradient-to-br from-blue-50 to-blue-100'
+                    ? 'border-blue-200'
                     : offerType === 'spintowin'
-                      ? 'bg-gradient-to-br from-purple-50 to-purple-100'
-                      : 'bg-gradient-to-br from-amber-50 to-amber-100'
-              }`}>
-                <span className={`text-sm font-bold ${
+                      ? 'border-purple-200'
+                      : 'border-amber-200'
+              }`} style={{ height: offerType === 'happyhours' ? '180px' : '140px' }}>
+                <span className={`text-2xl font-bold ${
                   isSponsored 
                     ? 'text-purple-500' 
                     : offerType === 'happyhours'
@@ -161,54 +229,109 @@ const OfferItem = ({
                 }`}>{title.substring(0, 2).toUpperCase()}</span>
               </div>
             )}
-          </div>
-          
-          {/* Views counter positioned below image - styled similar to boost page */}
-          <div className={`mt-1 px-2.5 py-0.5 rounded-full text-2xs md:text-xs font-medium flex items-center w-max ${
-            views > 0 
-              ? 'bg-indigo-100 text-indigo-600 shadow-sm' 
-              : 'bg-gray-50 text-gray-500'
-          } ${showViewsAnimation ? 'animate-pulse' : ''}`}
-          style={views > 0 ? { boxShadow: '0 0 0 1px rgba(79, 70, 229, 0.1)' } : {}}>
-            <ViewsIcon size={10} className="mr-1.5 flex-shrink-0 text-indigo-500" />
-            <span>{views > 0 ? `+${views.toLocaleString()} views` : '0 views'}</span>
+
+            {/* Type Badge Positioned on the image */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 py-1 px-2">
+              <div className="flex items-center justify-center">
+                <span className={`w-2 h-2 rounded-full mr-1.5 ${
+                  offerType === 'happyhours' 
+                    ? 'bg-blue-400' 
+                    : offerType === 'spintowin'
+                      ? 'bg-purple-400'
+                      : 'bg-amber-400'
+                }`}></span>
+                <span className="text-2xs text-white font-medium">
+                  {offerType === 'happyhours' ? 'Happy hours' : offerType === 'spintowin' ? 'Spin to win' : 'Spotlight'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Views indicator inside image area */}
+            <div className={`absolute top-0 left-0 px-2 py-0.5 text-xs font-medium flex items-center ${
+              views > 0 
+                ? 'bg-indigo-100 text-indigo-600'
+                : 'bg-gray-50 text-gray-500'
+            } ${showViewsAnimation ? 'animate-pulse' : ''} rounded-br-md`}>
+              <ViewsIcon size={10} className="mr-1 flex-shrink-0 text-indigo-500" />
+              <span>
+                {views > 0 ? views.toLocaleString() : '0'}
+                {isBoosted && boostedViews > 0 && (" (+" + boostedViews + ")")}
+              </span>
+            </div>
           </div>
         </div>
         
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-1 mb-1.5">
-            {offerType && (
-              <div className="text-xs text-gray-600 font-medium flex items-center">
-                <span className={`inline-flex items-center justify-center w-2 h-2 mr-1.5 rounded-full ${
-                  offerType === 'happyhours' 
-                    ? 'bg-blue-500' 
-                    : offerType === 'spintowin'
-                      ? 'bg-purple-500'
-                      : 'bg-amber-500'
-                }`}></span>
-                {offerType === 'happyhours' ? 'Happy hours' : offerType === 'spintowin' ? 'Spin to win!' : 'Spotlight'}
-              </div>
-            )}
-          </div>
-          
+        {/* Right: Content section in shopping bag style - with flexible height when timer is shown */}
+        <div className="flex-1 min-w-0 p-3 md:p-4 flex flex-col justify-between" 
+          style={{ 
+            minHeight: offerType === 'happyhours' ? '180px' : '140px', 
+            height: (offerType === 'happyhours' && showTimer) || showFullDescription ? 'auto' : offerType === 'happyhours' ? '180px' : '140px', 
+            overflow: 'hidden'
+          }}>
+          {/* Store/offer name */}          
           <div className="flex flex-wrap items-center gap-1 w-full">
-            <h3 className={`font-semibold text-base md:text-lg break-words w-full ${isSponsored ? 'text-purple-800 group-hover:text-purple-600' : 'text-gray-800 group-hover:text-amber-600'} transition-colors`}>
+            <h3 className={`font-medium text-base md:text-lg break-words w-full ${isSponsored ? 'text-purple-800' : 'text-gray-800'} transition-colors`}>
               {title}
               {isSponsored && (
                 <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
                   Ad
                 </span>
               )}
+              {/* Boosted tag removed as there's a dedicated filter section for boosted offers */}
             </h3>
           </div>
           
+          {/* Brief description - consistent spacing for all offer types */}
           {description && (
-            <p className="text-gray-600 text-sm mt-2 line-clamp-2">{description}</p>
+            <div className={`mb-auto ${offerType === 'happyhours' ? 'min-h-[60px]' : ''} relative`}>
+              <p
+                ref={descriptionRef}
+                className={`text-gray-600 text-xs md:text-sm mt-1 transition-all duration-300 ease-in-out ${
+                  showFullDescription || type === 'spintowin'
+                    ? type === 'spintowin' ? 'line-clamp-3 md:line-clamp-4' : '' 
+                    : offerType === 'happyhours' ? 'line-clamp-2 md:line-clamp-3' : 'line-clamp-1 md:line-clamp-2'
+                }`}
+              >
+                {description}
+              </p>
+              
+              {/* Show read more/less button only if the description overflows AND it's not a spintowin offer */}
+              {descriptionOverflows && type !== 'spintowin' && (
+                <button 
+                  onClick={handleToggleDescription}
+                  className="text-blue-500 hover:text-blue-700 text-xs mt-1 font-medium focus:outline-none transition-colors duration-200 flex items-center absolute"
+                  style={{
+                    bottom: offerType === 'happyhours' ? 'auto' : null
+                  }}
+                >
+                  {showFullDescription ? (
+                    <>
+                      Show Less
+                      <ChevronUp size={12} className="ml-1" />
+                    </>
+                  ) : (
+                    <>
+                      Read More
+                      <ChevronDown size={12} className="ml-1" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           )}
           
-          {/* Display Happy Hours Timer for happy hours offers - only when showDetailedInfo is true */}
+          {/* Display Happy Hours Timer for happy hours offers - with smooth animation when toggled */}
           {offerType === 'happyhours' && showDetailedInfo && (
-            <div className="mt-2 mb-1">
+            <div 
+              ref={timerRef}
+              className={`transition-all duration-500 ease-in-out ${
+                showTimer ? 'block opacity-100 mt-2 mb-2' : 'hidden opacity-0 h-0'
+              }`}
+              style={{ 
+                height: showTimer ? 'auto' : '0',
+                minHeight: showTimer ? '70px' : '0'
+              }}
+            >
               <HappyHoursTimer
                 startTime={startTime}
                 endTime={endTime}
@@ -217,30 +340,65 @@ const OfferItem = ({
               />
               {(!startTime || !endTime || !validityDate || !startDate) && (
                 <div className="mt-1 text-xs text-amber-600">
-                  <p>⚠️ Missing timer data. Some fields are undefined.</p>
+                  <p>⚠️ Missing timer data</p>
                 </div>
               )}
             </div>
           )}
           
-          <div className="flex flex-col mt-2">
+          {/* Flex spacer to push content to bottom for consistent sizing */}
+          <div className="flex-grow"></div>
+          
+          {/* Pricing/Details area similar to shopping bag */}
+          <div className="pt-2 border-t border-gray-100 mt-auto">
             {type === 'happyhours' ? (
               <>
                 {showDetailedInfo ? (
-                  // Show detailed happy hours info only when showDetailedInfo is true
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Clock size={12} className="mr-1 flex-shrink-0" />
-                    <span className="truncate">Hours: {startTime || "Undefined"} - {endTime || "Undefined"}</span>
+                  <div className="flex items-center justify-between text-xs text-gray-600">
+                    <div className="flex items-center flex-1 mr-2">
+                      <Clock size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
+                      <span className="truncate">Hours: {startTime || "Undefined"} - {endTime || "Undefined"}</span>
+                    </div>
+                    <button 
+                      className={`flex items-center text-blue-500 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded-full transition-colors hover:bg-blue-100 border border-blue-200 shadow-sm ${isHovered && !showTimer ? 'animate-pulse' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("Timer button clicked, current state:", showTimer);
+                        setShowTimer(!showTimer);
+                      }}
+                      type="button"
+                    >
+                      <span className="mr-1">{showTimer ? 'Hide Timer' : 'Show Timer'}</span>
+                      {showTimer ? 
+                        <ChevronUp size={14} className="text-blue-500" /> : 
+                        <ChevronDown size={14} className="text-blue-500" />
+                      }
+                    </button>
                   </div>
                 ) : (
-                  // Show simplified info - just indicate it's a happy hours offer when on home page
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Clock size={12} className="mr-1 flex-shrink-0" />
-                    <span className="truncate">Happy Hours Offer</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center flex-1 mr-2 text-gray-600">
+                      <Clock size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
+                      <span className="truncate">Happy Hours Offer</span>
+                    </div>
+                    <button 
+                      className={`flex items-center text-blue-500 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded-full transition-colors hover:bg-blue-100 border border-blue-200 shadow-sm ${isHovered ? 'animate-pulse' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("Timer button clicked (simple view)");
+                        setShowTimer(true);
+                      }}
+                      type="button"
+                    >
+                      <span className="mr-1">Show Timer</span>
+                      <ChevronDown size={14} className="text-blue-500" />
+                    </button>
                   </div>
                 )}
-                <div className="flex items-center text-xs text-gray-500 mt-1">
-                  <Calendar size={12} className="mr-1 flex-shrink-0" />
+                <div className="flex items-center text-xs text-gray-600 mt-1">
+                  <Calendar size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
                   {(startDate && (validityDate || validTill)) ? (
                     <span className="truncate">Valid: {formatDate(startDate)} - {formatDate(validityDate || validTill)}</span>
                   ) : (
@@ -250,77 +408,85 @@ const OfferItem = ({
               </>
             ) : type === 'spintowin' ? (
               <>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock size={12} className="mr-1 flex-shrink-0" />
-                  <span className="truncate">Spin to Win Offer</span>
-                </div>
-                <div className="flex items-center text-xs text-gray-500 mt-1">
-                  <Calendar size={12} className="mr-1 flex-shrink-0" />
-                  <span className="truncate">Valid: {startDate ? formatDate(startDate) : "Undefined"} - {(validTill || validityDate) ? formatDate(validTill || validityDate) : "Undefined"}</span>
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <div className="flex items-center">
+                    <Calendar size={12} className="mr-1.5 flex-shrink-0 text-purple-500" />
+                    <span className="truncate">Valid: {startDate ? formatDate(startDate) : "Undefined"} - {(validTill || validityDate) ? formatDate(validTill || validityDate) : "Undefined"}</span>
+                  </div>
                 </div>
               </>
             ) : (
               <>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Calendar size={12} className="mr-1 flex-shrink-0" />
-                  <span className="truncate">Valid: {startDate ? formatDate(startDate) : "Undefined"} - {(validTill || validityDate) ? formatDate(validTill || validityDate) : "Undefined"}</span>
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <div className="flex items-center">
+                    <Calendar size={12} className="mr-1.5 flex-shrink-0 text-amber-500" />
+                    <span className="truncate">Valid: {startDate ? formatDate(startDate) : "Undefined"} - {(validTill || validityDate) ? formatDate(validTill || validityDate) : "Undefined"}</span>
+                  </div>
                 </div>
               </>
             )}
           </div>
           
-          {/* Views display is now shown under status tag */}
-          
-          {/* Action buttons - optimized for mobile */}
-          <div className="mt-4 md:mt-5 flex flex-wrap md:flex-nowrap items-center gap-2 md:gap-3 justify-between">
-            {/* Left bottom: Edit and Preview */}
+          {/* Action buttons in shopping bag style - cleaner layout */}
+          <div className="mt-2 flex items-center justify-between">
             <div className="flex gap-2">
               <button 
-                className={`flex items-center justify-center p-2 md:p-2.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-md hover:shadow-lg border border-gray-200`}
+                className="flex items-center justify-center p-1.5 text-white bg-gray-500 hover:bg-gray-600 rounded-md transition-all shadow-sm"
                 title="Edit offer"
-                onClick={handleEdit}
-                style={{ width: 36, height: 36 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit();
+                }}
               >
-                <Edit size={16} />
+                <Edit size={14} />
               </button>
               <button 
-                className={`flex items-center justify-center p-2 md:p-2.5 text-gray-500 ${isSponsored ? 'hover:text-purple-600 hover:bg-purple-50' : 'hover:text-indigo-600 hover:bg-indigo-50'} rounded-md transition-colors shadow-md hover:shadow-lg border border-gray-200`}
+                className="flex items-center justify-center p-1.5 text-white bg-gray-500 hover:bg-gray-600 rounded-md transition-all shadow-sm"
                 title="Preview offer"
-                onClick={handlePreview}
-                style={{ width: 36, height: 36 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePreview();
+                }}
               >
-                <ExternalLink size={16} />
+                <ExternalLink size={14} />
               </button>
             </div>
             
-            {/* Center: Boost Offer button */}
-            {showBoostButton && (
-              <button 
-                className="flex items-center justify-center px-2 sm:px-3 py-1.5 sm:py-2 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-md transition-all text-xs sm:text-sm font-medium shadow-md hover:shadow-lg"
-                style={{ height: 36, minWidth: 90 }}
-                onClick={handleBoost}
-                title="Increase visibility for this offer"
-              >
-                <Zap size={14} className="mr-1 sm:mr-2 flex-shrink-0" />
-                <span className="whitespace-nowrap">Boost</span>
-              </button>
-            )}
-            
-            {/* Right: Toggle switch */}
-            {!isDraft && (
-              <label 
-                className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-auto"
-                title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={isActive}
-                  onChange={() => toggleOffer(id)}
-                  className="sr-only peer" 
-                />
-                <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 shadow-md"></div>
-              </label>
-            )}
+            <div className="flex items-center">
+              {/* Boost button with enhanced design */}
+              {showBoostButton && (
+                <button 
+                  className="flex items-center justify-center px-2.5 py-1 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-md transition-all text-xs font-medium shadow-sm mr-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBoost();
+                  }}
+                  title="Increase visibility for this offer"
+                >
+                  <Zap size={12} className="mr-1 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Boost</span>
+                </button>
+              )}
+              
+              {/* Toggle switch simplified */}
+              {!isDraft && (
+                <label 
+                  className="relative inline-flex items-center cursor-pointer flex-shrink-0"
+                  title={isActive ? "Active: Offer is live" : "Inactive: Offer is paused"}
+                >
+                  <input 
+                    type="checkbox" 
+                    checked={isActive}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleOffer(id);
+                    }}
+                    className="sr-only peer" 
+                  />
+                  <div className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all bg-gray-200 peer-checked:bg-blue-600`}></div>
+                </label>
+              )}
+            </div>
           </div>
         </div>
       </div>

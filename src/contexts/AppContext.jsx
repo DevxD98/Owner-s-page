@@ -95,8 +95,10 @@ export const AppProvider = ({ children }) => {
         isDraft: false,
         type: 'spotlight',
         views: 45,
-        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23fef3c7"%3E%3C/rect%3E%3Ctext x="50" y="50" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%23d97706"%3E20%25 OFF%3C/text%3E%3C/svg%3E',
-        imagePreview: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23fef3c7"%3E%3C/rect%3E%3Ctext x="50" y="50" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%23d97706"%3E20%25 OFF%3C/text%3E%3C/svg%3E'
+        isBoosted: true,
+        boostedViews: 20,
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        imagePreview: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
       },
       {
         id: '1002',
@@ -110,29 +112,68 @@ export const AppProvider = ({ children }) => {
         isDraft: false,
         type: 'happyhours',
         views: 78,
-        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23dbeafe"%3E%3C/rect%3E%3Ctext x="50" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EBUY 1%3C/text%3E%3Ctext x="50" y="60" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EGET 1 FREE%3C/text%3E%3C/svg%3E',
-        imagePreview: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23dbeafe"%3E%3C/rect%3E%3Ctext x="50" y="40" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EBUY 1%3C/text%3E%3Ctext x="50" y="60" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%232563eb"%3EGET 1 FREE%3C/text%3E%3C/svg%3E'
+        image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        imagePreview: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
       },
       {
         id: '1003',
         title: 'Spin to Win a Free Dessert!',
-        description: 'Spin the wheel and win exciting prizes including a free dessert with your meal!',
+        description: 'Win a free dessert!',
         validTill: getOneWeekLaterString(),
         startDate: getCurrentDateString(),
         isActive: true,
         isDraft: false,
         type: 'spintowin',
         views: 122,
-        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f3e8ff"%3E%3C/rect%3E%3Ccircle cx="50" cy="50" r="35" stroke="%236d28d9" stroke-width="2" fill="%23ddd6fe"%3E%3C/circle%3E%3Ctext x="50" y="55" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%236d28d9"%3ESPIN TO WIN%3C/text%3E%3C/svg%3E',
-        imagePreview: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f3e8ff"%3E%3C/rect%3E%3Ccircle cx="50" cy="50" r="35" stroke="%236d28d9" stroke-width="2" fill="%23ddd6fe"%3E%3C/circle%3E%3Ctext x="50" y="55" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="%236d28d9"%3ESPIN TO WIN%3C/text%3E%3C/svg%3E'
+        image: 'https://images.unsplash.com/photo-1488900128323-21503983a07e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        imagePreview: 'https://images.unsplash.com/photo-1488900128323-21503983a07e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      },
+      {
+        id: '1004',
+        title: 'Limited Offer: Free Appetizer',
+        description: 'Get a free appetizer with any main course order. Perfect for sharing!',
+        validTill: getOneWeekLaterString(),
+        startDate: getCurrentDateString(),
+        isActive: true,
+        isDraft: false,
+        type: 'spotlight',
+        views: 87,
+        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        imagePreview: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      },
+      {
+        id: '1005',
+        title: 'Summer Special: Cocktail Night',
+        description: 'Draft offer for our upcoming summer cocktail night with live music',
+        validTill: getOneWeekLaterString(),
+        startDate: getCurrentDateString(),
+        startTime: '19:00',
+        endTime: '23:00',
+        isActive: false,
+        isDraft: true,
+        type: 'happyhours',
+        views: 0,
+        image: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        imagePreview: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
       }
     ];
   });
   
   // Save offers to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('offers', JSON.stringify(offers));
-    console.log('Saved offers to localStorage:', offers);
+    // Ensure spin to win description is always kept short
+    const processedOffers = offers.map(offer => {
+      if (offer.type === 'spintowin') {
+        return {
+          ...offer,
+          description: 'Win a free dessert!' // Always enforce short description
+        };
+      }
+      return offer;
+    });
+    
+    localStorage.setItem('offers', JSON.stringify(processedOffers));
+    console.log('Saved offers to localStorage:', processedOffers);
   }, [offers]);
   
   // Initialize sponsored ads array

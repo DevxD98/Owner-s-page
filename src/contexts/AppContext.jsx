@@ -3,6 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loadAccountInfo, saveAccountInfo, loadStoreInfo, saveStoreInfo } from '../utils/localStorageHelper.js';
 // Import image utility functions
 import { blobUrlToDataUrl, isValidImageUrl, getImageWithFallback } from '../utils/imageUtils.js';
+// Import fallback images
+import { getFallbackImageByType } from '../utils/fallbackImages.js';
 
 const defaultContext = {
   location: '',
@@ -83,7 +85,7 @@ export const AppProvider = ({ children }) => {
       }
     }
     
-    // If no stored offers or parsing error, return sample offers with images
+    // If no stored offers or parsing error, return sample offers with fallback data URL images that don't rely on external services
     return [
       {
         id: '1001',
@@ -153,8 +155,8 @@ export const AppProvider = ({ children }) => {
         isDraft: true,
         type: 'happyhours',
         views: 0,
-        image: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        imagePreview: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+        image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        imagePreview: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
       }
     ];
   });
@@ -577,45 +579,51 @@ export const AppProvider = ({ children }) => {
     googleMapLocation
   ]);
 
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = React.useMemo(() => ({
+    location,
+    setLocation,
+    storeName,
+    storeCategory,
+    storeAddress,
+    storeLogo,
+    storeImage,
+    storePhone,
+    storeHours,
+    storeEmail,
+    setStoreEmail,
+    cityState,
+    setCityState,
+    pincode,
+    setPincode,
+    googleMapLocation,
+    setGoogleMapLocation,
+    stats,
+    offers,
+    sponsoredAds,
+    bookings,
+    redemptions,
+    toggleOffer,
+    addOffer,
+    updateOffer,
+    updateRedemption,
+    updateBooking,
+    setStoreName,
+    setStoreCategory,
+    setStoreAddress,
+    setStoreLogo,
+    setStoreImage,
+    setStorePhone,
+    setStoreHours,
+  }), [
+    location, storeName, storeCategory, storeAddress, 
+    storeLogo, storeImage, storePhone, storeHours, storeEmail,
+    cityState, pincode, googleMapLocation, stats, 
+    offers, sponsoredAds, bookings, redemptions
+  ]);
+
   return (
-    <AppContext.Provider
-      value={{
-        location,
-        setLocation,
-        storeName,
-        storeCategory,
-        storeAddress,
-        storeLogo,
-        storeImage,
-        storePhone,
-        storeHours,
-        storeEmail,
-        setStoreEmail,
-        cityState,
-        setCityState,
-        pincode,
-        setPincode,
-        googleMapLocation,
-        setGoogleMapLocation,
-        stats,
-        offers,
-        sponsoredAds,
-        bookings,
-        redemptions,
-        toggleOffer,
-        addOffer,
-        updateOffer,
-        updateRedemption,
-        updateBooking,
-        setStoreName,
-        setStoreCategory,
-        setStoreAddress,
-        setStoreLogo,
-        setStoreImage,
-        setStorePhone,
-        setStoreHours,
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

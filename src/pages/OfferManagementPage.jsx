@@ -8,8 +8,8 @@ const OfferManagementPage = () => {
 
   return (
     <div className="pb-20">
-      {/* Header with fixed padding */}
-      <div className="sticky top-0 z-10 bg-white p-4 border-b border-gray-200">
+      {/* Header with fixed padding - improved for mobile */}
+      <div className="sticky top-0 z-10 bg-white p-4 border-b border-gray-200 shadow-sm">
         <div className="flex items-center">
           <button onClick={() => navigate(-1)} className="mr-3">
             <ArrowLeft size={20} />
@@ -21,14 +21,16 @@ const OfferManagementPage = () => {
         </div>
       </div>
 
-      {/* Full-width content */}
-      <RecentLiveOffers 
-        showSearch={true} 
-        showDetailedView={true} 
-        showBoostButton={true} 
-        maxItems={50} 
-        showHeader={false} // Hide the header since we have it in the page
-      />
+      {/* Full-width content with improved mobile support */}
+      <div className="px-2 sm:px-4 mt-2">
+        <RecentLiveOffers 
+          showSearch={true} 
+          showDetailedView={true} 
+          showBoostButton={true} 
+          maxItems={50} 
+          showHeader={false} // Hide the header since we have it in the page
+        />
+      </div>
     </div>
   );
 };

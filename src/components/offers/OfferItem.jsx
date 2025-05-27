@@ -144,7 +144,7 @@ const OfferItem = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg border ${isSponsored ? 'border-purple-200' : offerType === 'happyhours' ? 'border-blue-100 hover:border-blue-300' : 'border-gray-100'} shadow-sm transition-all duration-500 hover:shadow-md group relative ${offerType === 'happyhours' ? 'cursor-pointer' : ''}`}
+      className={`bg-white rounded-lg border ${isSponsored ? 'border-purple-200' : offerType === 'happyhours' ? 'border-blue-100 hover:border-blue-300' : 'border-gray-100'} shadow-sm transition-all duration-500 hover:shadow-md group relative ${offerType === 'happyhours' ? 'cursor-pointer' : ''} w-full`}
       onClick={handleOfferClick}
       onMouseEnter={offerType === 'happyhours' ? () => setIsHovered(true) : undefined}
       onMouseLeave={offerType === 'happyhours' ? () => setIsHovered(false) : undefined}
@@ -175,21 +175,18 @@ const OfferItem = ({
         </div>
       )}
       
-      {/* Shopping Bag Style Layout - Matching the reference image */}
-      <div className="flex">
-        {/* Left: Image with rectangular dimensions taking full height - wider for better appearance with fixed height */}
-        <div className="flex-shrink-0">
-          <div className="w-28 md:w-36 rounded-l-lg overflow-hidden relative" style={{ 
-            height: offerType === 'happyhours' ? '180px' : '140px', 
-            minHeight: offerType === 'happyhours' ? '180px' : '140px', 
-            maxHeight: offerType === 'happyhours' ? '180px' : '140px' 
-          }}>
+      {/* Improved Mobile-First Layout - Full width cards */}
+      <div className="flex flex-col md:flex-row w-full">
+        {/* Image section - full width on mobile, left side on desktop */}
+        <div className="w-full md:w-28 md:min-w-[7rem] lg:w-36 lg:min-w-[9rem]">
+          <div className="relative w-full h-40 md:h-full md:min-h-[140px] rounded-t-lg md:rounded-t-none md:rounded-l-lg overflow-hidden">
             {displayImage ? (
               <img 
                 src={displayImage} 
                 alt={title} 
-                className={`w-full h-full ${offerType === 'happyhours' ? 'object-cover object-center' : 'object-cover'}`}
-                style={{ height: offerType === 'happyhours' ? '180px' : '140px' }}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                crossOrigin="anonymous"
                 onError={(e) => {
                   console.log("Error loading image for offer " + id, e);
                   e.target.onerror = null; // Prevent infinite fallback loop
@@ -209,7 +206,7 @@ const OfferItem = ({
                 }}
               />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center bg-white border-r ${
+              <div className={`w-full h-full flex items-center justify-center bg-white ${
                 isSponsored 
                   ? 'border-purple-200' 
                   : offerType === 'happyhours' 
@@ -217,7 +214,7 @@ const OfferItem = ({
                     : offerType === 'spintowin'
                       ? 'border-purple-200'
                       : 'border-amber-200'
-              }`} style={{ height: offerType === 'happyhours' ? '180px' : '140px' }}>
+              }`}>
                 <span className={`text-2xl font-bold ${
                   isSponsored 
                     ? 'text-purple-500' 
@@ -230,45 +227,46 @@ const OfferItem = ({
               </div>
             )}
 
-            {/* Type Badge Positioned on the image */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 py-1 px-2">
+            {/* Type Badge - Better highlighted on the image */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 py-1.5 px-2 backdrop-blur-sm">
               <div className="flex items-center justify-center">
-                <span className={`w-2 h-2 rounded-full mr-1.5 ${
+                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${
                   offerType === 'happyhours' 
                     ? 'bg-blue-400' 
                     : offerType === 'spintowin'
                       ? 'bg-purple-400'
                       : 'bg-amber-400'
-                }`}></span>
-                <span className="text-2xs text-white font-medium">
+                } animate-pulse`}></span>
+                <span className={`text-2xs font-semibold ${
+                  offerType === 'happyhours' 
+                    ? 'text-blue-100' 
+                    : offerType === 'spintowin'
+                      ? 'text-purple-100'
+                      : 'text-amber-100'
+                }`}>
                   {offerType === 'happyhours' ? 'Happy hours' : offerType === 'spintowin' ? 'Spin to win' : 'Spotlight'}
                 </span>
               </div>
             </div>
             
-            {/* Views indicator inside image area */}
-            <div className={`absolute top-0 left-0 px-2 py-0.5 text-xs font-medium flex items-center ${
+            {/* Views indicator with "Views" label */}
+            <div className={`absolute top-0 left-0 px-2 py-1 text-xs font-medium flex items-center ${
               views > 0 
                 ? 'bg-indigo-100 text-indigo-600'
                 : 'bg-gray-50 text-gray-500'
-            } ${showViewsAnimation ? 'animate-pulse' : ''} rounded-br-md`}>
+            } ${showViewsAnimation ? 'animate-pulse' : ''} rounded-br-md shadow-sm`}>
               <ViewsIcon size={10} className="mr-1 flex-shrink-0 text-indigo-500" />
               <span>
-                {views > 0 ? views.toLocaleString() : '0'}
+                {views > 0 ? views.toLocaleString() : '0'} Views
                 {isBoosted && boostedViews > 0 && (" (+" + boostedViews + ")")}
               </span>
             </div>
           </div>
         </div>
         
-        {/* Right: Content section in shopping bag style - with flexible height when timer is shown */}
-        <div className="flex-1 min-w-0 p-3 md:p-4 flex flex-col justify-between" 
-          style={{ 
-            minHeight: offerType === 'happyhours' ? '180px' : '140px', 
-            height: (offerType === 'happyhours' && showTimer) || showFullDescription ? 'auto' : offerType === 'happyhours' ? '180px' : '140px', 
-            overflow: 'hidden'
-          }}>
-          {/* Store/offer name */}          
+        {/* Content section - full width with proper spacing and padding */}
+        <div className="flex-1 p-4 flex flex-col justify-between min-h-[140px]">
+          {/* Title area with proper spacing */}          
           <div className="flex flex-wrap items-center gap-1 w-full">
             <h3 className={`font-medium text-base md:text-lg break-words w-full ${isSponsored ? 'text-purple-800' : 'text-gray-800'} transition-colors`}>
               {title}
@@ -277,32 +275,28 @@ const OfferItem = ({
                   Ad
                 </span>
               )}
-              {/* Boosted tag removed as there's a dedicated filter section for boosted offers */}
             </h3>
           </div>
           
-          {/* Brief description - consistent spacing for all offer types */}
+          {/* Description with better spacing */}
           {description && (
-            <div className={`mb-auto ${offerType === 'happyhours' ? 'min-h-[60px]' : ''} relative`}>
+            <div className="mb-auto mt-2 relative">
               <p
                 ref={descriptionRef}
-                className={`text-gray-600 text-xs md:text-sm mt-1 transition-all duration-300 ease-in-out ${
+                className={`text-gray-600 text-sm mt-1 transition-all duration-300 ease-in-out ${
                   showFullDescription || type === 'spintowin'
                     ? type === 'spintowin' ? 'line-clamp-3 md:line-clamp-4' : '' 
-                    : offerType === 'happyhours' ? 'line-clamp-2 md:line-clamp-3' : 'line-clamp-1 md:line-clamp-2'
+                    : offerType === 'happyhours' ? 'line-clamp-2 md:line-clamp-3' : 'line-clamp-2'
                 }`}
               >
                 {description}
               </p>
               
-              {/* Show read more/less button only if the description overflows AND it's not a spintowin offer */}
+              {/* Read more/less button */}
               {descriptionOverflows && type !== 'spintowin' && (
                 <button 
                   onClick={handleToggleDescription}
-                  className="text-blue-500 hover:text-blue-700 text-xs mt-1 font-medium focus:outline-none transition-colors duration-200 flex items-center absolute"
-                  style={{
-                    bottom: offerType === 'happyhours' ? 'auto' : null
-                  }}
+                  className="text-blue-500 hover:text-blue-700 text-xs mt-1.5 font-medium focus:outline-none transition-colors duration-200 flex items-center"
                 >
                   {showFullDescription ? (
                     <>
@@ -320,12 +314,12 @@ const OfferItem = ({
             </div>
           )}
           
-          {/* Display Happy Hours Timer for happy hours offers - with smooth animation when toggled */}
+          {/* Happy Hours Timer with proper spacing */}
           {offerType === 'happyhours' && showDetailedInfo && (
             <div 
               ref={timerRef}
-              className={`transition-all duration-500 ease-in-out ${
-                showTimer ? 'block opacity-100 mt-2 mb-2' : 'hidden opacity-0 h-0'
+              className={`transition-all duration-500 ease-in-out my-2 ${
+                showTimer ? 'block opacity-100' : 'hidden opacity-0 h-0'
               }`}
               style={{ 
                 height: showTimer ? 'auto' : '0',
@@ -346,16 +340,15 @@ const OfferItem = ({
             </div>
           )}
           
-          {/* Flex spacer to push content to bottom for consistent sizing */}
           <div className="flex-grow"></div>
           
-          {/* Pricing/Details area similar to shopping bag */}
-          <div className="pt-2 border-t border-gray-100 mt-auto">
+          {/* Offer details area with better mobile spacing */}
+          <div className="pt-2 border-t border-gray-100 mt-3">
             {type === 'happyhours' ? (
               <>
                 {showDetailedInfo ? (
-                  <div className="flex items-center justify-between text-xs text-gray-600">
-                    <div className="flex items-center flex-1 mr-2">
+                  <div className="flex items-center justify-between text-xs text-gray-600 flex-wrap gap-y-2">
+                    <div className="flex items-center mr-2">
                       <Clock size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
                       <span className="truncate">Hours: {startTime || "Undefined"} - {endTime || "Undefined"}</span>
                     </div>
@@ -377,8 +370,8 @@ const OfferItem = ({
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center flex-1 mr-2 text-gray-600">
+                  <div className="flex items-center justify-between text-xs flex-wrap gap-y-2">
+                    <div className="flex items-center mr-2 text-gray-600">
                       <Clock size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
                       <span className="truncate">Happy Hours Offer</span>
                     </div>
@@ -397,7 +390,7 @@ const OfferItem = ({
                     </button>
                   </div>
                 )}
-                <div className="flex items-center text-xs text-gray-600 mt-1">
+                <div className="flex items-center text-xs text-gray-600 mt-2">
                   <Calendar size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
                   {(startDate && (validityDate || validTill)) ? (
                     <span className="truncate">Valid: {formatDate(startDate)} - {formatDate(validityDate || validTill)}</span>
@@ -427,8 +420,8 @@ const OfferItem = ({
             )}
           </div>
           
-          {/* Action buttons in shopping bag style - cleaner layout */}
-          <div className="mt-2 flex items-center justify-between">
+          {/* Action buttons with better layout on mobile */}
+          <div className="mt-3 flex items-center justify-between flex-wrap gap-y-2">
             <div className="flex gap-2">
               <button 
                 className="flex items-center justify-center p-1.5 text-white bg-gray-500 hover:bg-gray-600 rounded-md transition-all shadow-sm"
@@ -456,7 +449,7 @@ const OfferItem = ({
               {/* Boost button with enhanced design */}
               {showBoostButton && (
                 <button 
-                  className="flex items-center justify-center px-2.5 py-1 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-md transition-all text-xs font-medium shadow-sm mr-2"
+                  className="flex items-center justify-center px-3 py-1.5 text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-md transition-all text-xs font-medium shadow-sm mr-3"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleBoost();
@@ -468,7 +461,7 @@ const OfferItem = ({
                 </button>
               )}
               
-              {/* Toggle switch simplified */}
+              {/* Toggle switch with better position */}
               {!isDraft && (
                 <label 
                   className="relative inline-flex items-center cursor-pointer flex-shrink-0"

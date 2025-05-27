@@ -19,8 +19,8 @@ export default {
           '50%': { opacity: 0.9 },
         },
         'pulse-slow': {
-          '0%, 100%': { opacity: 0.7 },
-          '50%': { opacity: 0.4 },
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0.85 },
         },
         'float': {
           '0%, 100%': { transform: 'translateY(0)' },
@@ -31,7 +31,27 @@ export default {
           '50%': { transform: 'translateY(10px)' },
         },
       },
-    },
+      screens: {
+        'xs': '475px', // Add extra small breakpoint
+      },
+      borderWidth: {
+        '3': '3px',
+      },
+    }
   },
-  plugins: [],
-};
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.scrollbar-hide': {
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          }
+        }
+      }
+      addUtilities(newUtilities);
+    }
+  ],
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { loadAccountInfo } from '../utils/localStorageHelper.js';
 import Layout from '../components/layout/Layout';
 import HomePage from '../pages/HomePage';
 import MyAdsPage from '../pages/MyAdsPage';
@@ -23,7 +24,9 @@ import HelpPage from '../pages/HelpPage';
 const AppRoutes = () => {
   const { storeName } = useApp();
   // Only redirect to create-account if storeName is not set
-  const isAccountSetUp = !!storeName;
+  // Use local storage to prevent infinite loop during navigation
+  const accountInfo = loadAccountInfo() || {};
+  const isAccountSetUp = !!storeName || !!(accountInfo && accountInfo.hasAccount);
   
   return (
     <Routes>

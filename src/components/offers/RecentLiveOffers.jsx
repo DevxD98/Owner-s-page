@@ -26,11 +26,11 @@ const RecentLiveOffers = ({
   useEffect(() => {
     console.log('RecentLiveOffers - Current Offers:', offers);
     
-    // Reset loadedItems when offers change to ensure animations work correctly
-    setLoadedItems([]);
-    
-    // Force a refresh whenever offers change
-    setRefreshKey(prev => prev + 1);
+    // Combine state updates to prevent excessive renders
+    if (offers && offers.length > 0) {
+      setLoadedItems([]); // Reset loadedItems when offers change
+      setRefreshKey(Date.now()); // Use timestamp for refresh key
+    }
   }, [offers]);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ const RecentLiveOffers = ({
   const publishedOffers = getFilteredOffers();
   
   return (
-    <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'} ${showHeader ? 'mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100' : 'px-4'}`}>
+    <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'} ${showHeader ? 'mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100' : 'px-1 sm:px-2 md:px-4'} w-full max-w-full`}>
       {showHeader && (
         <div 
           className="flex justify-between items-center mb-4"
@@ -172,13 +172,13 @@ const RecentLiveOffers = ({
             </div>
           </div>
           
-          {/* Filter tabs - always visible */}
-          <div className="flex overflow-x-auto pb-2 gap-1 mb-2">
+          {/* Filter tabs - improved for mobile scrolling */}
+          <div className="flex overflow-x-auto pb-2 gap-1.5 mb-4 scrollbar-hide">
             <button
               onClick={() => setFilter('all')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'all' 
                 ? 'bg-amber-500 text-white shadow-sm' 
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               All Offers
             </button>
@@ -186,7 +186,7 @@ const RecentLiveOffers = ({
               onClick={() => setFilter('active')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'active' 
                 ? 'bg-green-500 text-white shadow-sm' 
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               Active
             </button>
@@ -194,7 +194,7 @@ const RecentLiveOffers = ({
               onClick={() => setFilter('inactive')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'inactive' 
                 ? 'bg-gray-500 text-white shadow-sm' 
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               Inactive
             </button>
@@ -202,7 +202,7 @@ const RecentLiveOffers = ({
               onClick={() => setFilter('draft')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'draft' 
                 ? 'bg-amber-400 text-white shadow-sm' 
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               Draft
             </button>
@@ -210,17 +210,15 @@ const RecentLiveOffers = ({
               onClick={() => setFilter('boosted')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'boosted' 
                 ? 'bg-orange-500 text-white shadow-sm' 
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap`}
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               Boosted
             </button>
           </div>
-          
-          {/* Filter by offer type section removed */}
         </div>
       )}
 
-      <div className="space-y-3 mt-2">
+      <div className="space-y-4 mt-2">
         {publishedOffers.length > 0 ? (
           publishedOffers.slice(0, showDetailedView ? (showAllItems ? publishedOffers.length : maxItems) : Math.min(maxItems, 2)).map((offer, index) => (
             <div 
@@ -305,7 +303,7 @@ const RecentLiveOffers = ({
                 navigate('/offer-management');
               }
             }}
-            className={`w-full py-2.5 mt-4 text-amber-600 bg-amber-50 rounded-xl text-center font-medium transition-colors hover:bg-amber-100 shadow-sm border border-amber-100 ${!showDetailedView ? 'col-span-full' : ''}`}
+            className="w-full py-3 mt-4 text-amber-600 bg-amber-50 rounded-xl text-center font-medium transition-colors hover:bg-amber-100 shadow-sm border border-amber-100"
           >
             {showDetailedView && !showAllItems 
               ? `View all (${publishedOffers.length}) offers` 

@@ -9,7 +9,7 @@ import { saveAccountInfo, loadAccountInfo } from '../utils/localStorageHelper.js
 
 const CreateAccountPage = () => {
   const navigate = useNavigate();
-  const { setStoreName, setStoreCategory, setStoreAddress, setStoreLogo, setStoreImage, setStorePhone, setStoreHours, setStoreEmail } = useApp();
+  const appContext = useApp();
   
   const [formData, setFormData] = useState({
     storeName: '',
@@ -140,33 +140,36 @@ const CreateAccountPage = () => {
       }
     }
 
-    // Update context with store information
-    setStoreName(formData.storeName);
-    setStoreCategory && setStoreCategory(formData.category);
-    setStoreAddress && setStoreAddress(formData.address);
-    setStorePhone && setStorePhone(formData.phoneNumber);
-    
-    // Combine opening and closing hours
-    const businessHours = formData.closingHours 
-      ? `${formatTimeDisplay(formData.openingHours)} - ${formatTimeDisplay(formData.closingHours)}`
-      : formatTimeDisplay(formData.openingHours);
-    
-    setStoreHours && setStoreHours(businessHours);
-    setStoreEmail && setStoreEmail(formData.email);
-    
-    // Handle image files if needed
-    if (formData.storeImage && setStoreImage) {
-      setStoreImage(storeImagePreview);
-    }
-    
-    if (formData.storeLogo && setStoreLogo) {
-      setStoreLogo(storeLogoPreview);
+    // Update context with store information safely
+    if (appContext) {
+      if (appContext.setStoreName) appContext.setStoreName(formData.storeName);
+      if (appContext.setStoreCategory) appContext.setStoreCategory(formData.category);
+      if (appContext.setStoreAddress) appContext.setStoreAddress(formData.address);
+      if (appContext.setStorePhone) appContext.setStorePhone(formData.phoneNumber);
+      
+      // Combine opening and closing hours
+      const businessHours = formData.closingHours 
+        ? `${formatTimeDisplay(formData.openingHours)} - ${formatTimeDisplay(formData.closingHours)}`
+        : formatTimeDisplay(formData.openingHours);
+      
+      if (appContext.setStoreHours) appContext.setStoreHours(businessHours);
+      if (appContext.setStoreEmail) appContext.setStoreEmail(formData.email);
+      
+      // Handle image files if needed
+      if (formData.storeImage && appContext.setStoreImage) {
+        appContext.setStoreImage(storeImagePreview);
+      }
+      
+      if (formData.storeLogo && appContext.setStoreLogo) {
+        appContext.setStoreLogo(storeLogoPreview);
+      }
     }
     
     // Save account creation status to local storage
     saveAccountInfo({ 
       hasAccount: true,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      storeName: formData.storeName // Add store name directly to local storage
     });
 
     // Save account information to local storage
@@ -176,7 +179,7 @@ const CreateAccountPage = () => {
     setTimeout(() => {
       // Navigate to home page after successful account creation
       navigate('/');
-    }, 0);
+    }, 100);
   };
 
   return (

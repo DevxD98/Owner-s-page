@@ -1,10 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Calendar, Clock, Info, Tag, MapPin, Award, ChevronRight, AlertCircle, Edit, Share2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Heart, Calendar, Clock, Info, Tag, MapPin, Award, ChevronRight, AlertCircle, Edit, Share2, CheckCircle, ChevronLeft } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import HappyHoursTimer from '../components/offers/HappyHoursTimer';
 import { blobUrlToDataUrl } from '../utils/imageUtils.js';
 import { createNavigationState } from '../utils/routeUtils.js';
+
+// Image Gallery Component for Offer Preview
+const OfferImageGallery = ({ images, title }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const nextImage = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+  
+  const prevImage = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+  
+  // Only show navigation controls if there are multiple images
+  const showNavigation = images.length > 1;
+  
+  return (
+    <div className="w-full h-full relative">
+      {/* Image */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-[1]"></div>
+      <img 
+        src={images[currentIndex]} 
+        alt={`Offer image ${currentIndex + 1}`} 
+        className="w-full h-full object-cover"
+      />
+      
+      {/* Navigation buttons */}
+      {showNavigation && (
+        <>
+          <button 
+            onClick={prevImage}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 transition-colors"
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          
+          <button 
+            onClick={nextImage}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 transition-colors"
+            aria-label="Next image"
+          >
+            <ChevronRight size={24} />
+          </button>
+          
+          {/* Image counter */}
+          <div className="absolute bottom-16 right-4 bg-black/50 text-white text-sm px-3 py-1 rounded-full z-10">
+            {currentIndex + 1} / {images.length}
+          </div>
+        </>
+      )}
+      
+      {/* Offer title */}
+      <div className="absolute bottom-0 left-0 p-5 z-[2] w-full">
+        <h2 className="text-3xl font-bold text-white drop-shadow-md">
+          {title || "Your Amazing Offer"}
+        </h2>
+      </div>
+    </div>
+  );
+};
 
 const PreviewOfferPage = () => {
   const navigate = useNavigate();
@@ -50,27 +115,76 @@ const PreviewOfferPage = () => {
       // Log full payload for debugging
       console.log('Full publish payload:', JSON.stringify(publishPayload));
       
-      // For imagePreview URLs that are blob:, convert to data URLs
-      if (publishPayload.imagePreview && publishPayload.imagePreview.startsWith('blob:')) {
+      // Handle multiple images if they exist
+      if (publishPayload.imagePreviewArray && publishPayload.imagePreviewArray.length > 0) {
+        try {
+          console.log('Processing multiple images for publishing');
+          const images = [];
+          const imagePreviews = [];
+          
+          // Process each image in the array
+          for (let i = 0; i < publishPayload.imagePreviewArray.length; i++) {
+            const preview = publishPayload.imagePreviewArray[i];
+            if (preview && preview.startsWith('blob:')) {
+              const dataUrl = await blobUrlToDataUrl(preview);
+              if (dataUrl) {
+                images.push(dataUrl);
+                imagePreviews.push(dataUrl);
+              }
+            } else if (preview) {
+              // Non-blob URLs are already persistent
+              images.push(preview);
+              imagePreviews.push(preview);
+            }
+          }
+          
+          // Store the converted arrays
+          if (images.length > 0) {
+            publishPayload.images = images;
+            publishPayload.imagePreviews = imagePreviews;
+            
+            // Keep backward compatibility with single image properties
+            publishPayload.image = images[0];
+            publishPayload.imagePreview = imagePreviews[0];
+          }
+        } catch (error) {
+          console.error('Error handling multiple images for publishing:', error);
+          publishPayload.images = [];
+          publishPayload.imagePreviews = [];
+          publishPayload.image = null;
+          publishPayload.imagePreview = null;
+        }
+      }
+      // Handle single image for backward compatibility
+      else if (publishPayload.imagePreview && publishPayload.imagePreview.startsWith('blob:')) {
         try {
           console.log('Converting blob URL to data URL for publishing');
           const dataUrl = await blobUrlToDataUrl(publishPayload.imagePreview);
           if (dataUrl) {
             publishPayload.image = dataUrl;
             publishPayload.imagePreview = dataUrl; // Update both properties
+            // Also store in arrays for consistency
+            publishPayload.images = [dataUrl];
+            publishPayload.imagePreviews = [dataUrl];
           } else {
             console.warn('Failed to convert blob URL in publish, clearing image');
             publishPayload.image = null;
             publishPayload.imagePreview = null;
+            publishPayload.images = [];
+            publishPayload.imagePreviews = [];
           }
         } catch (error) {
           console.error('Error converting image for publish:', error);
           publishPayload.image = null;
           publishPayload.imagePreview = null;
+          publishPayload.images = [];
+          publishPayload.imagePreviews = [];
         }
       } else if (publishPayload.imagePreview) {
         // Non-blob URLs are already persistent
         publishPayload.image = publishPayload.imagePreview;
+        publishPayload.images = [publishPayload.imagePreview];
+        publishPayload.imagePreviews = [publishPayload.imagePreview];
       }
       
       // Ensure Happy Hours timer properties are preserved
@@ -252,10 +366,20 @@ const PreviewOfferPage = () => {
         ) : (
         /* Offer Card */
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transition-all hover:shadow-xl relative">
-          {/* Offer Image */}
+          {/* Offer Image Gallery */}
           <div className="w-full h-72 relative">
-            {previewData.imagePreview ? (
+            {/* Check for multiple images first */}
+            {previewData.imagePreviewArray && previewData.imagePreviewArray.length > 0 ? (
               <>
+                {/* Image Gallery with Navigation */}
+                <OfferImageGallery 
+                  images={previewData.imagePreviewArray}
+                  title={previewData.title || "Your Amazing Offer"}
+                />
+              </>
+            ) : previewData.imagePreview ? (
+              <>
+                {/* Single Image Fallback */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-[1]"></div>
                 <img 
                   src={previewData.imagePreview} 

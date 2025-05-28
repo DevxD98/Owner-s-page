@@ -258,7 +258,7 @@ const OfferManagement = ({
         </div>
       )}
 
-      <div className="space-y-3 sm:space-y-4">
+      <div className="space-y-4 sm:space-y-5">
         {publishedOffers && publishedOffers.length > 0 ? (
           publishedOffers.slice(0, showAllItems ? undefined : 2).map((offer, index) => (
             <div 

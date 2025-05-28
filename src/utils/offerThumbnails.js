@@ -40,6 +40,22 @@ export const getOfferThumbnails = (type) => {
   }
 };
 
+// Helper function to handle multiple offer images
+export const getOfferImages = (offer) => {
+  // Return array of images if they exist
+  if (offer.images && Array.isArray(offer.images) && offer.images.length > 0) {
+    return offer.images;
+  }
+  
+  // If there's only a single image, return it as an array
+  if (offer.image) {
+    return [offer.image];
+  }
+  
+  // Fallback to default thumbnails based on offer type
+  return getOfferThumbnails(offer.type || 'spotlight');
+};
+
 // Get appropriate fallback thumbnail based on offer type
 export const getFallbackThumbnail = (type, index = 0) => {
   const fallbacks = {

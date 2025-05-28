@@ -5,6 +5,7 @@ import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import HappyHoursTimer from './HappyHoursTimer';
 import ViewsIcon from '../icons/ViewsIcon';
+import MultiImageDisplay from './MultiImageDisplay';
 
 const OfferItem = ({ 
   id, 
@@ -179,56 +180,19 @@ const OfferItem = ({
       <div className="flex flex-col md:flex-row w-full">
         {/* Image section - full width on mobile, left side on desktop */}
         <div className="w-full md:w-28 md:min-w-[7rem] lg:w-36 lg:min-w-[9rem]">
-          <div className="relative w-full h-40 md:h-full md:min-h-[140px] rounded-t-lg md:rounded-t-none md:rounded-l-lg overflow-hidden">
-            {displayImage ? (
-              <img 
-                src={displayImage} 
-                alt={title} 
-                className="w-full h-full object-cover"
-                loading="lazy"
-                crossOrigin="anonymous"
-                onError={(e) => {
-                  console.log("Error loading image for offer " + id, e);
-                  e.target.onerror = null; // Prevent infinite fallback loop
-                  
-                  // Create different fallback SVGs based on offer type
-                  let fallbackSvg;
-                  if (offerType === 'happyhours') {
-                    fallbackSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='%23dbeafe'/%3E%3Ccircle cx='50' cy='45' r='25' fill='%2393c5fd'/%3E%3Cpath d='M40 55 L60 55 L65 70 L35 70 Z' fill='%233b82f6'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' text-anchor='middle' fill='%23ffffff'%3EHAPPY%3C/text%3E%3Ctext x='50' y='64' font-family='Arial' font-size='10' text-anchor='middle' fill='%23ffffff'%3EHOURS%3C/text%3E%3C/svg%3E";
-                  } else if (offerType === 'spintowin') {
-                    fallbackSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3e8ff'/%3E%3Ccircle cx='50' cy='50' r='30' fill='%23ddd6fe' stroke='%238b5cf6' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%238b5cf6'/%3E%3Cpath d='M50 50 L50 20' stroke='%238b5cf6' stroke-width='2'/%3E%3Ctext x='50' y='86' font-family='Arial' font-size='10' text-anchor='middle' fill='%238b5cf6'%3ESPIN TO WIN%3C/text%3E%3C/svg%3E";
-                  } else {
-                    // Default spotlight fallback
-                    fallbackSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fef3c7'/%3E%3Cpath d='M50 20 L60 40 L80 45 L60 60 L65 80 L50 70 L35 80 L40 60 L20 45 L40 40 Z' fill='%23fbbf24'/%3E%3C/svg%3E";
-                  }
-                  
-                  e.target.src = fallbackSvg;
-                }}
-              />
-            ) : (
-              <div className={`w-full h-full flex items-center justify-center bg-white ${
-                isSponsored 
-                  ? 'border-purple-200' 
-                  : offerType === 'happyhours' 
-                    ? 'border-blue-200'
-                    : offerType === 'spintowin'
-                      ? 'border-purple-200'
-                      : 'border-amber-200'
-              }`}>
-                <span className={`text-2xl font-bold ${
-                  isSponsored 
-                    ? 'text-purple-500' 
-                    : offerType === 'happyhours'
-                      ? 'text-blue-500'
-                      : offerType === 'spintowin'
-                        ? 'text-purple-500'
-                        : 'text-amber-500'
-                }`}>{title.substring(0, 2).toUpperCase()}</span>
-              </div>
-            )}
-
+          {/* Multi-image grid layout - matches the screenshot */}
+          <div className="relative w-full h-20 md:h-20 rounded-t-lg md:rounded-t-none md:rounded-l-lg overflow-hidden">
+            {/* Display 3 images for each offer type */}
+            <MultiImageDisplay 
+              offerType={offerType} 
+              title={title} 
+              id={id}
+              image={image}
+              isSponsored={isSponsored}
+            />
+            
             {/* Type Badge - Better highlighted on the image */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 py-1.5 px-2 backdrop-blur-sm">
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 py-1 px-2 backdrop-blur-sm">
               <div className="flex items-center justify-center">
                 <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${
                   offerType === 'happyhours' 

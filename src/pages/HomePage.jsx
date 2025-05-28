@@ -54,12 +54,15 @@ const HomePage = () => {
         <StatGrid />
         <div className="mt-6 space-y-6 pb-16">
           {/* Use key to force re-render when offers change */}
-          <RecentLiveOffers 
-            key={`recent-offers-${offerRefreshKey}`} 
-            showSearch={false}
-            showDetailedView={false}
-            maxItems={2} /* Only show 2 most recent offers on home page */
-          />
+          <div className="min-h-[250px]">
+            <RecentLiveOffers 
+              key={`recent-offers-${offerRefreshKey}`} 
+              showSearch={false}
+              showDetailedView={false}
+              maxItems={2} /* Show 2 offers on home page instead of 3 */
+              showHeader={true}
+            />
+          </div>
           <BookingStatusContainer showSearch={false} />
           <RedemptionTracker showSearch={false} />
           <ActiveSponsoredAds />

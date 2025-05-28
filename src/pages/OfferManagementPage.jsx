@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Sparkles, Search, Filter, Plus, Clock } from 'lucide-react';
+import { ArrowLeft, Sparkles, Search, Filter, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import OfferCard from '../components/offers/OfferCard';
@@ -18,7 +18,12 @@ const OfferManagementPage = () => {
       return [];
     }
     
-    let filtered = [...offers];
+    // First, limit to only 3 example offers, one of each type
+    let filtered = [
+      offers.find(offer => offer.type === 'spotlight' && offer.id === 'offer-spotlight-1'),
+      offers.find(offer => offer.type === 'happyhours' && offer.id === 'offer-happyhours-1'),
+      offers.find(offer => offer.type === 'spintowin' && offer.id === 'offer-spintowin-1')
+    ].filter(Boolean);
     
     // Filter by status (all, active, drafts)
     if (filter === 'active') {
@@ -212,6 +217,7 @@ const OfferManagementPage = () => {
               views={offer.views || 0}
               isActive={offer.isActive}
               image={offer.image}
+              images={offer.images}
               startDate={offer.startDate}
               endDate={offer.validTill}
               startTime={offer.startTime}
@@ -233,15 +239,7 @@ const OfferManagementPage = () => {
         )}
       </div>
 
-      {/* FAB for adding new offer */}
-      <div className="fixed bottom-16 right-4 z-10">
-        <button
-          onClick={() => navigate('/create-offer')}
-          className="w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700"
-        >
-          <Plus size={24} />
-        </button>
-      </div>
+      {/* Plus button has been removed as requested */}
     </div>
   );
 };

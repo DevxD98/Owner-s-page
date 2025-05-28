@@ -3,7 +3,40 @@ import { ChevronRight, Sparkles, Plus, Search } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import OfferItem from './OfferItem';
-import SimpleOfferCard from './SimpleOfferCard';
+import OfferCard from './OfferCard';
+
+// Format time remaining for happy hours offers
+const formatTimeRemaining = (startTime, endTime) => {
+  if (!startTime || !endTime) return null;
+  
+  try {
+    const now = new Date();
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
+    const today = new Date();
+    const start = new Date(today);
+    start.setHours(startHours, startMinutes, 0);
+    const end = new Date(today);
+    end.setHours(endHours, endMinutes, 0);
+    
+    if (now < start) {
+      // Hasn't started yet
+      return "Starts soon";
+    } else if (now > end) {
+      // Already ended
+      return "Ended";
+    } else {
+      // Currently active, calculate remaining time
+      const diff = end - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+    }
+  } catch (e) {
+    return null;
+  }
+};
 
 // Add props with default values
 const RecentLiveOffers = ({ 
@@ -250,21 +283,26 @@ const RecentLiveOffers = ({
                   initialShowTimer={offer.type === 'happyhours'}
                 />
               ) : (
-                <SimpleOfferCard
+                <OfferCard
                   id={offer.id}
                   title={offer.title}
+                  description={offer.description}
                   validTill={offer.validTill}
-                  type={offer.type}
-                  isActive={offer.isActive}
+                  type={offer.type || 'spotlight'}
                   views={offer.views || 0}
                   bookings={offer.bookings || 0}
                   spins={offer.spins || 0}
+                  isActive={offer.isActive}
+                  image={offer.image}
+                  images={offer.images}
                   startDate={offer.startDate}
                   endDate={offer.validityDate || offer.validTill}
                   startTime={offer.startTime}
                   endTime={offer.endTime}
-                  onClick={() => navigate('/offer-management')}
-                  onEdit={(id) => navigate(`/create-offer?id=${id}`)}
+                  timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
+                  onView={() => navigate('/offer-management')}
+                  onEdit={() => navigate(`/create-offer?id=${offer.id}`)}
+                  onBoost={() => navigate(`/boost-offer?id=${offer.id}`)}
                 />
               )}
             </div>

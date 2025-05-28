@@ -206,28 +206,30 @@ const OfferManagementPage = () => {
       {/* Offers list using the new card design */}
       <div className="px-3 py-4">
         {getFilteredOffers().length > 0 ? (
-          getFilteredOffers().map(offer => (
-            <OfferCard
-              key={offer.id}
-              id={offer.id}
-              title={offer.title}
-              description={offer.description}
-              validTill={offer.validTill}
-              type={offer.type || 'spotlight'}
-              views={offer.views || 0}
-              isActive={offer.isActive}
-              image={offer.image}
-              images={offer.images}
-              startDate={offer.startDate}
-              endDate={offer.validTill}
-              startTime={offer.startTime}
-              endTime={offer.endTime}
-              timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
-              onEdit={() => handleEdit(offer.id)}
-              onView={() => handleView(offer.id)}
-              onBoost={() => handleBoost(offer.id)}
-            />
-          ))
+          <div className="space-y-4">
+            {getFilteredOffers().map(offer => (
+              <OfferCard
+                key={offer.id}
+                id={offer.id}
+                title={offer.title}
+                description={offer.description}
+                validTill={offer.validTill}
+                type={offer.type || 'spotlight'}
+                views={offer.views || 0}
+                isActive={offer.isActive}
+                image={offer.image}
+                images={offer.images}
+                startDate={offer.startDate}
+                endDate={offer.validTill}
+                startTime={offer.startTime}
+                endTime={offer.endTime}
+                timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
+                onEdit={() => handleEdit(offer.id)}
+                onView={() => handleView(offer.id)}
+                onBoost={() => handleBoost(offer.id)}
+              />
+            ))}
+          </div>
         ) : (
           <div className="text-center py-8">
             <div className="inline-block p-4 rounded-full bg-gray-100 mb-4">

@@ -21,6 +21,7 @@ import PreviewOfferPage from '../pages/PreviewOfferPage';
 import BoostOfferPage from '../pages/BoostOfferPage';
 import HelpPage from '../pages/HelpPage';
 
+
 const AppRoutes = () => {
   const { storeName } = useApp();
   // Only redirect to create-account if storeName is not set
@@ -49,6 +50,7 @@ const AppRoutes = () => {
         <Route path="location-branch" element={<LocationBranchPage />} />
         <Route path="switch-account" element={<Navigate to="/" replace />} />
         <Route path="timing-availability" element={<Navigate to="/" replace />} />
+
         <Route path="settings" element={<Navigate to="/" replace />} />
         <Route path="help-support" element={<HelpPage />} />
         <Route path="about-app" element={<Navigate to="/" replace />} />

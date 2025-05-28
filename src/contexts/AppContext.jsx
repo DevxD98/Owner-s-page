@@ -5,6 +5,9 @@ import { loadAccountInfo, saveAccountInfo, loadStoreInfo, saveStoreInfo } from '
 import { blobUrlToDataUrl, isValidImageUrl, getImageWithFallback } from '../utils/imageUtils.js';
 // Import fallback images
 import { getFallbackImageByType } from '../utils/fallbackImages.js';
+// Import test and example offers
+import { testOffers } from '../test/test-offers.js';
+import { exampleOffers } from '../test/example-offers.js';
 
 const defaultContext = {
   location: '',
@@ -71,94 +74,68 @@ export const AppProvider = ({ children }) => {
     return `${oneWeekLater.getFullYear()}-${String(oneWeekLater.getMonth() + 1).padStart(2, '0')}-${String(oneWeekLater.getDate()).padStart(2, '0')}`;
   };
   
-  // Initialize offers array with sample data if not available in local storage
+  // Initialize offers array with sample data and always include test offers
   const [offers, setOffers] = useState(() => {
-    // Try to load from local storage first
+    // No sample offers - we'll only use the filtered test offers
+    const sampleOffers = [];
+    
+    // Try to load existing offers from local storage
     const storedOffers = localStorage.getItem('offers');
+    let existingOffers = [];
+    
     if (storedOffers) {
       try {
-        const parsedOffers = JSON.parse(storedOffers);
-        console.log('Loaded offers from local storage:', parsedOffers);
-        return parsedOffers;
+        existingOffers = JSON.parse(storedOffers);
+        
+        // Filter out test offers, sample offers, and example offers to avoid duplicates
+        existingOffers = existingOffers.filter(offer => 
+          !offer.id.startsWith('test-') && 
+          !offer.id.startsWith('sample-') &&
+          !offer.id.startsWith('offer-') &&
+          !offer.id.startsWith('example-')
+        );
       } catch (e) {
         console.error('Error parsing stored offers:', e);
+        existingOffers = [];
       }
     }
     
-    // If no stored offers or parsing error, return sample offers with fallback data URL images that don't rely on external services
-    return [
-      {
-        id: '1001',
-        title: 'Weekend Special: 20% Off',
-        description: 'Get 20% off on all items this weekend only!',
-        validTill: getOneWeekLaterString(),
-        startDate: getCurrentDateString(),
-        isActive: true,
-        isDraft: false,
-        type: 'spotlight',
-        views: 45,
-        isBoosted: true,
-        boostedViews: 20,
-        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        imagePreview: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
-      },
-      {
-        id: '1002',
-        title: 'Happy Hour: Buy 1 Get 1 Free',
-        description: 'Buy one, get one free between 2-4pm daily',
-        validTill: getOneWeekLaterString(),
-        startDate: getCurrentDateString(),
-        startTime: '14:00',
-        endTime: '16:00',
-        isActive: true,
-        isDraft: false,
-        type: 'happyhours',
-        views: 78,
-        image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        imagePreview: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
-      },
-      {
-        id: '1003',
-        title: 'Spin to Win a Free Dessert!',
-        description: 'Win a free dessert!',
-        validTill: getOneWeekLaterString(),
-        startDate: getCurrentDateString(),
-        isActive: true,
-        isDraft: false,
-        type: 'spintowin',
-        views: 122,
-        image: 'https://images.unsplash.com/photo-1488900128323-21503983a07e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        imagePreview: 'https://images.unsplash.com/photo-1488900128323-21503983a07e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
-      },
-      {
-        id: '1004',
-        title: 'Limited Offer: Free Appetizer',
-        description: 'Get a free appetizer with any main course order. Perfect for sharing!',
-        validTill: getOneWeekLaterString(),
-        startDate: getCurrentDateString(),
-        isActive: true,
-        isDraft: false,
-        type: 'spotlight',
-        views: 87,
-        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        imagePreview: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
-      },
-      {
-        id: '1005',
-        title: 'Summer Special: Cocktail Night',
-        description: 'Draft offer for our upcoming summer cocktail night with live music',
-        validTill: getOneWeekLaterString(),
-        startDate: getCurrentDateString(),
-        startTime: '19:00',
-        endTime: '23:00',
-        isActive: false,
-        isDraft: true,
-        type: 'happyhours',
-        views: 0,
-        image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        imagePreview: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+    // Create a map of used IDs to prevent duplicates
+    const usedIds = new Map();
+    
+    // Function to ensure unique IDs
+    const ensureUniqueId = (offer) => {
+      if (usedIds.has(offer.id)) {
+        // Create a new unique ID if a duplicate is found
+        const newId = `${offer.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        return { ...offer, id: newId };
       }
-    ];
+      
+      // Mark this ID as used
+      usedIds.set(offer.id, true);
+      return offer;
+    };
+    
+    // Process sample offers to ensure unique IDs
+    const uniqueSampleOffers = sampleOffers.map(ensureUniqueId);
+    
+    // Process existing offers to ensure unique IDs
+    const uniqueExistingOffers = existingOffers.map(ensureUniqueId);
+    
+    // We only want 3 sample offers, one of each type (spotlight, happyhours, spintowin)
+    // Filter test and example offers to only get what we need
+    const filteredTestOffers = [
+      testOffers.find(offer => offer.type === 'spotlight' && offer.id === 'offer-spotlight-1'),
+      testOffers.find(offer => offer.type === 'happyhours' && offer.id === 'offer-happyhours-1'),
+      testOffers.find(offer => offer.type === 'spintowin' && offer.id === 'offer-spintowin-1')
+    ].filter(Boolean);
+    
+    const uniqueTestOffers = filteredTestOffers.map(ensureUniqueId);
+    
+    // We're not including example offers as we only want 3 total offers
+    
+    // Combine only the filtered offers with unique IDs
+    return [...uniqueSampleOffers, ...uniqueTestOffers, ...uniqueExistingOffers];
   });
   
   // Save offers to localStorage whenever they change
@@ -175,7 +152,6 @@ export const AppProvider = ({ children }) => {
     });
     
     localStorage.setItem('offers', JSON.stringify(processedOffers));
-    console.log('Saved offers to localStorage:', processedOffers);
   }, [offers]);
   
   // Initialize sponsored ads array
@@ -257,8 +233,48 @@ export const AppProvider = ({ children }) => {
     // Log the offer type for debugging
     console.log('Creating new offer with type:', newOffer.type);
     
-    // Handle image to prevent blob URL errors
-    if (newOffer.imagePreview && newOffer.imagePreview.startsWith('blob:')) {
+    // Handle multiple images if they exist
+    if (offer.imagePreviewArray && offer.imagePreviewArray.length > 0) {
+      try {
+        console.log('Processing multiple images for persistence');
+        const images = [];
+        const imagePreviews = [];
+        
+        // Process each image in the array
+        for (let i = 0; i < offer.imagePreviewArray.length; i++) {
+          const preview = offer.imagePreviewArray[i];
+          if (preview && preview.startsWith('blob:')) {
+            const dataUrl = await blobUrlToDataUrl(preview);
+            if (dataUrl) {
+              images.push(dataUrl);
+              imagePreviews.push(dataUrl);
+            }
+          } else if (preview) {
+            // Non-blob URLs are already persistent
+            images.push(preview);
+            imagePreviews.push(preview);
+          }
+        }
+        
+        // Store the converted arrays
+        if (images.length > 0) {
+          newOffer.images = images;
+          newOffer.imagePreviews = imagePreviews;
+          
+          // Keep backward compatibility with single image properties
+          newOffer.image = images[0];
+          newOffer.imagePreview = imagePreviews[0];
+        }
+      } catch (error) {
+        console.error('Error handling multiple images:', error);
+        newOffer.images = [];
+        newOffer.imagePreviews = [];
+        newOffer.image = null;
+        newOffer.imagePreview = null;
+      }
+    }
+    // Handle single image for backward compatibility
+    else if (newOffer.imagePreview && newOffer.imagePreview.startsWith('blob:')) {
       try {
         console.log('Converting blob URL to data URL for persistence');
         // Convert blob URL to data URL for persistence
@@ -266,19 +282,28 @@ export const AppProvider = ({ children }) => {
         if (dataUrl) {
           newOffer.image = dataUrl;
           newOffer.imagePreview = dataUrl; // Update both properties
+          // Also store in arrays for consistency
+          newOffer.images = [dataUrl];
+          newOffer.imagePreviews = [dataUrl];
         } else {
           console.warn('Failed to convert blob URL, using fallback');
           newOffer.image = null;
           newOffer.imagePreview = null;
+          newOffer.images = [];
+          newOffer.imagePreviews = [];
         }
       } catch (error) {
         console.error('Error handling image:', error);
         newOffer.image = null;
         newOffer.imagePreview = null;
+        newOffer.images = [];
+        newOffer.imagePreviews = [];
       }
     } else if (newOffer.imagePreview) {
       // Non-blob image URL (like http://) is already persistent
       newOffer.image = newOffer.imagePreview;
+      newOffer.images = [newOffer.imagePreview];
+      newOffer.imagePreviews = [newOffer.imagePreview];
     }
     
     // Get current date and future date helper functions
@@ -390,8 +415,47 @@ export const AppProvider = ({ children }) => {
       }
     }
     
-    // Handle image to prevent blob URL errors
-    if (updatedOffer.imagePreview && updatedOffer.imagePreview.startsWith('blob:')) {
+    // Handle multiple images if they exist
+    if (updatedOffer.imagePreviewArray && updatedOffer.imagePreviewArray.length > 0) {
+      try {
+        console.log('Processing multiple images for persistence in update');
+        const images = [];
+        const imagePreviews = [];
+        
+        // Process each image in the array
+        for (let i = 0; i < updatedOffer.imagePreviewArray.length; i++) {
+          const preview = updatedOffer.imagePreviewArray[i];
+          if (preview && preview.startsWith('blob:')) {
+            const dataUrl = await blobUrlToDataUrl(preview);
+            if (dataUrl) {
+              images.push(dataUrl);
+              imagePreviews.push(dataUrl);
+            }
+          } else if (preview) {
+            // Non-blob URLs are already persistent
+            images.push(preview);
+            imagePreviews.push(preview);
+          }
+        }
+        
+        // Store the converted arrays
+        if (images.length > 0) {
+          updatedOffer.images = images;
+          updatedOffer.imagePreviews = imagePreviews;
+          
+          // Keep backward compatibility with single image properties
+          updatedOffer.image = images[0];
+          updatedOffer.imagePreview = imagePreviews[0];
+        }
+      } catch (error) {
+        console.error('Error handling multiple images in update:', error);
+        // Don't update the images if there was an error
+        delete updatedOffer.imagePreviewArray;
+        delete updatedOffer.offerImages;
+      }
+    }
+    // Handle single image for backward compatibility
+    else if (updatedOffer.imagePreview && updatedOffer.imagePreview.startsWith('blob:')) {
       try {
         console.log('Converting blob URL to data URL for persistence in update');
         // Convert blob URL to data URL for persistence
@@ -399,6 +463,9 @@ export const AppProvider = ({ children }) => {
         if (dataUrl) {
           updatedOffer.image = dataUrl;
           updatedOffer.imagePreview = dataUrl; // Update both properties
+          // Also store in arrays for consistency
+          updatedOffer.images = [dataUrl];
+          updatedOffer.imagePreviews = [dataUrl];
         } else {
           console.warn('Failed to convert blob URL in update, using previous image');
           // Don't update the image, remove imagePreview from update to keep original
@@ -411,6 +478,9 @@ export const AppProvider = ({ children }) => {
     } else if (updatedOffer.imagePreview) {
       // Non-blob image URL is already persistent
       updatedOffer.image = updatedOffer.imagePreview;
+      // Also store in arrays for consistency
+      updatedOffer.images = [updatedOffer.imagePreview];
+      updatedOffer.imagePreviews = [updatedOffer.imagePreview];
     }
     
     // Special handling for Happy Hours offers

@@ -181,7 +181,7 @@ const OfferItem = ({
         {/* Image section - full width on mobile, left side on desktop */}
         <div className="w-full md:w-28 md:min-w-[7rem] lg:w-36 lg:min-w-[9rem]">
           {/* Multi-image grid layout - matches the screenshot */}
-          <div className="relative w-full h-20 md:h-20 rounded-t-lg md:rounded-t-none md:rounded-l-lg overflow-hidden">
+          <div className="relative w-full h-16 md:h-18 rounded-t-lg md:rounded-t-none md:rounded-l-lg overflow-hidden">
             {/* Display 3 images for each offer type */}
             <MultiImageDisplay 
               offerType={offerType} 
@@ -229,7 +229,7 @@ const OfferItem = ({
         </div>
         
         {/* Content section - full width with proper spacing and padding */}
-        <div className="flex-1 p-4 flex flex-col justify-between min-h-[140px]">
+        <div className="flex-1 p-4 flex flex-col justify-between min-h-[120px]">
           {/* Title area with proper spacing */}          
           <div className="flex flex-wrap items-center gap-1 w-full">
             <h3 className={`font-medium text-base md:text-lg break-words w-full ${isSponsored ? 'text-purple-800' : 'text-gray-800'} transition-colors`}>
@@ -440,7 +440,10 @@ const OfferItem = ({
                     }}
                     className="sr-only peer" 
                   />
-                  <div className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all bg-gray-200 peer-checked:bg-blue-600`}></div>
+                  <div className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all bg-gray-200 peer-checked:bg-blue-500 shadow-inner`}></div>
+                  <span className="ml-1.5 text-xs font-medium text-gray-600">
+                    {isActive ? 'On' : 'Off'}
+                  </span>
                 </label>
               )}
             </div>

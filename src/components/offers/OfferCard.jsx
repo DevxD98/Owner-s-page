@@ -58,7 +58,7 @@ const OfferCard = ({
   // Function to render the 3-image grid using MultiImageDisplay component
   const getImageGallery = () => {
     return (
-      <div className="relative w-full h-48 overflow-hidden rounded-xl">
+      <div className="relative w-full h-28 md:h-30 overflow-hidden rounded-xl">
         <MultiImageDisplay 
           offerType={type}
           title={title}
@@ -77,12 +77,12 @@ const OfferCard = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md mb-4 overflow-hidden border border-gray-100 transition-shadow hover:shadow-lg">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-shadow hover:shadow-lg mb-2">
       {/* Card header with title */}
-      <div className="flex items-center justify-between p-4 pb-2">
+      <div className="flex items-center justify-between p-3 pb-1.5">
         <div className="flex-1">
           <div className="flex items-center">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden mr-3">
+            <div className="flex-shrink-0 w-9 h-9 rounded-full overflow-hidden mr-2">
               {/* Modern gradient icon with animated hover effect */}
               <div className={`w-full h-full flex items-center justify-center shadow-sm transition-all ${
                 type === 'happyhours' 
@@ -92,11 +92,11 @@ const OfferCard = ({
                   'bg-gradient-to-br from-amber-400 to-amber-600 text-white hover:from-amber-500 hover:to-amber-700'
               }`}>
                 {type === 'happyhours' ? (
-                  <Clock size={24} className="drop-shadow" />
+                  <Clock size={18} className="drop-shadow" />
                 ) : type === 'spintowin' ? (
-                  <Gift size={24} className="drop-shadow" />
+                  <Gift size={18} className="drop-shadow" />
                 ) : (
-                  <Sparkles size={24} className="drop-shadow" />
+                  <Sparkles size={18} className="drop-shadow" />
                 )}
               </div>
             </div>
@@ -128,12 +128,12 @@ const OfferCard = ({
       </div>
       
       {/* Card description with improved styling */}
-      <div className="px-4 pb-2">
-        <p className="text-sm text-gray-600 leading-relaxed">{formatDescription(description)}</p>
+      <div className="px-3 pb-2">
+        <p className="text-sm text-gray-600 leading-relaxed mb-1">{formatDescription(description)}</p>
       </div>
       
       {/* Offer Image Gallery */}
-      <div className="px-4 pb-3">
+      <div className="px-3 pb-3">
         {getImageGallery()}
       </div>
       
@@ -141,12 +141,12 @@ const OfferCard = ({
       <div className="flex items-center border-t border-gray-100">
         <button 
           onClick={onView}
-          className="flex-1 py-3 text-blue-600 text-sm font-medium flex items-center justify-center hover:bg-blue-50 transition-colors"
+          className="flex-1 py-2 text-blue-600 text-xs font-medium flex items-center justify-center hover:bg-blue-50 transition-colors"
         >
           <svg 
             className="mr-1.5" 
-            width="18" 
-            height="18" 
+            width="15" 
+            height="15" 
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
@@ -159,12 +159,12 @@ const OfferCard = ({
         
         <button 
           onClick={onBoost}
-          className="flex-1 py-3 text-green-600 text-sm font-medium flex items-center justify-center hover:bg-green-50 transition-colors border-l border-r border-gray-100"
+          className="flex-1 py-2 text-green-600 text-xs font-medium flex items-center justify-center hover:bg-green-50 transition-colors border-l border-r border-gray-100"
         >
           <svg 
             className="mr-1.5" 
-            width="18" 
-            height="18" 
+            width="15" 
+            height="15" 
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
@@ -174,8 +174,8 @@ const OfferCard = ({
           Boost
         </button>
         
-        {/* Toggle switch for active/inactive status */}
-        <div className="flex-1 py-3 flex items-center justify-center">
+        {/* Toggle switch for active/inactive status - improved design */}
+        <div className="flex-1 py-2 flex items-center justify-center">
           <label 
             htmlFor={`toggle-${id}`}
             className="relative inline-flex items-center cursor-pointer"
@@ -188,7 +188,10 @@ const OfferCard = ({
               onChange={() => toggleOffer(id)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-blue-600 shadow-sm"></div>
+            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
+            <span className="ml-1.5 text-xs font-medium text-gray-600">
+              {isActive ? 'On' : 'Off'}
+            </span>
           </label>
         </div>
         
@@ -196,16 +199,16 @@ const OfferCard = ({
         <div className="flex">
           <button 
             onClick={onEdit}
-            className="p-3 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-full mx-0.5"
+            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-full mx-0.5"
             aria-label="Edit"
           >
-            <Edit size={18} strokeWidth={2} />
+            <Edit size={15} strokeWidth={2} />
           </button>
           <button 
-            className="p-3 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-all rounded-full mx-0.5"
+            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-all rounded-full mx-0.5"
             aria-label="Delete"
           >
-            <Trash2 size={18} strokeWidth={2} />
+            <Trash2 size={15} strokeWidth={2} />
           </button>
         </div>
       </div>

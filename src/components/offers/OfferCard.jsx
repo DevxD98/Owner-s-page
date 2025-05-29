@@ -152,12 +152,22 @@ const OfferCard = ({
 
   // Enhanced swipe handlers with improved scrolling and deletion
   const handlers = useSwipeable({
+    delta: 10, // Minimum swipe distance before triggering
+    preventDefaultTouchmoveEvent: false, // Don't prevent default touchmove, which allows scrolling
+    trackMouse: false, // Only track touch events
+    trackTouch: true, // Track touch events
+    rotationAngle: 0, // Don't rotate the directions
     onSwiping: (data) => {
       // Detect if this is primarily a vertical scroll gesture
       const isVerticalScroll = Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.2;
       
-      // For the first movement, if it's mostly vertical, don't interfere with scrolling at all
-      if (swipeOffset === 0 && isVerticalScroll) {
+      // If it's a vertical scroll, don't interfere with scrolling at all
+      if (isVerticalScroll) {
+        return;
+      }
+      
+      // Only process horizontal swipes with a minimum threshold
+      if (Math.abs(data.deltaX) < 10) {
         return;
       }
       
@@ -195,8 +205,8 @@ const OfferCard = ({
       // Detect if this was primarily a vertical scroll gesture
       const isVerticalScroll = Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.2;
       
-      // If it was mostly a vertical scroll, reset card position
-      if (isVerticalScroll) {
+      // If it was mostly a vertical scroll or a very small horizontal swipe, reset card position
+      if (isVerticalScroll || !isSignificantHorizontalSwipe) {
         setSwipeOffset(0);
         return;
       }
@@ -322,7 +332,7 @@ const OfferCard = ({
             ? 'transform 0.25s ease-out, opacity 0.25s ease-out, height 0.25s ease-out, margin 0.25s ease-out' 
             : 'none', // No transition when not deleting for responsive feel
           willChange: 'transform',
-          touchAction: 'manipulation', // Better touch handling for both scroll and swipe
+          touchAction: 'pan-y', // Allow vertical scrolling but restrict horizontal to our swipe handler
           userSelect: 'none', // Prevent text selection during swipe
           WebkitOverflowScrolling: 'touch', // Better scroll momentum on iOS
           position: 'relative', // Ensure proper positioning

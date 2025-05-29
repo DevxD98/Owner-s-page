@@ -5,6 +5,16 @@ import { useApp } from '../../contexts/AppContext';
 import MultiImageDisplay from './MultiImageDisplay';
 import { useSwipeable } from 'react-swipeable';
 
+// Function to detect mobile browser
+const isMobileBrowser = () => {
+  if (typeof window !== 'undefined') {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    // Mobile detection regex
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+  }
+  return false;
+};
+
 const OfferCard = ({
   id,
   title,
@@ -27,8 +37,14 @@ const OfferCard = ({
   const { toggleOffer, deleteOffer } = useApp();
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const cardRef = useRef(null);
   const animationRef = useRef(null);
+  
+  // Detect mobile browser on component mount
+  useEffect(() => {
+    setIsMobile(isMobileBrowser());
+  }, []);
   const deleteThreshold = -160; // More substantial threshold - about half the card width
   
   // Clean up any animations when component unmounts
@@ -152,22 +168,31 @@ const OfferCard = ({
 
   // Enhanced swipe handlers with improved scrolling and deletion
   const handlers = useSwipeable({
-    delta: 10, // Minimum swipe distance before triggering
-    preventDefaultTouchmoveEvent: false, // Don't prevent default touchmove, which allows scrolling
+    delta: 30, // Increased minimum swipe distance before triggering
+    preventDefaultTouchmoveEvent: false, // Critical: Don't prevent default touchmove to allow scrolling
     trackMouse: false, // Only track touch events
     trackTouch: true, // Track touch events
     rotationAngle: 0, // Don't rotate the directions
+    swipeDuration: 300, // Require faster swipes to be detected as intentional
     onSwiping: (data) => {
-      // Detect if this is primarily a vertical scroll gesture
+      // First check: if there's ANY vertical movement at the start of the gesture,
+      // treat it as a scroll and ignore completely
+      if (Math.abs(data.deltaY) > 5 && Math.abs(data.deltaX) < 30) {
+        return;
+      }
+
+      // Second check: even with horizontal movement, if there's significant vertical component,
+      // prioritize scrolling and reset any ongoing swipe
       const isVerticalScroll = Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.2;
-      
-      // If it's a vertical scroll, don't interfere with scrolling at all
       if (isVerticalScroll) {
+        if (swipeOffset !== 0) {
+          animateSpringBack();
+        }
         return;
       }
       
-      // Only process horizontal swipes with a minimum threshold
-      if (Math.abs(data.deltaX) < 10) {
+      // Higher threshold for horizontal swipe detection to avoid accidental swipes
+      if (Math.abs(data.deltaX) < 30) {
         return;
       }
       
@@ -321,7 +346,7 @@ const OfferCard = ({
       {/* Card content with swipe animation */}
       <div 
         ref={cardRef}
-        {...handlers}
+        {...(isMobile ? {} : handlers)} // Only apply swipe handlers on non-mobile devices
         className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 mb-3 max-w-full"
         style={{ 
           transform: `translateX(${swipeOffset}px)`,
@@ -332,7 +357,7 @@ const OfferCard = ({
             ? 'transform 0.25s ease-out, opacity 0.25s ease-out, height 0.25s ease-out, margin 0.25s ease-out' 
             : 'none', // No transition when not deleting for responsive feel
           willChange: 'transform',
-          touchAction: 'pan-y', // Allow vertical scrolling but restrict horizontal to our swipe handler
+          touchAction: 'pan-y', // Explicitly allow vertical scrolling while restricting horizontal
           userSelect: 'none', // Prevent text selection during swipe
           WebkitOverflowScrolling: 'touch', // Better scroll momentum on iOS
           position: 'relative', // Ensure proper positioning

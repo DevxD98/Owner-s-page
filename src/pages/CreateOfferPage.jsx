@@ -54,8 +54,6 @@ const CreateOfferPage = () => {
     redemptionsAllowed: '',
     offerImage: null,
     imagePreview: null,
-    offerImages: [], // Array to hold multiple images
-    imagePreviewArray: [], // Array to hold multiple image previews
     notifyFollowers: false,
     spinnerOffers: ['', ''],
     spinnerProbabilities: ['', ''], // Empty values to rely on placeholder format
@@ -173,41 +171,17 @@ const CreateOfferPage = () => {
   }, [location.state]);
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
+    const files = e.target.files;
     
     if (files && files.length > 0) {
-      // Determine how many more images we can add (up to 3 total)
-      const currentImagesCount = offerData.imagePreviewArray ? offerData.imagePreviewArray.length : 0;
-      const maxAdditionalImages = 3 - currentImagesCount;
+      const file = files[0]; // Only take the first image
+      const blobUrl = URL.createObjectURL(file);
       
-      if (maxAdditionalImages <= 0) {
-        console.log('Maximum number of images (3) already reached.');
-        return;
-      }
-      
-      // Limit to only the number of additional images we can add
-      const filesToUse = files.slice(0, maxAdditionalImages);
-      
-      // Create arrays for new images
-      const newOfferImages = [...(offerData.offerImages || [])];
-      const newImagePreviewArray = [...(offerData.imagePreviewArray || [])];
-      
-      // Process each new file
-      filesToUse.forEach(file => {
-        const blobUrl = URL.createObjectURL(file);
-        newOfferImages.push(file);
-        newImagePreviewArray.push(blobUrl);
-      });
-      
-      // Store both the files and blob URLs
+      // Store only the single image
       setOfferData({
         ...offerData,
-        // Keep single file reference for backward compatibility
-        offerImage: newOfferImages[0],
-        imagePreview: newImagePreviewArray[0],
-        // Update arrays with both existing and new images
-        offerImages: newOfferImages,
-        imagePreviewArray: newImagePreviewArray
+        offerImage: file,
+        imagePreview: blobUrl
       });
       
       console.log(`Added ${filesToUse.length} new image(s). Total: ${newImagePreviewArray.length}/3`);
@@ -569,63 +543,35 @@ const CreateOfferPage = () => {
           
           {/* Upload Offer Image */}
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Upload Images <span className="text-xs text-gray-500 ml-1">Up to 3 images, keep each under 15 MB</span></label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Upload Image <span className="text-xs text-gray-500 ml-1">Best size: 300x200 px, max 10MB</span></label>
             <div className="w-full space-y-2">
-              {(offerData.imagePreviewArray && offerData.imagePreviewArray.length > 0) ? (
+              {offerData.imagePreview ? (
                 <div className="w-full">
-                  <div className="flex overflow-x-auto gap-2 py-2 hide-scrollbar">
-                    {offerData.imagePreviewArray.map((preview, index) => (
-                      <div key={index} className="relative flex-shrink-0 w-32 h-32">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${index + 1}`} 
-                          className="w-full h-full object-cover rounded-xl"
-                        />
-                        <button 
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            // Remove this image from the arrays
-                            const newPreviews = [...offerData.imagePreviewArray];
-                            const newImages = [...offerData.offerImages];
-                            newPreviews.splice(index, 1);
-                            newImages.splice(index, 1);
-                            
-                            setOfferData({
-                              ...offerData, 
-                              imagePreviewArray: newPreviews,
-                              offerImages: newImages,
-                              // Update single image references if needed
-                              imagePreview: newPreviews.length > 0 ? newPreviews[0] : null,
-                              offerImage: newImages.length > 0 ? newImages[0] : null
-                            });
-                          }}
-                          className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100 transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
-                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-full">
-                          {index + 1}/{offerData.imagePreviewArray.length}
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {offerData.imagePreviewArray.length < 3 && (
-                      <label 
-                        htmlFor="offerImageUpload"
-                        className="flex-shrink-0 w-32 h-32 bg-gray-50 rounded-xl flex flex-col items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-100 transition-colors"
+                  <div className="flex items-center justify-center py-2">
+                    <div className="relative w-full max-w-sm h-48">
+                      <img 
+                        src={offerData.imagePreview} 
+                        alt="Offer preview" 
+                        className="w-full h-full object-cover rounded-xl"
+                      />
+                      <button 
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Remove the image
+                          setOfferData({
+                            ...offerData, 
+                            imagePreview: null,
+                            offerImage: null
+                          });
+                        }}
+                        className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100 transition-colors"
                       >
-                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mb-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </div>
-                        <span className="text-xs text-gray-600 font-medium text-center">Add More Images<br/>{3 - offerData.imagePreviewArray.length} remaining</span>
-                      </label>
-                    )}
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">You can add up to 3 images per offer</p>
                 </div>
               ) : (
                 <label htmlFor="offerImageUpload" className="w-full h-32 bg-gray-50 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-100 transition-colors">
@@ -636,8 +582,8 @@ const CreateOfferPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                     </div>
-                    <span className="text-sm text-gray-600 font-medium">Click to upload images</span>
-                    <span className="text-xs text-gray-500 mt-1">Add up to 3 images (JPG, PNG or GIF)</span>
+                    <span className="text-sm text-gray-600 font-medium">Click to upload image</span>
+                    <span className="text-xs text-gray-500 mt-1">Accepted formats: JPG, PNG or GIF</span>
                   </div>
                 </label>
               )}
@@ -647,10 +593,9 @@ const CreateOfferPage = () => {
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
-                multiple
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Upload attractive images to showcase your offer</p>
+            <p className="text-xs text-gray-500 mt-1">Upload an attractive image to showcase your offer</p>
           </div>
           
           {/* Notify Followers */}
@@ -871,63 +816,35 @@ const CreateOfferPage = () => {
           
           {/* Upload Offer Image */}
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Upload Images <span className="text-xs text-gray-500 ml-1">Up to 3 images, keep each under 15 MB</span></label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Upload Image <span className="text-xs text-gray-500 ml-1">Best size: 300x200 px, max 10MB</span></label>
             <div className="w-full space-y-2">
-              {(offerData.imagePreviewArray && offerData.imagePreviewArray.length > 0) ? (
+              {offerData.imagePreview ? (
                 <div className="w-full">
-                  <div className="flex overflow-x-auto gap-2 py-2 hide-scrollbar">
-                    {offerData.imagePreviewArray.map((preview, index) => (
-                      <div key={index} className="relative flex-shrink-0 w-32 h-32">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${index + 1}`} 
-                          className="w-full h-full object-cover rounded-xl"
-                        />
-                        <button 
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            // Remove this image from the arrays
-                            const newPreviews = [...offerData.imagePreviewArray];
-                            const newImages = [...offerData.offerImages];
-                            newPreviews.splice(index, 1);
-                            newImages.splice(index, 1);
-                            
-                            setOfferData({
-                              ...offerData, 
-                              imagePreviewArray: newPreviews,
-                              offerImages: newImages,
-                              // Update single image references if needed
-                              imagePreview: newPreviews.length > 0 ? newPreviews[0] : null,
-                              offerImage: newImages.length > 0 ? newImages[0] : null
-                            });
-                          }}
-                          className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100 transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
-                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-full">
-                          {index + 1}/{offerData.imagePreviewArray.length}
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {offerData.imagePreviewArray.length < 3 && (
-                      <label 
-                        htmlFor="happyHourImageUpload"
-                        className="flex-shrink-0 w-32 h-32 bg-gray-50 rounded-xl flex flex-col items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-100 transition-colors"
+                  <div className="flex items-center justify-center py-2">
+                    <div className="relative w-full max-w-sm h-48">
+                      <img 
+                        src={offerData.imagePreview} 
+                        alt="Offer preview" 
+                        className="w-full h-full object-cover rounded-xl"
+                      />
+                      <button 
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Remove the image
+                          setOfferData({
+                            ...offerData, 
+                            imagePreview: null,
+                            offerImage: null
+                          });
+                        }}
+                        className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100 transition-colors"
                       >
-                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mb-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </div>
-                        <span className="text-xs text-gray-600 font-medium text-center">Add More Images<br/>{3 - offerData.imagePreviewArray.length} remaining</span>
-                      </label>
-                    )}
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">You can add up to 3 images per offer</p>
                 </div>
               ) : (
                 <label htmlFor="happyHourImageUpload" className="w-full h-32 bg-gray-50 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-100 transition-colors">
@@ -938,8 +855,8 @@ const CreateOfferPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                     </div>
-                    <span className="text-sm text-gray-600 font-medium">Click to upload images</span>
-                    <span className="text-xs text-gray-500 mt-1">Add up to 3 images (JPG, PNG or GIF)</span>
+                    <span className="text-sm text-gray-600 font-medium">Click to upload image</span>
+                    <span className="text-xs text-gray-500 mt-1">Accepted formats: JPG, PNG or GIF</span>
                   </div>
                 </label>
               )}
@@ -949,10 +866,9 @@ const CreateOfferPage = () => {
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
-                multiple
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Upload images that highlight your happy hour offer</p>
+            <p className="text-xs text-gray-500 mt-1">Upload an image that highlights your happy hour offer</p>
           </div>
           
           {/* Notify Followers */}

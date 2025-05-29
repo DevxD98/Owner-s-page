@@ -66,9 +66,9 @@ const HomeOfferCard = ({
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-3">
-      <div className="flex flex-row h-[150px]">
+      <div className="flex flex-row h-[130px]">
         {/* Left side - Image */}
-        <div className="w-1/3 relative h-full">
+        <div className="w-1/4 relative h-full">
           <div className="h-full">
             <HomeMultiImageDisplay 
               offerType={type}
@@ -79,49 +79,49 @@ const HomeOfferCard = ({
             />
           </div>
           {/* Type label at the bottom */}
-          <div className={`absolute bottom-0 left-0 right-0 text-center py-1.5 ${getTypeBackground()} ${getTypeTextColor()} text-xs font-semibold`}>
+          <div className={`absolute bottom-0 left-0 right-0 text-center py-1 ${getTypeBackground()} ${getTypeTextColor()} text-xs font-semibold`}>
             {getTypeLabel()}
           </div>
           {/* Status tag on top of the image */}
-          <div className="absolute top-2 left-2">
-            <div className={`px-2 py-0.5 text-xs font-medium rounded-full ${getActiveBadgeColor()} whitespace-nowrap shadow-sm`}>
+          <div className="absolute top-1.5 left-1.5">
+            <div className={`px-1.5 py-0.5 text-xs font-medium rounded-full ${getActiveBadgeColor()} whitespace-nowrap shadow-sm`}>
               {isActive ? 'Active' : 'Inactive'}
             </div>
           </div>
         </div>          {/* Right side - Content */}
-        <div className="w-2/3 flex flex-col">
+        <div className="w-3/4 flex flex-col">
           <div className="p-2.5 flex-grow h-full flex flex-col justify-between">
             {/* Header with title and status tag on right */}
             <div className="flex justify-between items-start">
-              <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{title}</h3>
+              <h3 className={`font-bold text-gray-900 text-base line-clamp-1 ${type === 'happyhours' ? 'mb-0.5' : ''}`}>{title}</h3>
             </div>
             
-            {/* Description for all offer types with ellipsis truncation */}
-            {description && (
-              <p className="text-xs text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap mt-1">{description}</p>
+            {/* Description for non-happyhours offer types with ellipsis truncation */}
+            {description && type !== 'happyhours' && (
+              <p className="text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">{description}</p>
             )}
             
-            {/* Timer for happy hours - now appears after description */}
+            {/* Timer for happy hours - enhanced styling */}
             {type === 'happyhours' && timerValue && (
-              <div className="py-0.5 text-blue-600 text-xs font-medium flex items-center mt-1">
-                <Clock size={12} className="mr-1" />
-                {timerValue}
+              <div className="py-1.5 text-blue-700 text-sm font-medium flex items-center justify-center bg-blue-50 rounded px-2.5 mt-1 shadow-sm w-full">
+                <Clock size={16} className="mr-1.5 text-blue-600" strokeWidth={2.5} />
+                <span className="font-semibold">{timerValue}</span>
               </div>
             )}
             
             {/* Add spacer to push views to bottom */}
-            <div className="flex-grow min-h-[2px]"></div>
+            <div className="flex-grow min-h-[4px]"></div>
           </div>
 
           {/* Action buttons row - alongside the image */}
-          <div className="px-3 py-1.5 mt-auto border-t border-gray-100 bg-gray-50">
+          <div className="px-2.5 py-1.5 mt-auto border-t border-gray-100 bg-gray-50">
             <div className="flex justify-between items-center">
               <div>
                 <button 
                   onClick={onView}
-                  className="flex items-center justify-center text-gray-700 text-xs whitespace-nowrap"
+                  className="flex items-center justify-center text-gray-700 text-sm font-medium whitespace-nowrap"
                 >
-                  <Eye size={12} className="mr-0.5" />
+                  <Eye size={14} className="mr-1" />
                   <span>{views}</span>
                 </button>
               </div>

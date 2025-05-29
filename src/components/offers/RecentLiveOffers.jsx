@@ -111,14 +111,22 @@ const RecentLiveOffers = ({
       return [];
     }
     
-    // First, get one of each offer type to match offer management page
-    let filtered = [
+    // Include all non-draft user offers plus the sample offers if no user offers exist
+    let userOffers = offers.filter(offer => 
+      !offer.isDraft && 
+      !offer.id.includes('offer-spotlight-') && 
+      !offer.id.includes('offer-happyhours-') && 
+      !offer.id.includes('offer-spintowin-')
+    );
+    
+    // If there are user offers, use them, otherwise fall back to the sample offers
+    let filtered = userOffers.length > 0 ? userOffers : [
       offers.find(offer => offer.type === 'spotlight' && offer.id === 'offer-spotlight-1'),
       offers.find(offer => offer.type === 'happyhours' && offer.id === 'offer-happyhours-1'),
       offers.find(offer => offer.type === 'spintowin' && offer.id === 'offer-spintowin-1')
     ].filter(Boolean);
     
-    console.log('RecentLiveOffers: Filtered offers count:', filtered.length);
+    console.log('RecentLiveOffers: Filtered offers count:', filtered.length, 'User offers:', userOffers.length);
     
     // Ensure offers have all required properties
     filtered = filtered.filter(offer => {

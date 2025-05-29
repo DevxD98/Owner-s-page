@@ -118,9 +118,17 @@ const OfferManagement = ({
       );
     }
     
-    // Sort by newest first - using numeric parsing for string IDs
-    // This ensures newest offers (with highest IDs) appear first
+    // Prioritize user-created offers over sample offers
+    // Then sort by newest first using numeric parsing for string IDs
     const sorted = filtered.sort((a, b) => {
+      // First prioritize user offers over sample offers
+      const aIsSample = a.id.includes('offer-spotlight-') || a.id.includes('offer-happyhours-') || a.id.includes('offer-spintowin-');
+      const bIsSample = b.id.includes('offer-spotlight-') || b.id.includes('offer-happyhours-') || b.id.includes('offer-spintowin-');
+      
+      if (aIsSample && !bIsSample) return 1;  // b is user offer, a is sample, b comes first
+      if (!aIsSample && bIsSample) return -1; // a is user offer, b is sample, a comes first
+      
+      // For same type of offers (both user or both sample), sort by ID
       // Make sure both have IDs
       if (!a.id || !b.id) {
         console.warn('OfferManagement - Offer missing ID for sorting:', !a.id ? a : b);

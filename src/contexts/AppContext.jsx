@@ -379,6 +379,15 @@ export const AppProvider = ({ children }) => {
       setOffers([newOffer, ...offers]);
       console.log('New offers array:', [newOffer, ...offers]);
       
+      // Additional debug logging
+      console.log('New offer added:', {
+        id: newOffer.id,
+        title: newOffer.title,
+        isDraft: newOffer.isDraft,
+        isActive: newOffer.isActive,
+        type: newOffer.type
+      });
+      
       // Debug log to check IDs
       console.log('Offers IDs for sorting check:', [newOffer, ...offers].map(o => o.id));
     }

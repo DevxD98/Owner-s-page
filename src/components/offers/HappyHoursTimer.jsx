@@ -102,16 +102,16 @@ const HappyHoursTimer = ({ startTime, endTime, validityDate, startDate, classNam
   // No need for the formatDateRange function anymore as we've removed the validity display
 
   return (
-    <div className={`rounded-lg overflow-hidden ${bgColor} border-2 border-blue-200 shadow-sm ${className || ''}`}>
-      <div className="px-3 py-3 text-xs flex items-center justify-between">
-        <div className="font-medium">
+    <div className={`rounded-md overflow-hidden ${bgColor} border border-blue-200 shadow-sm ${className || ''}`}>
+      <div className="px-2 py-1.5 text-xs flex items-center justify-between">
+        <div className="font-medium text-[10px]">
           {timeInfo.message}
         </div>
-        <div className={`font-semibold ${timerColor}`}>
+        <div className={`font-semibold text-[10px] ${timerColor}`}>
           {timeInfo.formattedTimeRemaining}
         </div>
       </div>
-      <div className="w-full h-2 bg-gray-200 relative">
+      <div className="w-full h-1 bg-gray-200 relative">
         <div 
           className={`h-full ${progressColor} transition-all duration-1000 ease-linear`}
           style={{ width: `${timeInfo.percentage}%` }}

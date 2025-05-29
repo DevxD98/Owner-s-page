@@ -19,7 +19,9 @@ import LocationBranchPage from '../pages/LocationBranchPage';
 import DraftOffersPage from '../pages/DraftOffersPage';
 import PreviewOfferPage from '../pages/PreviewOfferPage';
 import BoostOfferPage from '../pages/BoostOfferPage';
+import SponsoredAdsPage from '../pages/SponsoredAdsPage';
 import HelpPage from '../pages/HelpPage';
+import OfferDebugger from '../components/debug/OfferDebugger';
 
 
 const AppRoutes = () => {
@@ -38,6 +40,7 @@ const AppRoutes = () => {
         <Route path="create-offer" element={<CreateOfferPage />} />
         <Route path="preview-offer" element={<PreviewOfferPage />} />
         <Route path="boost-offer" element={<BoostOfferPage />} />
+        <Route path="sponsored-ads" element={<SponsoredAdsPage />} />
         <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />
@@ -49,6 +52,7 @@ const AppRoutes = () => {
         <Route path="store-information" element={<StoreInformationPage />} />
         <Route path="location-branch" element={<LocationBranchPage />} />
         <Route path="switch-account" element={<Navigate to="/" replace />} />
+        <Route path="debug-offers" element={<OfferDebugger />} />
         <Route path="timing-availability" element={<Navigate to="/" replace />} />
 
         <Route path="settings" element={<Navigate to="/" replace />} />

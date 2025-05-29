@@ -225,59 +225,7 @@ const BoostOfferPage = () => {
       {/* Main content with responsive padding */}
       <div className="px-4 pb-2 max-w-lg mx-auto">
 
-      {/* Duration selector - Enhanced mobile UX */}
-      <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-            <Calendar size={16} className="text-purple-600" />
-          </div>
-          Campaign Duration
-        </h2>
-        
-        <div className="space-y-4">
-          <div className="relative">
-            <input
-              type="number"
-              min="0"
-              max="30"
-              value={duration}
-              onChange={handleDurationChange}
-              className="w-full p-4 pr-20 border-2 border-gray-200 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-400 transition-all text-lg font-medium bg-gray-50 focus:bg-white"
-              placeholder="0"
-            />
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-              {duration === 1 ? 'Day' : 'Days'}
-            </div>
-          </div>
-          
-          {/* Quick duration presets */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {[1, 3, 7, 14, 30].map((days) => (
-              <button
-                key={days}
-                onClick={() => setDuration(days)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                  duration === days
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {days} {days === 1 ? 'Day' : 'Days'}
-              </button>
-            ))}
-          </div>
-          
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center text-gray-600">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span>Starts immediately</span>
-            </div>
-            <span className="font-medium text-purple-700">
-              {duration > 0 ? `${duration} day campaign` : 'Set duration above'}
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Removed Campaign Duration section from here */}
       
       {/* Set Budget section - Mobile optimized */}
       <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -361,6 +309,38 @@ const BoostOfferPage = () => {
               onChange={handleViewsChange}
               className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all text-lg font-medium bg-gray-50 focus:bg-white"
             />
+          </div>
+        </div>
+        
+        {/* Simplified Duration Input */}
+        <div className="mt-4 mb-5">
+          <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+            <div className="w-4 h-4 rounded bg-purple-100 mr-2 flex items-center justify-center">
+              <Calendar size={10} className="text-purple-600" />
+            </div>
+            Campaign Duration
+          </label>
+          <div className="flex gap-2 mb-2">
+            {[1, 3, 7, 14].map((days) => (
+              <button
+                key={days}
+                onClick={() => setDuration(days)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium flex-1 transition-all ${
+                  duration === days
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {days} {days === 1 ? 'Day' : 'Days'}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center text-sm mt-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+            <span className="text-gray-600">Starts immediately</span>
+            {duration > 0 && (
+              <span className="ml-auto text-purple-700 font-medium">{duration} day campaign</span>
+            )}
           </div>
         </div>
         

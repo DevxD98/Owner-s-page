@@ -312,12 +312,12 @@ const OfferCard = ({
       <div 
         ref={cardRef}
         {...handlers}
-        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 mb-4 max-w-full"
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 mb-3 max-w-full"
         style={{ 
           transform: `translateX(${swipeOffset}px)`,
           opacity: isDeleting ? 0 : 1,
           height: isDeleting ? '0' : 'auto',
-          marginBottom: isDeleting ? '0' : '1rem',
+          marginBottom: isDeleting ? '0' : '0.75rem',
           transition: isDeleting 
             ? 'transform 0.25s ease-out, opacity 0.25s ease-out, height 0.25s ease-out, margin 0.25s ease-out' 
             : 'none', // No transition when not deleting for responsive feel
@@ -329,7 +329,7 @@ const OfferCard = ({
           zIndex: isDeleting ? 0 : 1, // Keep active cards above deleted ones
         }}
       >
-        <div className="flex flex-row h-[180px]">
+        <div className="flex flex-row h-[160px]">
           {/* Left side - Image */}
           <div className="w-1/3 relative h-full flex-shrink-0 overflow-hidden">
             <div className="h-full">
@@ -342,7 +342,7 @@ const OfferCard = ({
               />
             </div>
             {/* Type label at the bottom */}
-            <div className={`absolute bottom-0 left-0 right-0 text-center py-1.5 ${getTypeBackground()} text-xs font-semibold ${getTypeTextColor()}`}>
+            <div className={`absolute bottom-0 left-0 right-0 text-center py-1 ${getTypeBackground()} text-xs font-semibold ${getTypeTextColor()}`}>
               {getTypeLabel()}
             </div>
             {/* Status tag on top of the image */}
@@ -354,11 +354,11 @@ const OfferCard = ({
           </div>
 
           {/* Right side - Content */}
-          <div className="w-2/3 flex flex-col">
+          <div className="w-3/4 flex flex-col">
             <div className="p-3 pb-1 flex-grow flex flex-col justify-between">
               {/* Header with title and edit button */}
               <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold text-gray-900 text-sm md:text-base">{title}</h3>
+                <h3 className={`font-bold text-gray-900 text-base md:text-lg lg:text-xl leading-tight ${type === 'happyhours' ? 'mb-1' : ''}`}>{title}</h3>
                 {window.location.pathname === '/offer-management' && (
                   <button 
                     onClick={onEdit}
@@ -369,31 +369,31 @@ const OfferCard = ({
                 )}
               </div>
               
-              {/* Description for all offer types */}
-              {description && (
-                <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mt-1 mb-1.5">{description}</p>
+              {/* Description for non-happyhours offer types */}
+              {description && type !== 'happyhours' && (
+                <p className="text-sm md:text-base text-gray-600 line-clamp-2 mt-1 mb-2">{description}</p>
               )}
               
-              {/* Timer for happy hours - now appears after description */}
+              {/* Timer for happy hours - enhanced styling */}
               {type === 'happyhours' && timerValue && (
-                <div className="py-0.5 text-blue-600 text-xs sm:text-sm font-medium flex items-center">
-                  <Clock size={14} className="mr-1.5" />
-                  {timerValue}
+                <div className="py-1.5 text-blue-700 text-sm sm:text-base font-medium flex items-center bg-blue-50 rounded-md px-3 mt-1 shadow-sm">
+                  <Clock size={18} className="mr-2 text-blue-600" strokeWidth={2} />
+                  <span className="font-semibold tracking-wide">{timerValue}</span>
                 </div>
               )}
               
               {/* Empty space to push buttons to bottom */}
-              <div className="flex-grow min-h-[1rem]"></div>
+              <div className="flex-grow"></div>
             </div>
 
             {/* Action buttons row - alongside the image */}
-            <div className="px-2 py-2 mt-auto border-t border-gray-100 bg-gray-50">
+            <div className="px-3 py-2 mt-auto border-t border-gray-100 bg-gray-50">
               <div className="flex items-center gap-2">
                 {/* Views button - left aligned */}
                 <div className="flex-shrink-0">
                   <button 
                     onClick={onView}
-                    className="flex items-center justify-center rounded-lg px-1.5 py-1 text-gray-700 text-xs font-medium"
+                    className="flex items-center justify-center rounded-lg px-2 py-1 text-gray-700 text-xs font-medium"
                   >
                     <Eye size={14} className="mr-1" />
                     <span>{views}</span>
@@ -405,7 +405,7 @@ const OfferCard = ({
                   <div className="flex-1 text-center">
                     <button 
                       onClick={onBoost}
-                      className="inline-flex items-center justify-center rounded-lg px-1.5 py-1 text-gray-700 text-xs font-medium mx-auto"
+                      className="inline-flex items-center justify-center rounded-lg px-2 py-1 text-gray-700 text-xs font-medium mx-auto"
                     >
                       <Zap size={14} className="mr-1" />
                       <span>Boost</span>

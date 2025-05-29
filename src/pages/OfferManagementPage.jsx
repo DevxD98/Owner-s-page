@@ -11,6 +11,33 @@ const OfferManagementPage = () => {
   const [filter, setFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Log offers on component mount and when offers change
+  useEffect(() => {
+    console.log("OfferManagementPage - Available offers:", offers);
+    
+    if (offers && offers.length > 0) {
+      // Count user-created vs sample offers
+      const userOffers = offers.filter(o => 
+        !o.id.includes('offer-spotlight-') && 
+        !o.id.includes('offer-happyhours-') && 
+        !o.id.includes('offer-spintowin-')
+      );
+      
+      console.log("OfferManagementPage - User offers:", userOffers.length);
+      console.log("OfferManagementPage - Sample offers:", offers.length - userOffers.length);
+      
+      if (userOffers.length > 0) {
+        console.log("OfferManagementPage - User offer details:", userOffers.map(o => ({
+          id: o.id, 
+          title: o.title,
+          type: o.type,
+          isDraft: o.isDraft,
+          isActive: o.isActive
+        })));
+      }
+    }
+  }, [offers]);
 
   // Function to filter offers based on search and filter criteria
   const getFilteredOffers = () => {
@@ -18,8 +45,16 @@ const OfferManagementPage = () => {
       return [];
     }
     
-    // First, limit to only 3 example offers, one of each type
-    let filtered = [
+    // Include user-created offers and sample offers
+    // First, get all user-created offers (non-sample offers)
+    const userOffers = offers.filter(offer => 
+      !offer.id.includes('offer-spotlight-') && 
+      !offer.id.includes('offer-happyhours-') && 
+      !offer.id.includes('offer-spintowin-')
+    );
+    
+    // Use user offers if available, otherwise fall back to sample offers
+    let filtered = userOffers.length > 0 ? [...userOffers] : [
       offers.find(offer => offer.type === 'spotlight' && offer.id === 'offer-spotlight-1'),
       offers.find(offer => offer.type === 'happyhours' && offer.id === 'offer-happyhours-1'),
       offers.find(offer => offer.type === 'spintowin' && offer.id === 'offer-spintowin-1')
@@ -50,6 +85,27 @@ const OfferManagementPage = () => {
         (offer.description && offer.description.toLowerCase().includes(term))
       );
     }
+    
+    // Sort offers to show newest first based on ID (higher ID = newer)
+    filtered.sort((a, b) => {
+      // Prioritize user offers over sample offers
+      const aIsSample = a.id.includes('offer-spotlight-') || a.id.includes('offer-happyhours-') || a.id.includes('offer-spintowin-');
+      const bIsSample = b.id.includes('offer-spotlight-') || b.id.includes('offer-happyhours-') || b.id.includes('offer-spintowin-');
+      
+      if (aIsSample && !bIsSample) return 1;   // b is user offer, a is sample, b comes first
+      if (!aIsSample && bIsSample) return -1;  // a is user offer, b is sample, a comes first
+      
+      // For same type of offers (both user or both sample), sort by ID
+      const aId = parseInt(a.id);
+      const bId = parseInt(b.id);
+      
+      if (isNaN(aId) || isNaN(bId)) {
+        // If ID parsing fails, keep original order
+        return 0;
+      }
+      
+      return bId - aId;  // Sort by descending ID (newest first)
+    });
     
     return filtered;
   };
@@ -240,8 +296,6 @@ const OfferManagementPage = () => {
           </div>
         )}
       </div>
-
-      {/* Plus button has been removed as requested */}
     </div>
   );
 };

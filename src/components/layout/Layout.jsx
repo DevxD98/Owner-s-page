@@ -13,11 +13,12 @@ const Layout = () => {
     '/redemption-tracker',
     '/create-account',
     '/help-support', // Hide navigation on help/demo pages
-    '/boost-offer' // Hide navigation on boost offer page
+    '/boost-offer', // Hide navigation on boost offer page
+    '/sponsored-ads' // Hide navigation on sponsored ads page
   ];
   
   const hideNavigation = hideNavigationPaths.includes(location.pathname);
-  const hidePlusButton = location.pathname === '/create-offer' || location.pathname === '/draft-offers' || location.pathname === '/preview-offer';
+  const hidePlusButton = location.pathname === '/create-offer' || location.pathname === '/draft-offers' || location.pathname === '/preview-offer' || location.pathname === '/sponsored-ads';
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto bg-white">

@@ -49,7 +49,7 @@ const MyAdsPage = () => {
             <p className="text-gray-600 font-medium">No ads created yet</p>
             <p className="text-gray-500 text-sm mt-1">Create sponsored ads to boost your visibility</p>
             <button 
-              onClick={() => navigate('/create-ad')} 
+              onClick={() => navigate('/sponsored-ads')} 
               className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors inline-flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">

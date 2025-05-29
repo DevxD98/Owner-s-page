@@ -200,6 +200,16 @@ const PreviewOfferPage = () => {
         });
       }
       
+      // Ensure isDraft is explicitly set to false when publishing
+      publishPayload.isDraft = false;
+      
+      console.log('Publishing offer with payload:', {
+        id: publishPayload.id,
+        title: publishPayload.title,
+        isDraft: publishPayload.isDraft,
+        type: publishPayload.type
+      });
+      
       if (editMode && editId) {
         updateOffer(editId, publishPayload);
       } else {

@@ -81,13 +81,12 @@ const ActiveSponsoredAds = () => {
               <Megaphone size={24} className="text-gray-400" />
             </div>
             <p className="text-gray-500 font-medium">No sponsored ads active</p>
-            <p className="text-gray-400 text-sm mt-1">Sponsored ads will appear here</p>
-            <button 
-              onClick={() => navigate('/my-ads')} 
-              className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center mx-auto"
-            >
-              Create Sponsored Ad
-            </button>
+            <p className="text-gray-400 text-sm mt-1">Sponsored ads will appear here</p>          <button 
+            onClick={() => navigate('/sponsored-ads')} 
+            className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center mx-auto"
+          >
+            Create Sponsored Ad
+          </button>
           </div>
         )}
         

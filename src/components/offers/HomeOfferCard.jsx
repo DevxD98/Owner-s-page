@@ -88,28 +88,29 @@ const HomeOfferCard = ({
               {isActive ? 'Active' : 'Inactive'}
             </div>
           </div>
-        </div>
-
-        {/* Right side - Content */}
+        </div>          {/* Right side - Content */}
         <div className="w-2/3 flex flex-col">
-          <div className="p-3 flex-grow h-full flex flex-col justify-between">
+          <div className="p-2.5 flex-grow h-full flex flex-col justify-between">
             {/* Header with title and status tag on right */}
             <div className="flex justify-between items-start">
               <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{title}</h3>
             </div>
             
-            {/* Timer for happy hours */}
+            {/* Description for all offer types with ellipsis truncation */}
+            {description && (
+              <p className="text-xs text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap mt-1">{description}</p>
+            )}
+            
+            {/* Timer for happy hours - now appears after description */}
             {type === 'happyhours' && timerValue && (
-              <div className="py-0.5 text-blue-600 text-xs font-medium flex items-center">
+              <div className="py-0.5 text-blue-600 text-xs font-medium flex items-center mt-1">
                 <Clock size={12} className="mr-1" />
                 {timerValue}
               </div>
             )}
             
-            {/* Description only for non-happy hours */}
-            {type !== 'happyhours' && description && (
-              <p className="text-xs text-gray-600 line-clamp-1 my-1 mb-auto">{description}</p>
-            )}
+            {/* Add spacer to push views to bottom */}
+            <div className="flex-grow min-h-[2px]"></div>
           </div>
 
           {/* Action buttons row - alongside the image */}
@@ -121,7 +122,7 @@ const HomeOfferCard = ({
                   className="flex items-center justify-center text-gray-700 text-xs whitespace-nowrap"
                 >
                   <Eye size={12} className="mr-0.5" />
-                  <span>{views} Views</span>
+                  <span>{views}</span>
                 </button>
               </div>
               
@@ -137,7 +138,7 @@ const HomeOfferCard = ({
                     onChange={() => toggleOffer(id)}
                     className="sr-only peer"
                   />
-                  <div className="relative w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 shadow-md"></div>
+                  <div className="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 shadow-md"></div>
                 </label>
               </div>
             </div>

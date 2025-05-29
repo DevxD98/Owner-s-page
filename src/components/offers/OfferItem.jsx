@@ -145,13 +145,14 @@ const OfferItem = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg border ${isSponsored ? 'border-purple-200' : offerType === 'happyhours' ? 'border-blue-100 hover:border-blue-300' : 'border-gray-100'} shadow-sm transition-all duration-500 hover:shadow-md group relative ${offerType === 'happyhours' ? 'cursor-pointer' : ''} w-full`}
+      className={`bg-white rounded-lg border ${isSponsored ? 'border-purple-200' : offerType === 'happyhours' ? 'border-blue-200 hover:border-blue-300' : 'border-gray-100'} ${offerType === 'happyhours' ? 'bg-gradient-to-b from-white to-blue-50/30' : ''} shadow-sm transition-all duration-500 hover:shadow-md group relative ${offerType === 'happyhours' ? 'cursor-pointer' : ''} w-full`}
       onClick={handleOfferClick}
       onMouseEnter={offerType === 'happyhours' ? () => setIsHovered(true) : undefined}
       onMouseLeave={offerType === 'happyhours' ? () => setIsHovered(false) : undefined}
       style={{
         height: (offerType === 'happyhours' && showTimer) || showFullDescription ? 'auto' : 'auto',
-        transition: 'height 0.3s ease-in-out'
+        transition: 'height 0.3s ease-in-out',
+        minHeight: offerType === 'happyhours' ? '220px' : 'auto',
       }}
     >
       {/* Status Badge - Positioned at top right corner */}
@@ -217,10 +218,10 @@ const OfferItem = ({
         </div>
         
         {/* Content section - full width with proper spacing and padding */}
-        <div className="flex-1 p-4 flex flex-col justify-between min-h-[120px]">
+        <div className={`flex-1 p-4 flex flex-col justify-between ${offerType === 'happyhours' ? 'min-h-[180px]' : 'min-h-[120px] md:min-h-[150px]'}`}>
           {/* Title area with proper spacing */}          
           <div className="flex flex-wrap items-center gap-1 w-full">
-            <h3 className={`font-medium text-base md:text-lg break-words w-full ${isSponsored ? 'text-purple-800' : 'text-gray-800'} transition-colors`}>
+            <h3 className={`font-medium ${offerType === 'happyhours' ? 'text-xl md:text-2xl mb-3' : 'text-base md:text-lg'} break-words w-full ${isSponsored ? 'text-purple-800' : offerType === 'happyhours' ? 'text-blue-700' : 'text-gray-800'} transition-colors`}>
               {title}
               {isSponsored && (
                 <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
@@ -232,20 +233,20 @@ const OfferItem = ({
           
           {/* Description with better spacing */}
           {description && (
-            <div className="mb-auto mt-2 relative">
+            <div className={`mb-auto mt-2 relative ${offerType === 'happyhours' ? 'max-h-14 overflow-hidden' : ''}`}>
               <p
                 ref={descriptionRef}
                 className={`text-gray-600 text-sm mt-1 transition-all duration-300 ease-in-out ${
-                  showFullDescription || type === 'spintowin'
+                  (showFullDescription || type === 'spintowin') && offerType !== 'happyhours'
                     ? type === 'spintowin' ? 'line-clamp-3 md:line-clamp-4' : '' 
-                    : offerType === 'happyhours' ? 'line-clamp-2 md:line-clamp-3' : 'line-clamp-2'
+                    : offerType === 'happyhours' ? 'line-clamp-1 md:line-clamp-1' : 'line-clamp-2'
                 }`}
               >
                 {description}
               </p>
               
-              {/* Read more/less button */}
-              {descriptionOverflows && type !== 'spintowin' && (
+              {/* Read more/less button - hide for happy hours */}
+              {descriptionOverflows && type !== 'spintowin' && offerType !== 'happyhours' && (
                 <button 
                   onClick={handleToggleDescription}
                   className="text-blue-500 hover:text-blue-700 text-xs mt-1.5 font-medium focus:outline-none transition-colors duration-200 flex items-center"
@@ -270,7 +271,7 @@ const OfferItem = ({
           {offerType === 'happyhours' && showDetailedInfo && (
             <div 
               ref={timerRef}
-              className={`transition-all duration-500 ease-in-out my-2 ${
+              className={`transition-all duration-500 ease-in-out mt-2 mb-1 ${
                 showTimer ? 'block opacity-100' : 'hidden opacity-0 h-0'
               }`}
               style={{ 
@@ -295,7 +296,7 @@ const OfferItem = ({
           <div className="flex-grow"></div>
           
           {/* Offer details area with better mobile spacing */}
-          <div className="pt-2 border-t border-gray-100 mt-3">
+          <div className={`pt-2 border-t border-gray-100 ${offerType === 'happyhours' ? 'mt-auto' : 'mt-3'}`}>
             {type === 'happyhours' ? (
               <>
                 {showDetailedInfo ? (
@@ -325,7 +326,7 @@ const OfferItem = ({
                   <div className="flex items-center justify-between text-xs flex-wrap gap-y-2">
                     <div className="flex items-center mr-2 text-gray-600">
                       <Clock size={12} className="mr-1.5 flex-shrink-0 text-blue-500" />
-                      <span className="truncate">Happy Hours Offer</span>
+                      <span className="truncate font-medium">Happy Hours Offer</span>
                     </div>
                     <button 
                       className={`flex items-center text-blue-500 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded-full transition-colors hover:bg-blue-100 border border-blue-200 shadow-sm ${isHovered ? 'animate-pulse' : ''}`}
@@ -373,7 +374,7 @@ const OfferItem = ({
           </div>
           
           {/* Action buttons with better layout on mobile */}
-          <div className="mt-3 flex items-center justify-between flex-wrap gap-y-2">
+          <div className={`${offerType === 'happyhours' ? 'mt-4 mb-1' : 'mt-3'} pt-1 flex items-center justify-between flex-wrap gap-y-2`}>
             <div className="flex gap-2">
               <button 
                 className="flex items-center justify-center p-1.5 text-white bg-gray-500 hover:bg-gray-600 rounded-md transition-all shadow-sm"

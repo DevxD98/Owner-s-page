@@ -1,70 +1,35 @@
 import React from 'react';
 
 /**
- * MultiImageDisplay component - Shows a grid of 3 images for each offer
+ * MultiImageDisplay component - Shows a single image for each offer
  */
-const MultiImageDisplay = ({ offerType, title, id, image, images, isSponsored }) => {
-  // Get default offer images based on type
-  const getDefaultImagesForType = () => {
+const MultiImageDisplay = ({ offerType, title, id, image, isSponsored }) => {
+  // Get default offer image based on type
+  const getDefaultImageForType = () => {
+    // Use consistent dimensions for all image types
     switch (offerType) {
       case 'happyhours':
-        // Happy hours images - cocktails/drinks
-        return [
-          "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=100&h=100&q=80",
-          "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?auto=format&fit=crop&w=100&h=100&q=80",
-          "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=100&h=100&q=80"
-        ];
+        // Happy hours image
+        return "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=300&h=180&q=80";
       case 'spintowin':
-        // Spin to win images - prizes, wheel, gifts
-        return [
-          "https://images.unsplash.com/photo-1563396983906-b3795482a59a?auto=format&fit=crop&w=100&h=100&q=80",
-          "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=100&h=100&q=80",
-          "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=100&h=100&q=80"
-        ];
-      // Spotlight offers (default) - featured products
+        // Spin to win image
+        return "https://images.unsplash.com/photo-1563396983906-b3795482a59a?auto=format&fit=crop&w=300&h=180&q=80";
+      // Spotlight offers (default)
       default:
-        return [
-          "https://images.unsplash.com/photo-1555982105-d25af4182e4e?auto=format&fit=crop&w=100&h=100&q=80",
-          "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=100&h=100&q=80",
-          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=100&h=100&q=80"
-        ];
+        return "https://images.unsplash.com/photo-1555982105-d25af4182e4e?auto=format&fit=crop&w=300&h=180&q=80";
     }
   };
   
-  // Determine which images to use (provided images first, fallback to defaults)
-  let offerImages = getDefaultImagesForType();
-  
-  // Use images array if provided
-  if (images && Array.isArray(images) && images.length > 0) {
-    console.log('MultiImageDisplay: Using images array', images);
-    // Make sure we have exactly 3 images
-    if (images.length >= 3) {
-      offerImages = images.slice(0, 3);
-    } else {
-      // Fill in missing images with defaults
-      offerImages = [
-        ...images,
-        ...getDefaultImagesForType().slice(images.length)
-      ].slice(0, 3);
-    }
-  } 
-  // If no images array but a single image is provided, use it as the first image
-  else if (image) {
-    console.log('MultiImageDisplay: Using single image as fallback', image);
-    offerImages[0] = image;
+  // Use provided image or fallback to default
+  let offerImage = image || getDefaultImageForType();
+  // Make sure image URL includes sizing parameters for better performance
+  if (typeof offerImage === 'string' && offerImage.includes('unsplash.com')) {
+    // Use better sized image for proper display - shorter height for more compact layout
+    offerImage = offerImage.includes('auto=format') ? offerImage : `${offerImage}?auto=format&fit=crop&w=300&h=180&q=80`;
   }
   
-  // Make sure all image URLs include sizing parameters for better performance
-  offerImages = offerImages.map(img => {
-    if (typeof img === 'string' && img.includes('unsplash.com')) {
-      // Use smaller images for better performance and smaller containers
-      return img.includes('auto=format') ? img : `${img}?auto=format&fit=crop&w=100&h=100&q=80`;
-    }
-    return img;
-  });
-  
   return (
-    <div className="w-full h-full flex items-center bg-white p-0.5 relative">
+    <div className="w-full h-full flex items-center bg-white relative">
       {/* Sponsored badge if applicable */}
       {isSponsored && (
         <div className="absolute top-0 left-0 bg-purple-100 text-purple-800 text-xs font-medium py-0.5 px-2 rounded-br-md z-10">
@@ -72,22 +37,19 @@ const MultiImageDisplay = ({ offerType, title, id, image, images, isSponsored })
         </div>
       )}
       
-      {/* Grid of 3 equally sized square images with improved spacing */}
-      <div className="grid grid-cols-3 gap-1 w-full h-full">
-        {offerImages.map((src, index) => (
-          <div key={index} className="w-full h-full rounded-md overflow-hidden shadow-sm">
-            <img
-              src={src}
-              alt={`${title || "Offer"} image ${index + 1}`}
-              className="w-full h-full object-cover rounded-sm"
-              onError={(e) => {
-                // Use a simple colored background as fallback
-                const colors = ['#f0e6ff', '#e6f7ff', '#fff2e6'];
-                e.target.parentNode.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-[${colors[index % 3]}] rounded-sm"></div>`;
-              }}
-            />
-          </div>
-        ))}
+      {/* Single image display */}
+      <div className="w-full h-full overflow-hidden">
+        <img
+          src={offerImage}
+          alt={`${title || "Offer"} image`}
+          className="w-full h-full object-cover"
+          style={{ objectPosition: 'center center', maxHeight: '180px' }}
+          onError={(e) => {
+            // Use a simple colored background as fallback
+            const color = offerType === 'happyhours' ? '#e6f7ff' : offerType === 'spintowin' ? '#f0e6ff' : '#fff2e6';
+            e.target.parentNode.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-[${color}]"></div>`;
+          }}
+        />
       </div>
     </div>
   );

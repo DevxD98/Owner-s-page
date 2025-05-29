@@ -5,6 +5,7 @@ import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import OfferItem from './OfferItem';
 import OfferCard from './OfferCard';
+import HomeOfferCard from './HomeOfferCard';
 
 // Format time remaining for happy hours offers
 const formatTimeRemaining = (startTime, endTime) => {
@@ -298,26 +299,48 @@ const RecentLiveOffers = ({
                     initialShowTimer={offer.type === 'happyhours'}
                   />
                 ) : (
-                  <OfferCard
-                    id={offer.id}
-                    title={offer.title}
-                    description={offer.description}
-                    validTill={offer.validTill}
-                    type={offer.type || 'spotlight'}
-                    views={offer.views || 0}
-                    isActive={offer.isActive}
-                    image={offer.image}
-                    images={offer.images}
-                    startDate={offer.startDate}
-                    endDate={offer.validityDate || offer.validTill}
-                    startTime={offer.startTime}
-                    endTime={offer.endTime}
-                    timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
-                    onEdit={() => navigate(`/create-offer?id=${offer.id}`)}
-                    onView={() => navigate(`/preview-offer?id=${offer.id}`)}
-                    onBoost={() => navigate(`/boost-offer?id=${offer.id}`)}
-                    isSponsored={false}
-                  />
+                  // Use HomeOfferCard for HomePage, OfferCard for other pages
+                  window.location.pathname === '/' ? (
+                    <HomeOfferCard
+                      id={offer.id}
+                      title={offer.title}
+                      description={offer.description}
+                      validTill={offer.validTill}
+                      type={offer.type || 'spotlight'}
+                      views={offer.views || 0}
+                      isActive={offer.isActive}
+                      image={offer.image}
+                      startDate={offer.startDate}
+                      endDate={offer.validityDate || offer.validTill}
+                      startTime={offer.startTime}
+                      endTime={offer.endTime}
+                      timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
+                      onEdit={() => navigate(`/create-offer?id=${offer.id}`)}
+                      onView={() => navigate(`/preview-offer?id=${offer.id}`)}
+                      isSponsored={false}
+                    />
+                  ) : (
+                    <OfferCard
+                      id={offer.id}
+                      title={offer.title}
+                      description={offer.description}
+                      validTill={offer.validTill}
+                      type={offer.type || 'spotlight'}
+                      views={offer.views || 0}
+                      isActive={offer.isActive}
+                      image={offer.image}
+                      images={offer.images}
+                      startDate={offer.startDate}
+                      endDate={offer.validityDate || offer.validTill}
+                      startTime={offer.startTime}
+                      endTime={offer.endTime}
+                      timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
+                      onEdit={() => navigate(`/create-offer?id=${offer.id}`)}
+                      onView={() => navigate(`/preview-offer?id=${offer.id}`)}
+                      onBoost={() => navigate(`/boost-offer?id=${offer.id}`)}
+                      isSponsored={false}
+                    />
+                  )
                 )}
               </div>
             ))}

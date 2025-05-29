@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, Edit, User, Trash2, ChevronLeft, ChevronRight, Sparkles, Gift } from 'lucide-react';
-import ViewsIcon from '../icons/ViewsIcon';
+// filepath: /Users/devmondal/Owner-s-page-4/src/components/offers/OfferCard.jsx
+import React, { useState, useRef, useEffect } from 'react';
+import { Clock, Edit, Eye, Zap, Trash2 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
-import { getOfferImages } from '../../utils/offerThumbnails';
 import MultiImageDisplay from './MultiImageDisplay';
+import { useSwipeable } from 'react-swipeable';
 
 const OfferCard = ({
   id,
@@ -12,14 +12,11 @@ const OfferCard = ({
   validTill,
   type,
   views = 0,
-  bookings = 0,
-  spins = 0,
   isActive,
   onEdit,
   onView,
   onBoost,
   image,
-  images,
   startDate,
   endDate,
   startTime,
@@ -27,189 +24,317 @@ const OfferCard = ({
   timerValue,
   isSponsored = false
 }) => {
-  const { toggleOffer } = useApp();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { toggleOffer, deleteOffer } = useApp();
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const cardRef = useRef(null);
+  const animationRef = useRef(null);
+  const deleteThreshold = -100; // Threshold to trigger delete
+  
+  // Clean up any animations when component unmounts
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
 
-  // Helper functions for colors and styles based on offer type
+  // Spring animation function
+  const animateSpringBack = () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    let start = null;
+    const startOffset = swipeOffset;
+    const duration = 300;
+    
+    // Spring back animation with bounce effect
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Elastic easing function
+      const elasticOut = (x) => {
+        const c4 = (2 * Math.PI) / 3;
+        return x === 0
+          ? 0
+          : x === 1
+          ? 1
+          : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+      };
+      
+      const newOffset = startOffset * (1 - elasticOut(progress));
+      setSwipeOffset(newOffset);
+      
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(step);
+      } else {
+        setSwipeOffset(0);
+        animationRef.current = null;
+      }
+    };
+    
+    animationRef.current = requestAnimationFrame(step);
+  };
+
+  // Delete animation function
+  const animateDelete = () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    // Continue the swipe out animation
+    setIsDeleting(true);
+    let start = null;
+    const startOffset = swipeOffset;
+    const duration = 250;
+    const targetOffset = -300; // Swipe further off screen
+    
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease out cubic
+      const easeOutCubic = (x) => {
+        return 1 - Math.pow(1 - x, 3);
+      };
+      
+      const newOffset = startOffset + (targetOffset - startOffset) * easeOutCubic(progress);
+      setSwipeOffset(newOffset);
+      
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(step);
+      } else {
+        // Animation complete, now actually delete the offer
+        setTimeout(() => {
+          deleteOffer(id);
+        }, 100);
+        animationRef.current = null;
+      }
+    };
+    
+    animationRef.current = requestAnimationFrame(step);
+  };
+
+  // Enhanced swipe handlers for better mobile responsiveness
+  const handlers = useSwipeable({
+    onSwiping: (data) => {
+      // Cancel any ongoing animation
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      
+      if (data.dir === 'Left') {
+        // Only allow swiping left up to -150px
+        const newOffset = Math.max(-150, data.deltaX);
+        setSwipeOffset(newOffset);
+      }
+    },
+    onSwipedLeft: (data) => {
+      if (data.deltaX < -120) { // Threshold to trigger delete
+        // If swipe is more than 120px, trigger delete animation
+        animateDelete();
+      } else {
+        // Add spring-back animation for partial swipes
+        animateSpringBack();
+      }
+    },
+    onSwipedRight: () => {
+      // Spring back to original position
+      animateSpringBack();
+    },
+    // This handler catches all swipe endings regardless of direction
+    onSwiped: (data) => {
+      // If swipe was not far enough to delete, spring back
+      if (data.dir === 'Left' && data.deltaX >= -120) {
+        animateSpringBack();
+      }
+    },
+    trackMouse: true,
+    trackTouch: true, // Ensure touch events are tracked
+    preventScrollOnSwipe: true,
+    delta: 10, // Lower threshold for detecting swipe
+    swipeDuration: 500, // Allow more time for swipe
+  });
+
+  // Helper function to get the type label
   const getTypeLabel = () => {
     switch(type) {
       case 'happyhours':
-        return 'Happy Hours';
+        return 'Happy hours';
       case 'spintowin':
-        return 'Spin To Win';
+        return 'Spin to win';
       case 'spotlight':
       default:
-        return 'Spotlight Offer';
+        return 'Spotlight';
     }
   };
 
-  const getTagColor = () => {
+  // Helper function to get background color for the offer type
+  const getTypeBackground = () => {
+    // Using a consistent black glass-like background for all types
+    return 'bg-black/50 backdrop-blur-sm';
+  };
+  
+  // Helper function to get text color for the offer type
+  const getTypeTextColor = () => {
     switch(type) {
       case 'happyhours':
-        return 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 border border-blue-200';
+        return 'text-purple-400';
       case 'spintowin':
-        return 'bg-gradient-to-r from-purple-50 to-purple-100 text-purple-600 border border-purple-200';
+        return 'text-teal-400';
       case 'spotlight':
       default:
-        return 'bg-gradient-to-r from-amber-50 to-amber-100 text-amber-600 border border-amber-200';
+        return 'text-orange-400';
     }
   };
-
-  // Function to render the 3-image grid using MultiImageDisplay component
-  const getImageGallery = () => {
-    return (
-      <div className="relative w-full h-28 md:h-30 overflow-hidden rounded-xl">
-        <MultiImageDisplay 
-          offerType={type}
-          title={title}
-          id={id}
-          image={image}
-          images={images}
-          isSponsored={isSponsored}
-        />
-      </div>
-    );
-  };
-
-  // Format description to be more concise
-  const formatDescription = (text) => {
-    return text && text.length > 70 ? `${text.substring(0, 70)}...` : text;
+  
+  // Helper function to get active badge color
+  const getActiveBadgeColor = () => {
+    if (isActive) {
+      return 'bg-green-100 text-green-800';
+    }
+    return 'bg-gray-100 text-gray-500';
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-shadow hover:shadow-lg mb-2">
-      {/* Card header with title */}
-      <div className="flex items-center justify-between p-3 pb-1.5">
-        <div className="flex-1">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 w-9 h-9 rounded-full overflow-hidden mr-2">
-              {/* Modern gradient icon with animated hover effect */}
-              <div className={`w-full h-full flex items-center justify-center shadow-sm transition-all ${
-                type === 'happyhours' 
-                  ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white hover:from-blue-500 hover:to-blue-700' : 
-                type === 'spintowin' 
-                  ? 'bg-gradient-to-br from-purple-400 to-purple-700 text-white hover:from-purple-500 hover:to-purple-800' : 
-                  'bg-gradient-to-br from-amber-400 to-amber-600 text-white hover:from-amber-500 hover:to-amber-700'
-              }`}>
-                {type === 'happyhours' ? (
-                  <Clock size={18} className="drop-shadow" />
-                ) : type === 'spintowin' ? (
-                  <Gift size={18} className="drop-shadow" />
-                ) : (
-                  <Sparkles size={18} className="drop-shadow" />
-                )}
-              </div>
+    <div className="relative">
+      {/* Delete action background - visible when swiped */}
+      <div 
+        className="absolute right-0 top-0 bottom-0 rounded-xl overflow-hidden flex items-center justify-center"
+        style={{ 
+          backgroundColor: '#f44336',
+          width: `${Math.min(80, Math.abs(swipeOffset) * 0.65)}px`,
+          opacity: Math.min(1, Math.abs(swipeOffset) / 80),
+          transition: isDeleting ? 'all 0.3s ease-out' : 'none',
+        }}
+      >
+        <Trash2 
+          className="text-white" 
+          size={24} 
+          style={{
+            transform: `scale(${Math.min(1, Math.abs(swipeOffset) / 100)})`,
+            transition: isDeleting ? 'transform 0.3s ease-out' : 'none',
+          }}
+        />
+      </div>
+
+      {/* Card content with swipe animation */}
+      <div 
+        ref={cardRef}
+        {...handlers}
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 mb-4 touch-manipulation"
+        style={{ 
+          transform: `translateX(${swipeOffset}px)`,
+          opacity: isDeleting ? 0 : 1,
+          height: isDeleting ? '0px' : 'auto', 
+          margin: isDeleting ? '0px' : 'inherit',
+          transition: isDeleting ? 'height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out' : 'none',
+          willChange: 'transform'
+        }}
+      >
+        <div className="flex flex-row h-[180px]">
+          {/* Left side - Image */}
+          <div className="w-1/3 relative h-full">
+            <div className="h-full">
+              <MultiImageDisplay 
+                offerType={type}
+                title={title}
+                id={id}
+                image={image}
+                isSponsored={isSponsored}
+              />
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
-              <div className={`text-xs px-2.5 py-1 rounded-full inline-flex items-center shadow-sm ${getTagColor()}`}>
-                {type === 'happyhours' ? (
-                  <Clock size={12} className="mr-1.5" />
-                ) : type === 'spintowin' ? (
-                  <Gift size={12} className="mr-1.5" />
-                ) : (
-                  <Sparkles size={12} className="mr-1.5" />
-                )}
-                {getTypeLabel()}
+            {/* Type label at the bottom */}
+            <div className={`absolute bottom-0 left-0 right-0 text-center py-2 ${getTypeBackground()} text-xs font-semibold ${getTypeTextColor()}`}>
+              {getTypeLabel()}
+            </div>
+            {/* Status tag on top of the image */}
+            <div className="absolute top-2 left-2">
+              <div className={`px-2 py-0.5 text-xs font-medium rounded-full ${getActiveBadgeColor()} whitespace-nowrap shadow-sm`}>
+                {isActive ? 'Active' : 'Inactive'}
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Timer for happy hours - enhanced styling */}
-        {type === 'happyhours' && timerValue && (
-          <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-red-50 to-orange-50 text-red-600 text-xs font-medium border border-red-100 shadow-sm flex items-center">
-            <svg className="mr-1.5 animate-pulse" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 8V12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            {timerValue}
+
+          {/* Right side - Content */}
+          <div className="w-2/3 flex flex-col">
+            <div className="p-4 pb-2 flex-grow h-full flex flex-col justify-between">
+              {/* Header with title and edit button */}
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-bold text-gray-900 text-base">{title}</h3>
+                {window.location.pathname === '/offer-management' && (
+                  <button 
+                    onClick={onEdit}
+                    className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
+                  >
+                    <Edit size={16} />
+                  </button>
+                )}
+              </div>
+              
+              {/* Timer for happy hours */}
+              {type === 'happyhours' && timerValue && (
+                <div className="py-1 mb-2 text-blue-600 text-sm font-medium flex items-center">
+                  <Clock size={16} className="mr-2" />
+                  {timerValue}
+                </div>
+              )}
+              
+              {/* Description only for non-happy hours */}
+              {type !== 'happyhours' && description && (
+                <p className="text-sm text-gray-600 line-clamp-2 mt-1 mb-auto">{description}</p>
+              )}
+            </div>
+
+            {/* Action buttons row - alongside the image */}
+            <div className="px-4 py-2.5 mt-auto border-t border-gray-100 bg-gray-50">
+              <div className="flex justify-between items-center">
+                <div className="flex justify-start">
+                  <button 
+                    onClick={onView}
+                    className="flex items-center justify-center rounded-lg px-3 py-1.5 text-gray-700 text-sm font-medium whitespace-nowrap"
+                  >
+                    <Eye size={18} className="mr-1" />
+                    <span>{views} Views</span>
+                  </button>
+                </div>
+                
+                {window.location.pathname === '/offer-management' && (
+                  <div className="flex justify-center">
+                    <button 
+                      onClick={onBoost}
+                      className="flex items-center justify-center rounded-lg px-3 py-1.5 text-gray-700 text-sm font-medium whitespace-nowrap"
+                    >
+                      <Zap size={18} className="mr-1" />
+                      <span>Boost</span>
+                    </button>
+                  </div>
+                )}
+                
+                <div className="flex justify-end">
+                  <label 
+                    htmlFor={`toggle-${id}`}
+                    className="inline-flex items-center cursor-pointer"
+                  >
+                    <input 
+                      type="checkbox" 
+                      id={`toggle-${id}`}
+                      checked={isActive}
+                      onChange={() => toggleOffer(id)}
+                      className="sr-only peer"
+                    />
+                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 shadow-md"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-      
-      {/* Card description with improved styling */}
-      <div className="px-3 pb-2">
-        <p className="text-sm text-gray-600 leading-relaxed mb-1">{formatDescription(description)}</p>
-      </div>
-      
-      {/* Offer Image Gallery */}
-      <div className="px-3 pb-3">
-        {getImageGallery()}
-      </div>
-      
-      {/* Card actions - modern UI */}
-      <div className="flex items-center border-t border-gray-100">
-        <button 
-          onClick={onView}
-          className="flex-1 py-2 text-blue-600 text-xs font-medium flex items-center justify-center hover:bg-blue-50 transition-colors"
-        >
-          <svg 
-            className="mr-1.5" 
-            width="15" 
-            height="15" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M21.92 11.6C19.9 6.91 16.1 4 12 4C7.9 4 4.1 6.91 2.08 11.6C2.03 11.72 2 11.86 2 12C2 12.14 2.03 12.28 2.08 12.4C4.1 17.09 7.9 20 12 20C16.1 20 19.9 17.09 21.92 12.4C21.97 12.28 22 12.14 22 12C22 11.86 21.97 11.72 21.92 11.6ZM12 18C8.83 18 5.83 15.71 4.05 12C5.83 8.29 8.83 6 12 6C15.17 6 18.17 8.29 19.95 12C18.17 15.71 15.17 18 12 18Z" fill="currentColor"/>
-            <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8ZM12 14C10.9 14 10 13.1 10 12C10 10.9 10.9 10 12 10C13.1 10 14 10.9 14 12C14 13.1 13.1 14 12 14Z" fill="currentColor"/>
-          </svg>
-          View
-        </button>
-        
-        <button 
-          onClick={onBoost}
-          className="flex-1 py-2 text-green-600 text-xs font-medium flex items-center justify-center hover:bg-green-50 transition-colors border-l border-r border-gray-100"
-        >
-          <svg 
-            className="mr-1.5" 
-            width="15" 
-            height="15" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor" />
-          </svg>
-          Boost
-        </button>
-        
-        {/* Toggle switch for active/inactive status - improved design */}
-        <div className="flex-1 py-2 flex items-center justify-center">
-          <label 
-            htmlFor={`toggle-${id}`}
-            className="relative inline-flex items-center cursor-pointer"
-          >
-            <input 
-              type="checkbox" 
-              value="" 
-              id={`toggle-${id}`}
-              checked={isActive}
-              onChange={() => toggleOffer(id)}
-              className="sr-only peer"
-            />
-            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
-            <span className="ml-1.5 text-xs font-medium text-gray-600">
-              {isActive ? 'On' : 'Off'}
-            </span>
-          </label>
-        </div>
-        
-        {/* Action buttons with improved styling */}
-        <div className="flex">
-          <button 
-            onClick={onEdit}
-            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-full mx-0.5"
-            aria-label="Edit"
-          >
-            <Edit size={15} strokeWidth={2} />
-          </button>
-          <button 
-            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-all rounded-full mx-0.5"
-            aria-label="Delete"
-          >
-            <Trash2 size={15} strokeWidth={2} />
-          </button>
         </div>
       </div>
     </div>

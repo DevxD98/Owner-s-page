@@ -182,7 +182,7 @@ const OfferItem = ({
         <div className="w-full md:w-28 md:min-w-[7rem] lg:w-36 lg:min-w-[9rem]">
           {/* Multi-image grid layout - matches the screenshot */}
           <div className="relative w-full h-16 md:h-18 rounded-t-lg md:rounded-t-none md:rounded-l-lg overflow-hidden">
-            {/* Display 3 images for each offer type */}
+            {/* Display single image for offer */}
             <MultiImageDisplay 
               offerType={offerType} 
               title={title} 
@@ -191,23 +191,11 @@ const OfferItem = ({
               isSponsored={isSponsored}
             />
             
-            {/* Type Badge - Better highlighted on the image */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 py-1 px-2 backdrop-blur-sm">
+            {/* Type Badge - Black glass-like background styling */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 py-1 px-2 backdrop-blur-sm">
               <div className="flex items-center justify-center">
-                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${
-                  offerType === 'happyhours' 
-                    ? 'bg-blue-400' 
-                    : offerType === 'spintowin'
-                      ? 'bg-purple-400'
-                      : 'bg-amber-400'
-                } animate-pulse`}></span>
-                <span className={`text-2xs font-semibold ${
-                  offerType === 'happyhours' 
-                    ? 'text-blue-100' 
-                    : offerType === 'spintowin'
-                      ? 'text-purple-100'
-                      : 'text-amber-100'
-                }`}>
+                <span className="w-2.5 h-2.5 rounded-full mr-1.5 bg-white animate-pulse"></span>
+                <span className="text-2xs font-semibold text-white">
                   {offerType === 'happyhours' ? 'Happy hours' : offerType === 'spintowin' ? 'Spin to win' : 'Spotlight'}
                 </span>
               </div>

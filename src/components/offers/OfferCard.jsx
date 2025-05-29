@@ -120,9 +120,16 @@ const OfferCard = ({
     animationRef.current = requestAnimationFrame(step);
   };
 
-  // Enhanced swipe handlers for better mobile responsiveness
+  // Enhanced swipe handlers for better mobile responsiveness with vertical scrolling allowed
   const handlers = useSwipeable({
     onSwiping: (data) => {
+      // Only process horizontal swipes - ignore vertical movement
+      // This is critical for allowing normal vertical scrolling
+      if (Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.5) {
+        // If movement is more vertical than horizontal, don't interfere with scroll
+        return;
+      }
+      
       // Cancel any ongoing animation
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -136,6 +143,13 @@ const OfferCard = ({
       }
     },
     onSwipedLeft: (data) => {
+      // Only process significant horizontal swipes
+      if (Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.5) {
+        // If movement was more vertical than horizontal, reset
+        setSwipeOffset(0);
+        return;
+      }
+      
       if (data.deltaX < deleteThreshold) { // Threshold to trigger delete
         // If swipe is more than threshold, trigger delete animation
         animateDelete();
@@ -157,8 +171,8 @@ const OfferCard = ({
     },
     trackMouse: true,
     trackTouch: true, // Ensure touch events are tracked
-    preventScrollOnSwipe: true,
-    delta: 10, // Lower threshold for detecting swipe
+    preventScrollOnSwipe: false, // IMPORTANT: Allow vertical scrolling
+    delta: 15, // Slightly higher threshold for detecting intentional swipes
     swipeDuration: 500 // Allow more time for swipe
   });
 
@@ -238,7 +252,7 @@ const OfferCard = ({
             ? 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out, height 0.3s ease-in-out, margin 0.3s ease-in-out' 
             : 'none',
           willChange: 'transform',
-          touchAction: 'pan-y'
+          touchAction: 'manipulation' // Allow all touch actions except the ones handled by react-swipeable
         }}
       >
         <div className="flex flex-row h-[180px]">

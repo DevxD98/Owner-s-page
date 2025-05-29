@@ -26,6 +26,7 @@ const defaultContext = {
   toggleOffer: () => {},
   addOffer: () => {},
   updateOffer: () => {},
+  deleteOffer: () => {},
   updateRedemption: () => {},
   updateBooking: () => {},
 };
@@ -609,6 +610,11 @@ export const AppProvider = ({ children }) => {
     ));
   };
 
+  // Delete an offer by ID
+  const deleteOffer = (id) => {
+    setOffers(prevOffers => prevOffers.filter(offer => offer.id !== id));
+  };
+
   // Save store info to local storage whenever relevant values change
   useEffect(() => {
     // Create a store info object with all relevant fields
@@ -676,6 +682,7 @@ export const AppProvider = ({ children }) => {
     toggleOffer,
     addOffer,
     updateOffer,
+    deleteOffer,
     updateRedemption,
     updateBooking,
     setStoreName,

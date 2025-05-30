@@ -325,6 +325,7 @@ const RecentLiveOffers = ({
                       timerValue={offer.type === 'happyhours' ? formatTimeRemaining(offer.startTime, offer.endTime) : null}
                       onEdit={() => navigate(`/create-offer?id=${offer.id}`)}
                       onView={() => navigate(`/preview-offer?id=${offer.id}`)}
+                      onBoost={() => navigate(`/boost-offer?id=${offer.id}`)}
                       isSponsored={false}
                     />
                   ) : (

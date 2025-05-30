@@ -71,30 +71,31 @@ const OfferCard = ({
 
   // Helper function to get background color for the offer type
   const getTypeBackground = () => {
-    // Using a consistent black glass-like background for all types
-    return 'bg-black/50 backdrop-blur-sm';
+    switch(type) {
+      case 'happyhours':
+        return 'bg-blue-100';
+      case 'spintowin':
+        return 'bg-purple-100';
+      case 'spotlight':
+      default:
+        return 'bg-amber-100';
+    }
   };
   
   // Helper function to get text color for the offer type
   const getTypeTextColor = () => {
     switch(type) {
       case 'happyhours':
-        return 'text-purple-400';
+        return 'text-blue-600';
       case 'spintowin':
-        return 'text-teal-400';
+        return 'text-purple-600';
       case 'spotlight':
       default:
-        return 'text-orange-400';
+        return 'text-amber-800';
     }
   };
   
-  // Helper function to get active badge color
-  const getActiveBadgeColor = () => {
-    if (isActive) {
-      return 'bg-green-100 text-green-800';
-    }
-    return 'bg-gray-100 text-gray-500';
-  };
+  // Active/Inactive status is applied directly in the JSX
 
   return (
     <div className="relative">
@@ -137,12 +138,16 @@ const OfferCard = ({
               />
             </div>
             {/* Type label at the bottom */}
-            <div className={`absolute bottom-0 left-0 right-0 text-center py-1 ${getTypeBackground()} text-xs font-semibold ${getTypeTextColor()}`}>
-              {getTypeLabel()}
+            <div className={`absolute bottom-0 left-0 right-0 text-center py-1.5 ${getTypeBackground()} text-xs font-semibold`}>
+              <span className={getTypeTextColor()}>{getTypeLabel()}</span>
             </div>
             {/* Status tag on top of the image */}
             <div className="absolute top-2 left-2">
-              <div className={`px-2 py-0.5 text-xs font-medium rounded-full ${getActiveBadgeColor()} whitespace-nowrap shadow-sm`}>
+              <div className={`px-1 py-0.25 text-[9px] font-medium rounded-md ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-500 border border-emerald-100' 
+                    : 'bg-slate-50 text-slate-500 border border-slate-200'
+                  } whitespace-nowrap shadow-sm`} style={{ lineHeight: '1.2' }}>
                 {isActive ? 'Active' : 'Inactive'}
               </div>
             </div>

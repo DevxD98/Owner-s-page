@@ -1,19 +1,8 @@
-// filepath: /Users/devmondal/Owner-s-page-4/src/components/offers/OfferCard.jsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Clock, Edit, Eye, Zap, Trash2 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import MultiImageDisplay from './MultiImageDisplay';
-import { useSwipeable } from 'react-swipeable';
-
-// Function to detect mobile browser
-const isMobileBrowser = () => {
-  if (typeof window !== 'undefined') {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    // Mobile detection regex
-    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-  }
-  return false;
-};
+import { motion } from 'framer-motion';
 
 const OfferCard = ({
   id,
@@ -35,249 +24,37 @@ const OfferCard = ({
   isSponsored = false
 }) => {
   const { toggleOffer, deleteOffer } = useApp();
-  const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const cardRef = useRef(null);
-  const animationRef = useRef(null);
   
-  // Detect mobile browser on component mount
-  useEffect(() => {
-    setIsMobile(isMobileBrowser());
-  }, []);
-  const deleteThreshold = -160; // More substantial threshold - about half the card width
-  
-  // Clean up any animations when component unmounts
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
-  
-  // Safety mechanism: If the swipeOffset is non-zero and the user isn't actively swiping,
-  // make sure to reset it after a short delay (e.g., if a touch event was missed)
-  useEffect(() => {
-    if (swipeOffset !== 0 && !isDeleting) {
-      const resetTimer = setTimeout(() => {
-        animateSpringBack();
-      }, 500); // Wait 500ms before forcing reset
-      
-      return () => clearTimeout(resetTimer);
-    }
-  }, [swipeOffset, isDeleting]);
+  const deleteThreshold = -120; // Threshold for deletion (pixels)
+  const deleteVelocityThreshold = 500; // Velocity threshold for quick swipes
 
-  // Improved spring animation function with faster initial movement
-  const animateSpringBack = () => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-
-    // If there's no offset, no animation needed
-    if (swipeOffset === 0) return;
-
-    // If we're past the delete threshold, trigger delete instead of spring back
-    if (swipeOffset < deleteThreshold && !isDeleting) {
-      animateDelete();
-      return;
-    }
-
-    let start = null;
-    const startOffset = swipeOffset;
-    const duration = 200; // Even faster animation for more responsive feel
+  // Handle drag end to determine if item should be deleted
+  const handleDragEnd = (event, info) => {
+    const { offset, velocity } = info;
     
-    // Spring back animation with bounce effect
-    const step = (timestamp) => {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Use a faster initial movement with slight bounce
-      const fastSpringBack = (x) => {
-        // Faster initial movement (first 70% of the animation)
-        if (x < 0.7) {
-          return 1 - Math.pow(1 - x/0.7, 2); // Quadratic easing
-        } 
-        // Small bounce at the end
-        const bounceProgress = (x - 0.7) / 0.3;
-        return 1 + Math.sin(bounceProgress * Math.PI) * 0.03 * (1 - bounceProgress);
-      };
-      
-      // Calculate new position
-      const animationProgress = fastSpringBack(progress);
-      const newOffset = startOffset * (1 - animationProgress);
-      
-      // Apply the new position
-      setSwipeOffset(Math.abs(newOffset) < 0.5 ? 0 : newOffset);
-      
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(step);
-      } else {
-        // Ensure we end exactly at 0
-        setSwipeOffset(0);
-        animationRef.current = null;
-      }
-    };
+    // Check if this was a left swipe that should trigger deletion
+    const shouldDelete = 
+      offset.x < deleteThreshold || // Dragged far enough
+      (offset.x < -60 && velocity.x < -deleteVelocityThreshold); // Quick swipe
     
-    // Start animation on next frame
-    animationRef.current = requestAnimationFrame(step);
-  };
-
-  // Improved delete animation function
-  const animateDelete = () => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-
-    // Set deleting state immediately
-    setIsDeleting(true);
-    
-    // Start animation values
-    let start = null;
-    const startOffset = swipeOffset;
-    const duration = 200; // Faster animation for better feel
-    const targetOffset = -350; // Swipe further off screen for more dramatic effect
-    
-    const step = (timestamp) => {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Faster easing function for deletion
-      const easeOutQuart = (x) => {
-        return 1 - Math.pow(1 - x, 4);
-      };
-      
-      const newOffset = startOffset + (targetOffset - startOffset) * easeOutQuart(progress);
-      setSwipeOffset(newOffset);
-      
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(step);
-      } else {
-        // Animation complete, now actually delete the offer
-        // Do it immediately for better responsiveness
+    if (shouldDelete) {
+      // Trigger delete animation
+      setIsDeleting(true);
+      // Delay actual deletion to allow animation
+      setTimeout(() => {
         deleteOffer(id);
-        animationRef.current = null;
-      }
-    };
-    
-    // Start animation immediately
-    animationRef.current = requestAnimationFrame(step);
+      }, 300);
+    }
   };
 
-  // Enhanced swipe handlers with improved scrolling and deletion
-  const handlers = useSwipeable({
-    delta: 30, // Increased minimum swipe distance before triggering
-    preventDefaultTouchmoveEvent: false, // Critical: Don't prevent default touchmove to allow scrolling
-    trackMouse: false, // Only track touch events
-    trackTouch: true, // Track touch events
-    rotationAngle: 0, // Don't rotate the directions
-    swipeDuration: 300, // Require faster swipes to be detected as intentional
-    onSwiping: (data) => {
-      // First check: if there's ANY vertical movement at the start of the gesture,
-      // treat it as a scroll and ignore completely
-      if (Math.abs(data.deltaY) > 5 && Math.abs(data.deltaX) < 30) {
-        return;
-      }
-
-      // Second check: even with horizontal movement, if there's significant vertical component,
-      // prioritize scrolling and reset any ongoing swipe
-      const isVerticalScroll = Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.2;
-      if (isVerticalScroll) {
-        if (swipeOffset !== 0) {
-          animateSpringBack();
-        }
-        return;
-      }
-      
-      // Higher threshold for horizontal swipe detection to avoid accidental swipes
-      if (Math.abs(data.deltaX) < 30) {
-        return;
-      }
-      
-      // Once we've started swiping horizontally, continue tracking that movement
-      // Cancel any ongoing animation
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-      
-      if (data.dir === 'Left') {
-        // Only allow swiping left up to -180px
-        const newOffset = Math.max(-180, data.deltaX);
-        setSwipeOffset(newOffset);
-        
-        // Only auto-delete on very fast, intentional swipes past halfway
-        if (newOffset < deleteThreshold && Math.abs(data.velocity) > 0.8) {
-          // If swiping very fast past halfway, trigger delete without waiting for release
-          animateDelete();
-          return;
-        }
-      } else if (data.dir === 'Right' && swipeOffset < 0) {
-        // Allow swiping back to original position
-        const newOffset = Math.min(0, swipeOffset + Math.abs(data.deltaX));
-        setSwipeOffset(newOffset);
-      }
-    },
-    onSwipedLeft: (data) => {
-      // If we're already deleting, don't do anything else
-      if (isDeleting) return;
-      
-      // Check for significant horizontal movement
-      const isSignificantHorizontalSwipe = Math.abs(data.deltaX) > 20;
-      
-      // Detect if this was primarily a vertical scroll gesture
-      const isVerticalScroll = Math.abs(data.deltaY) > Math.abs(data.deltaX) * 1.2;
-      
-      // If it was mostly a vertical scroll or a very small horizontal swipe, reset card position
-      if (isVerticalScroll || !isSignificantHorizontalSwipe) {
-        setSwipeOffset(0);
-        return;
-      }
-      
-      // Only delete on very deliberate swipes - must be significant and past or near threshold
-      if (isSignificantHorizontalSwipe && data.velocity > 0.7 && data.deltaX < -120) {
-        animateDelete();
-        return;
-      }
-      
-      // Check against threshold for deletion
-      if (data.deltaX < deleteThreshold) {
-        animateDelete();
-      } else {
-        // Spring back for partial swipes
-        animateSpringBack();
-      }
-    },
-    onSwipedRight: () => {
-      // Always spring back to original position
-      if (!isDeleting) {
-        animateSpringBack();
-      }
-    },
-    // This handler catches all swipe endings
-    onSwiped: (data) => {
-      // If already deleting, don't interfere
-      if (isDeleting) return;
-      
-      // If this was a tap rather than a swipe (minimal movement), reset immediately
-      if (Math.abs(data.deltaX) < 5 && Math.abs(data.deltaY) < 5) {
-        setSwipeOffset(0);
-        return;
-      }
-      
-      // Always animate back to original position when finger is released
-      // unless we've already triggered the delete animation
-      animateSpringBack();
-    },
-    trackMouse: true,
-    trackTouch: true, // Ensure touch events are tracked
-    preventScrollOnSwipe: false, // IMPORTANT: Allow vertical scrolling
-    delta: 8, // Lower threshold for better responsiveness
-    swipeDuration: 300, // Allow more time to detect swipes
-    touchEventOptions: { passive: true } // Improve touch performance
-  });
+  // Drag constraints - only allow horizontal movement to the left
+  const dragConstraints = {
+    left: -200,
+    right: 0,
+    top: 0,
+    bottom: 0
+  };
 
   // Helper function to get the type label
   const getTypeLabel = () => {
@@ -320,48 +97,31 @@ const OfferCard = ({
   };
 
   return (
-    <div className="relative touch-none">
+    <div className="relative">
       {/* Delete action background - visible when swiped */}
-      <div 
-        className="absolute right-0 top-0 bottom-0 rounded-xl overflow-hidden flex items-center justify-center"
-        style={{ 
-          backgroundColor: '#f44336',
-          width: `${Math.min(80, Math.abs(swipeOffset) * 0.65)}px`,
-          opacity: Math.min(1, Math.abs(swipeOffset) / 80),
-          transition: 'none', // No transition here for instant feedback
-          visibility: swipeOffset < -5 ? 'visible' : 'hidden', // Hide completely when not swiping
-          zIndex: 0, // Keep below the card
-        }}
-      >
-        <Trash2 
-          className="text-white" 
-          size={24} 
-          style={{
-            transform: `scale(${Math.min(1, Math.abs(swipeOffset) / 100)})`,
-            transition: 'none', // No transition for instant feedback
-          }}
-        />
+      <div className="absolute right-0 top-0 bottom-0 w-20 rounded-xl overflow-hidden flex items-center justify-center bg-red-500 z-0">
+        <Trash2 className="text-white" size={24} />
       </div>
 
-      {/* Card content with swipe animation */}
-      <div 
-        ref={cardRef}
-        {...(isMobile ? {} : handlers)} // Only apply swipe handlers on non-mobile devices
-        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 mb-3 max-w-full"
-        style={{ 
-          transform: `translateX(${swipeOffset}px)`,
+      {/* Card content with Framer Motion drag */}
+      <motion.div
+        drag="x"
+        dragConstraints={dragConstraints}
+        onDragEnd={handleDragEnd}
+        dragElastic={0.2}
+        dragMomentum={false}
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 mb-3 max-w-full relative z-10"
+        style={{
+          touchAction: 'pan-y', // Allow vertical scrolling
+        }}
+        animate={{
           opacity: isDeleting ? 0 : 1,
-          height: isDeleting ? '0' : 'auto',
-          marginBottom: isDeleting ? '0' : '0.75rem',
-          transition: isDeleting 
-            ? 'transform 0.25s ease-out, opacity 0.25s ease-out, height 0.25s ease-out, margin 0.25s ease-out' 
-            : 'none', // No transition when not deleting for responsive feel
-          willChange: 'transform',
-          touchAction: 'pan-y', // Explicitly allow vertical scrolling while restricting horizontal
-          userSelect: 'none', // Prevent text selection during swipe
-          WebkitOverflowScrolling: 'touch', // Better scroll momentum on iOS
-          position: 'relative', // Ensure proper positioning
-          zIndex: isDeleting ? 0 : 1, // Keep active cards above deleted ones
+          height: isDeleting ? 0 : 'auto',
+          marginBottom: isDeleting ? 0 : '0.75rem',
+        }}
+        transition={{
+          duration: isDeleting ? 0.3 : 0,
+          ease: 'easeOut'
         }}
       >
         <div className="flex flex-row h-[160px]">
@@ -468,7 +228,7 @@ const OfferCard = ({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

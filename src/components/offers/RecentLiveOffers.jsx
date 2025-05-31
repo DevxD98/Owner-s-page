@@ -194,7 +194,7 @@ const RecentLiveOffers = ({
     <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'} ${showHeader ? 'mt-6 p-3 bg-white rounded-xl shadow-md border border-gray-100' : ''} w-full max-w-full ${!showDetailedView ? 'min-h-[190px]' : ''}`}>
       {showHeader && (
         <div 
-          className="flex justify-between items-center mb-2"
+          className="flex justify-between items-center mb-4"
         >
           <div 
             className="flex items-center gap-3 cursor-pointer group"
@@ -273,7 +273,7 @@ const RecentLiveOffers = ({
         </div>
       )}
 
-      <div className="space-y-0 mt-0">
+      <div className="space-y-0">
         {publishedOffers.length > 0 ? (
           <div className="flex flex-col">
             {/* Offers list */}
@@ -358,7 +358,9 @@ const RecentLiveOffers = ({
             {!showDetailedView && (
               <button 
                 onClick={() => navigate('/offer-management')}
-                className="w-full py-3 mt-1 text-amber-600 bg-amber-50 rounded-xl text-center font-medium transition-colors hover:bg-amber-100 shadow-sm border border-amber-100"
+                className="w-full py-3 mt-3 text-orange-600 font-medium rounded-xl text-center shadow-sm transition-all 
+                bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100
+                border border-orange-200 hover:border-orange-300"
               >
                 {publishedOffers.length > 0 
                   ? `View all (${publishedOffers.length}) offers in management` 

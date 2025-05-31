@@ -136,7 +136,14 @@ const HomeOfferCard = ({
               <div className="flex-1 text-center">
                 <button
                   onClick={onBoost}
-                  className="inline-flex items-center justify-center text-gray-700 text-sm font-medium whitespace-nowrap"
+                  className="inline-flex items-center justify-center text-gray-700 text-sm font-medium whitespace-nowrap md:block hidden"
+                >
+                  <Zap size={14} className="mr-1" />
+                  <span>Boost</span>
+                </button>
+                <button
+                  onClick={onBoost}
+                  className="inline-flex items-center justify-center text-gray-700 text-sm font-medium whitespace-nowrap md:hidden"
                 >
                   <Zap size={14} className="mr-1" />
                   <span>Boost</span>

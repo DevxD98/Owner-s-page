@@ -1,6 +1,6 @@
 // filepath: /Users/devmondal/Owner-s-page-4/src/components/offers/RecentLiveOffers.jsx
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Sparkles, Plus, Search } from 'lucide-react';
+import { ChevronRight, Sparkles, Plus, Search, Tag } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import OfferItem from './OfferItem';
@@ -191,7 +191,7 @@ const RecentLiveOffers = ({
   console.log('RecentLiveOffers: publishedOffers count:', publishedOffers.length);
   
   return (
-    <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'} ${showHeader ? 'mt-6 p-3 bg-white rounded-xl shadow-md border border-gray-100' : ''} w-full max-w-full ${!showDetailedView ? 'min-h-[190px]' : ''}`}>
+    <div className={`transition-all duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'} ${showHeader ? 'mt-6' : ''} w-full max-w-full ${!showDetailedView ? 'min-h-[190px]' : ''}`}>
       {showHeader && (
         <div 
           className="flex justify-between items-center mb-4"
@@ -200,12 +200,12 @@ const RecentLiveOffers = ({
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => navigate('/offer-management')}
           >
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
-              <Sparkles size={20} className="text-white" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-md">
+              <Tag size={20} className="text-white" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors">Offer Management</h2>
+            <h2 className="text-xl font-bold text-gray-800 group-hover:text-teal-600 transition-colors">Offer Management</h2>
           </div>
-          <ChevronRight size={20} className="text-gray-500 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-transform cursor-pointer" onClick={() => navigate('/offer-management')} />
+          <ChevronRight size={20} className="text-gray-500 group-hover:text-teal-600 transform group-hover:translate-x-1 transition-transform cursor-pointer" onClick={() => navigate('/offer-management')} />
         </div>
       )}
       
@@ -220,7 +220,7 @@ const RecentLiveOffers = ({
               <input
                 type="text"
                 placeholder="Search offers..."
-                className="pl-10 w-full p-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 bg-white"
+                className="pl-10 w-full p-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 bg-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -232,7 +232,7 @@ const RecentLiveOffers = ({
             <button
               onClick={() => setFilter('all')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'all' 
-                ? 'bg-amber-500 text-white shadow-sm' 
+                ? 'bg-teal-500 text-white shadow-sm' 
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               All Offers
@@ -256,7 +256,7 @@ const RecentLiveOffers = ({
             <button
               onClick={() => setFilter('draft')}
               className={`px-4 py-2 text-sm font-medium rounded-lg ${filter === 'draft' 
-                ? 'bg-amber-400 text-white shadow-sm' 
+                ? 'bg-teal-400 text-white shadow-sm' 
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} whitespace-nowrap flex-shrink-0`}
             >
               Draft
@@ -358,9 +358,9 @@ const RecentLiveOffers = ({
             {!showDetailedView && (
               <button 
                 onClick={() => navigate('/offer-management')}
-                className="w-full py-3 mt-3 text-orange-600 font-medium rounded-xl text-center shadow-sm transition-all 
-                bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100
-                border border-orange-200 hover:border-orange-300"
+                className="w-full py-3 mt-3 text-teal-600 font-medium rounded-xl text-center shadow-md transition-all 
+                bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100
+                border border-teal-200 hover:border-teal-300"
               >
                 {publishedOffers.length > 0 
                   ? `View all (${publishedOffers.length}) offers in management` 
@@ -371,7 +371,7 @@ const RecentLiveOffers = ({
         ) : (
           <div className="text-center py-5 border-2 border-dashed border-gray-200 rounded-lg">
             <div className="mx-auto w-12 h-12 mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-              <Sparkles size={20} className="text-gray-400" />
+              <Tag size={20} className="text-gray-400" />
             </div>
             <p className="text-gray-600 font-medium">
               {searchTerm || filter !== 'all' ? 'No matching offers found' : 'No active offers yet'}
@@ -384,7 +384,7 @@ const RecentLiveOffers = ({
             {!searchTerm && filter === 'all' && (
               <button 
                 onClick={() => navigate('/create-offer')} 
-                className="mt-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center mx-auto"
+                className="mt-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center mx-auto"
               >
                 <Plus size={16} className="mr-1" />
                 Create Offer
@@ -397,7 +397,7 @@ const RecentLiveOffers = ({
         {showDetailedView && publishedOffers.length > maxItems && !showAllItems && (
           <button 
             onClick={() => setShowAllItems(true)}
-            className="w-full py-3 mt-4 text-amber-600 bg-amber-50 rounded-xl text-center font-medium transition-colors hover:bg-amber-100 shadow-sm border border-amber-100"
+            className="w-full py-3 mt-4 text-teal-600 bg-teal-50 rounded-xl text-center font-medium transition-colors hover:bg-teal-100 shadow-sm border border-teal-100"
           >
             View all ({publishedOffers.length}) offers
           </button>

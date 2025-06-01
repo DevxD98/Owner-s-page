@@ -72,7 +72,7 @@ const RedemptionTracker = ({ showSearch = false, showAllItems = false }) => {
   };
 
   return (
-    <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`mt-6 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <div 
         className="flex items-center py-3 mb-1 cursor-pointer group"
         onClick={() => navigate('/redemption-tracker')}
@@ -178,7 +178,7 @@ const RedemptionTracker = ({ showSearch = false, showAllItems = false }) => {
         {redemptions.length > 3 && !showAllItems && (
           <button 
             onClick={() => navigate('/redemption-tracker')}
-            className="w-full py-2 mt-2 text-blue-600 bg-blue-50 rounded-lg text-center font-medium transition-colors hover:bg-blue-100"
+            className="w-full py-2 mt-2 text-blue-600 bg-blue-50 rounded-lg text-center font-medium shadow-md transition-colors hover:bg-blue-100"
           >
             View all ({redemptions.length}) redemptions
           </button>

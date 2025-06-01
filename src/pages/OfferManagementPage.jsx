@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Sparkles, Search, Filter, Clock } from 'lucide-react';
+import { ArrowLeft, Sparkles, Search, Filter, Clock, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import OfferCard from '../components/offers/OfferCard';
@@ -164,8 +164,8 @@ const OfferManagementPage = () => {
           <button onClick={() => navigate(-1)} className="mr-3">
             <ArrowLeft size={20} />
           </button>
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md mr-3">
-            <Sparkles size={20} className="text-white" />
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-md mr-3">
+            <Tag size={20} className="text-white" />
           </div>
           <h1 className="text-xl font-bold">Offer Management</h1>
         </div>
@@ -210,7 +210,7 @@ const OfferManagementPage = () => {
               Inactive
             </button>
             <button
-              className={`px-3 py-1 text-sm rounded-full ${filter === 'drafts' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700'}`}
+              className={`px-3 py-1 text-sm rounded-full ${filter === 'drafts' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-700'}`}
               onClick={() => setFilter('drafts')}
             >
               Drafts
@@ -237,7 +237,7 @@ const OfferManagementPage = () => {
                 All Types
               </button>
               <button
-                className={`px-3 py-1 text-xs rounded-full ${typeFilter === 'spotlight' ? 'bg-amber-100 text-amber-700' : 'bg-white text-gray-700 border border-gray-200'}`}
+                className={`px-3 py-1 text-xs rounded-full ${typeFilter === 'spotlight' ? 'bg-teal-100 text-teal-700' : 'bg-white text-gray-700 border border-gray-200'}`}
                 onClick={() => setTypeFilter('spotlight')}
               >
                 Spotlight

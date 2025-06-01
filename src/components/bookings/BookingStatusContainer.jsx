@@ -63,7 +63,7 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
   }, [isVisible, filteredBookings, showAllItems]);
 
   return (
-    <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`mt-6 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <div 
         className="flex items-center mb-4 cursor-pointer group"
         onClick={() => navigate('/booking-status')}
@@ -188,7 +188,7 @@ const BookingStatusContainer = ({ showSearch = false, showAllItems = false }) =>
         {bookings && bookings.length > 3 && !showAllItems && (
           <button 
             onClick={() => navigate('/booking-status')}
-            className="w-full py-2 mt-2 text-indigo-600 bg-indigo-50 rounded-lg text-center font-medium transition-colors hover:bg-indigo-100"
+            className="w-full py-2 mt-2 text-indigo-600 bg-indigo-50 rounded-lg text-center font-medium shadow-md transition-colors hover:bg-indigo-100"
           >
             View all ({bookings.length}) booking history
           </button>

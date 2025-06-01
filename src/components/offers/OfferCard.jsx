@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Clock, Edit, Eye, Zap, Trash2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Clock, Edit, Eye, Zap, Trash2, Share2, MoreVertical } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import MultiImageDisplay from './MultiImageDisplay';
 import { motion } from 'framer-motion';
@@ -25,9 +25,28 @@ const OfferCard = ({
 }) => {
   const { toggleOffer, deleteOffer } = useApp();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   
   const deleteThreshold = -120; // Threshold for deletion (pixels)
   const deleteVelocityThreshold = 500; // Velocity threshold for quick swipes
+  
+  // Handle click outside to close the menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
 
   // Handle drag end to determine if item should be deleted
   const handleDragEnd = (event, info) => {
@@ -45,6 +64,39 @@ const OfferCard = ({
       setTimeout(() => {
         deleteOffer(id);
       }, 300);
+    }
+  };
+  
+  // Handle delete from menu
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    setIsDeleting(true);
+    
+    // Delay actual deletion to allow animation
+    setTimeout(() => {
+      deleteOffer(id);
+    }, 300);
+  };
+  
+  // Handle share offer
+  const handleShare = (e) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    
+    if (navigator.share) {
+      navigator.share({
+        title: title,
+        text: description || `Check out this ${type} offer: ${title}`,
+        url: window.location.origin + `/preview-offer?id=${id}`
+      })
+      .catch((error) => console.log('Error sharing:', error));
+    } else {
+      // Fallback for browsers that don't support navigator.share
+      const shareUrl = window.location.origin + `/preview-offer?id=${id}`;
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => alert("Link copied to clipboard!"))
+        .catch(() => alert("Could not copy link. Try again later."));
     }
   };
 
@@ -156,16 +208,48 @@ const OfferCard = ({
           {/* Right side - Content */}
           <div className="w-3/4 flex flex-col">
             <div className="p-3 pb-1 flex-grow flex flex-col justify-between">
-              {/* Header with title and edit button */}
+              {/* Header with title and three-dot menu */}
               <div className="flex justify-between items-start mb-2">
                 <h3 className={`font-bold text-gray-900 text-base md:text-lg lg:text-xl leading-tight ${type === 'happyhours' ? 'mb-1' : ''}`}>{title}</h3>
                 {window.location.pathname === '/offer-management' && (
-                  <button 
-                    onClick={onEdit}
-                    className="p-1 rounded-full text-gray-500 hover:bg-gray-100 flex-shrink-0"
-                  >
-                    <Edit size={16} />
-                  </button>
+                  <div className="relative" ref={menuRef}>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuOpen(!menuOpen);
+                      }}
+                      className="p-1 rounded-full text-gray-500 hover:bg-gray-100 flex-shrink-0"
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    
+                    {/* Dropdown menu */}
+                    {menuOpen && (
+                      <div className="absolute right-0 top-6 mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-1">
+                        <button 
+                          onClick={onEdit}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <Edit size={14} className="mr-2" />
+                          Edit
+                        </button>
+                        <button 
+                          onClick={handleDelete}
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        >
+                          <Trash2 size={14} className="mr-2" />
+                          Delete
+                        </button>
+                        <button 
+                          onClick={handleShare}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <Share2 size={14} className="mr-2" />
+                          Share
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
               

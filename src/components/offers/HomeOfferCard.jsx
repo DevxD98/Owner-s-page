@@ -1,5 +1,5 @@
-import React from 'react';
-import { Clock, Eye, Zap } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Clock, Eye, Zap, MoreVertical, Edit, Trash2, Share2 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import HomeMultiImageDisplay from './HomeMultiImageDisplay';
 
@@ -22,7 +22,57 @@ const HomeOfferCard = ({
   timerValue,
   isSponsored = false
 }) => {
-  const { toggleOffer } = useApp();
+  const { toggleOffer, deleteOffer } = useApp();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  
+  // Handle click outside to close the menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
+  
+  // Handle delete from menu
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    
+    if (confirm('Are you sure you want to delete this offer?')) {
+      deleteOffer(id);
+    }
+  };
+  
+  // Handle share offer
+  const handleShare = (e) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    
+    if (navigator.share) {
+      navigator.share({
+        title: title,
+        text: description || `Check out this ${type} offer: ${title}`,
+        url: window.location.origin + `/preview-offer?id=${id}`
+      })
+      .catch((error) => console.log('Error sharing:', error));
+    } else {
+      // Fallback for browsers that don't support navigator.share
+      const shareUrl = window.location.origin + `/preview-offer?id=${id}`;
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => alert("Link copied to clipboard!"))
+        .catch(() => alert("Could not copy link. Try again later."));
+    }
+  };
 
   // Helper function to get the type label
   const getTypeLabel = () => {
@@ -96,9 +146,51 @@ const HomeOfferCard = ({
         </div>          {/* Right side - Content */}
         <div className="w-2/3 flex flex-col">
           <div className="p-2.5 flex-grow h-full flex flex-col justify-between">
-            {/* Header with title and status tag on right */}
+            {/* Header with title and three-dot menu */}
             <div className="flex justify-between items-start">
               <h3 className={`font-bold text-gray-900 text-base line-clamp-1 ${type === 'happyhours' ? 'mb-0.5' : ''}`}>{title}</h3>
+              <div className="relative" ref={menuRef}>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(!menuOpen);
+                  }}
+                  className="p-1 rounded-full text-gray-500 hover:bg-gray-100 flex-shrink-0"
+                >
+                  <MoreVertical size={16} />
+                </button>
+                
+                {/* Dropdown menu */}
+                {menuOpen && (
+                  <div className="absolute right-0 top-6 mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-1">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuOpen(false);
+                        onEdit && onEdit();
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Edit size={14} className="mr-2" />
+                      Edit
+                    </button>
+                    <button 
+                      onClick={handleDelete}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      <Trash2 size={14} className="mr-2" />
+                      Delete
+                    </button>
+                    <button 
+                      onClick={handleShare}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Share2 size={14} className="mr-2" />
+                      Share
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Description for non-happyhours offer types with ellipsis truncation */}

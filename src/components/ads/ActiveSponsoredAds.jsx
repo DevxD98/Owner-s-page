@@ -39,7 +39,7 @@ const ActiveSponsoredAds = () => {
   }, [isVisible, activeAds]);
 
   return (
-    <div className={`mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+    <div className={`mt-6 transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <div 
         className="flex justify-between items-center py-3 cursor-pointer group"
         onClick={() => navigate('/my-ads')}
@@ -83,7 +83,7 @@ const ActiveSponsoredAds = () => {
             <p className="text-gray-500 font-medium">No sponsored ads active</p>
             <p className="text-gray-400 text-sm mt-1">Sponsored ads will appear here</p>          <button 
             onClick={() => navigate('/sponsored-ads')} 
-            className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center mx-auto"
+            className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg shadow-md hover:bg-purple-600 transition-colors flex items-center mx-auto"
           >
             Create Sponsored Ad
           </button>
@@ -93,7 +93,7 @@ const ActiveSponsoredAds = () => {
         {activeAds.length > 0 && (
           <button 
             onClick={() => navigate('/my-ads')}
-            className="w-full py-2 mt-2 text-purple-600 bg-purple-50 rounded-lg text-center font-medium transition-colors hover:bg-purple-100"
+            className="w-full py-2 mt-2 text-purple-600 bg-purple-50 rounded-lg text-center font-medium shadow-md transition-colors hover:bg-purple-100"
           >
             Manage sponsored ads
           </button>

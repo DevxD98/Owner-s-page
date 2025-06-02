@@ -280,7 +280,7 @@ const RecentLiveOffers = ({
             {publishedOffers.slice(0, showDetailedView ? (showAllItems ? publishedOffers.length : maxItems) : maxItems).map((offer, index) => (
               <div 
                 key={offer.id || index} 
-                className={`transition-all duration-300 transform mb-2 ${
+                className={`transition-all duration-300 transform mb-1 ${
                   loadedItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >
@@ -354,11 +354,11 @@ const RecentLiveOffers = ({
               </div>
             ))}
             
-            {/* Directly after offers, no extra space */}
+            {/* Very minimal spacing between cards and button */}
             {!showDetailedView && (
               <button 
                 onClick={() => navigate('/offer-management')}
-                className="w-full py-3 mt-3 text-teal-600 font-medium rounded-xl text-center shadow-md transition-all 
+                className="w-full py-3 mt-1 text-teal-600 font-medium rounded-xl text-center shadow-md transition-all 
                 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100
                 border border-teal-200 hover:border-teal-300"
               >

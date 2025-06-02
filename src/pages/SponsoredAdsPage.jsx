@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, HelpCircle, Check } from 'lucide-react';
+import { ArrowLeft, Calendar, HelpCircle, Check, Video, Image as ImageIcon, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
@@ -8,15 +8,26 @@ const SponsoredAdsPage = () => {
   const location = useLocation();
   const { addOffer, updateOffer } = useApp();
   
+  // Get the ad type from location state
+  const adType = location.state?.adType || 'image';
+  
   // Reset scroll position to top when page loads
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
   
+  // Redirect to selection page if coming directly to this page
+  useEffect(() => {
+    if (!location.state?.adType) {
+      navigate('/ad-type-selection');
+    }
+  }, [location.state, navigate]);
+  
   // Ad details
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
   
   // Duration and targeting
   const [duration, setDuration] = useState(1);
@@ -50,13 +61,17 @@ const SponsoredAdsPage = () => {
     setReach(Math.floor(budget * reachPerRupee));
   }, [budget, reachPerRupee]);
   
-  // Handle image upload
-  const handleImageChange = (e) => {
+  // Handle file upload (image or video depending on adType)
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        if (adType === 'image') {
+          setImagePreview(reader.result);
+        } else if (adType === 'video') {
+          setVideoPreview(reader.result);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -142,73 +157,118 @@ const SponsoredAdsPage = () => {
   };
   
   return (
-    <div className="min-h-screen bg-white pb-32">
+    <div className="min-h-screen bg-white pb-36">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center">
-          <button onClick={() => navigate(-1)} className="mr-4">
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="text-xl font-bold">Sponsored Ads</h1>
-        </div>
-        <button onClick={() => alert('Help information')}>
-          <HelpCircle size={24} />
+      <div className="flex items-center p-4 border-b">
+        <button onClick={() => navigate('/ad-type-selection')} className="mr-4">
+          <ArrowLeft size={24} />
         </button>
+        <h1 className="text-xl font-bold">
+          {adType === 'video' ? 'Create Video Ad' : 'Create Image Ad'}
+        </h1>
       </div>
       
-      {/* Main content */}
-      <div className="p-4 space-y-6 pb-40">
-        {/* Ad Preview */}
-        <div>
-          <h2 className="text-base font-medium mb-2">Ad Banner Preview</h2>
-          <div 
-            className="h-32 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer hover:bg-gray-50 transition-colors relative"
-            onClick={() => document.getElementById('adImage').click()}
-          >
-            {imagePreview ? (
-              <img src={imagePreview} alt="Ad Preview" className="h-full w-full object-cover" />
+      <div className="p-4 space-y-5">
+        {/* Ad Type Indicator */}
+        <div className="flex items-center mb-4">
+          <div className={`w-10 h-10 rounded-full ${adType === 'video' ? 'bg-blue-100' : 'bg-green-100'} flex items-center justify-center mr-3`}>
+            {adType === 'video' ? (
+              <Video size={20} className="text-blue-600" />
             ) : (
-              <div className="text-gray-400 flex flex-col items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
-                <span className="text-sm mt-2">Click to upload banner image</span>
-              </div>
+              <ImageIcon size={20} className="text-green-600" />
             )}
-            <input 
-              type="file" 
-              id="adImage" 
-              accept="image/*" 
-              onChange={handleImageChange} 
-              className="hidden" 
-            />
           </div>
-          <p className="text-xs text-gray-500 mt-1">Recommended size: 1200 × 300 pixels</p>
+          <div>
+            <h2 className="font-semibold">{adType === 'video' ? 'Video Ad' : 'Image Ad'}</h2>
+            <p className="text-sm text-gray-600">
+              {adType === 'video' ? 'Short video content' : 'Static image with text'}
+            </p>
+          </div>
         </div>
-        
-        {/* Ad Title */}
-        <div>
-          <h2 className="text-base font-medium mb-2">Ad Title</h2>
+
+        {/* Title Input */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Ad Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Spin to Win – Get up to 50% OFF"
-            className="w-full p-4 bg-gray-100 rounded-lg border border-gray-200 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 outline-none"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+            placeholder={adType === 'video' ? 'Enter video title' : 'Enter image title'}
           />
         </div>
         
-        {/* Description */}
-        <div>
-          <h2 className="text-base font-medium mb-2">Description</h2>
+        {/* Description Input */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Ad Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your promotion..."
-            className="w-full p-4 bg-gray-100 rounded-lg border border-gray-200 h-24 resize-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 outline-none"
+            rows="3"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+            placeholder={adType === 'video' ? 'Describe your video ad' : 'Describe your image ad'}
           />
+        </div>
+
+        {/* Media Upload */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            {adType === 'video' ? 'Upload Video' : 'Upload Image'}
+          </label>
+          
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+            <div className={`${adType === 'video' ? (videoPreview ? 'hidden' : 'block') : (imagePreview ? 'hidden' : 'block')}`}>
+              <div className={`w-16 h-16 mx-auto rounded-full ${adType === 'video' ? 'bg-blue-50' : 'bg-green-50'} flex items-center justify-center mb-2`}>
+                {adType === 'video' ? (
+                  <Video size={32} className="text-blue-400" />
+                ) : (
+                  <ImageIcon size={32} className="text-green-400" />
+                )}
+              </div>
+              <p className="text-sm text-gray-600 mb-2">
+                {adType === 'video' ? 'MP4, WebM or MOV up to 60 seconds' : 'JPG, PNG or GIF up to 5MB'}
+              </p>
+              <label className="cursor-pointer">
+                <span className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                  {adType === 'video' ? 'Select Video' : 'Select Image'}
+                </span>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept={adType === 'video' ? 'video/*' : 'image/*'}
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+            
+            {adType === 'image' && imagePreview && (
+              <div className="relative">
+                <img src={imagePreview} alt="Preview" className="rounded-lg max-h-64 mx-auto" />
+                <button
+                  onClick={() => setImagePreview(null)}
+                  className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-70 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+            
+            {adType === 'video' && videoPreview && (
+              <div className="relative">
+                <video
+                  src={videoPreview}
+                  controls
+                  className="rounded-lg max-h-64 mx-auto"
+                />
+                <button
+                  onClick={() => setVideoPreview(null)}
+                  className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-70 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Duration */}
@@ -364,12 +424,12 @@ const SponsoredAdsPage = () => {
         
         {/* Terms Agreement */}
         <div className="mt-5 p-4 bg-[#fffbea] border border-[#ffeeba] rounded-xl">
-          <div className="flex items-center" onClick={() => setAgreeToTerms(!agreeToTerms)}>
-            <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded mr-3 cursor-pointer ${agreeToTerms ? 'bg-[#0066ff]' : 'border-2 border-gray-300'}`}>
+          <div className="flex items-start" onClick={() => setAgreeToTerms(!agreeToTerms)}>
+            <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded mr-3 cursor-pointer mt-0.5 ${agreeToTerms ? 'bg-[#5931fd]' : 'border-2 border-gray-300'}`}>
               {agreeToTerms && <Check size={16} className="text-white" />}
             </div>
             <div className="flex-1">
-              <label htmlFor="terms" className="text-gray-700 text-sm leading-relaxed cursor-pointer">
+              <label htmlFor="terms" className="text-gray-700 text-sm leading-relaxed cursor-pointer block">
                 I agree to the <span className="text-[#5931fd] font-medium">Sponsored Ads Terms</span> and understand that charges will apply to my account.
               </label>
               <input 
@@ -390,14 +450,14 @@ const SponsoredAdsPage = () => {
         <div className="border-b border-gray-100 py-3 px-4 bg-gray-50">
           <div className="flex justify-between items-center max-w-lg mx-auto">
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-              <div className="text-sm font-medium text-gray-800">
+              <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              <div className="text-base font-medium text-gray-800">
                 Campaign Ready
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-sm text-gray-600 mr-2">{reach.toLocaleString()} users</span>
-              <div className="text-[#5931fd] font-bold text-lg">₹{(budget * duration).toLocaleString()}</div>
+              <span className="text-sm text-gray-600 mr-3">{reach.toLocaleString()} users</span>
+              <div className="text-[#5931fd] font-bold text-xl">₹{(budget * duration).toLocaleString()}</div>
             </div>
           </div>
         </div>
@@ -407,14 +467,14 @@ const SponsoredAdsPage = () => {
           <div className="flex gap-3">
             <button 
               onClick={() => navigate(-1)}
-              className="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-medium transition-all border border-gray-200 shadow-sm"
+              className="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-medium transition-all border border-gray-200 shadow-sm flex-1"
             >
               Cancel
             </button>
             <button 
               onClick={handleStartPromotion}
               disabled={!agreeToTerms || budget <= minBudget}
-              className={`flex-1 py-3.5 rounded-xl text-white font-medium flex items-center justify-center transition-all ${
+              className={`flex-1 py-3.5 px-6 rounded-xl text-white font-medium flex items-center justify-center transition-all ${
                 !agreeToTerms || budget <= minBudget
                   ? 'bg-gray-400 opacity-70 cursor-not-allowed' 
                   : 'bg-[#5931fd]'

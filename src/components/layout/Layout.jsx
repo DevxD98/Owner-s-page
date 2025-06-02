@@ -14,11 +14,12 @@ const Layout = () => {
     '/create-account',
     '/help-support', // Hide navigation on help/demo pages
     '/boost-offer', // Hide navigation on boost offer page
-    '/sponsored-ads' // Hide navigation on sponsored ads page
+    '/sponsored-ads', // Hide navigation on sponsored ads page
+    '/ad-type-selection' // Hide navigation on ad type selection page
   ];
   
   const hideNavigation = hideNavigationPaths.includes(location.pathname);
-  const hidePlusButton = location.pathname === '/create-offer' || location.pathname === '/draft-offers' || location.pathname === '/preview-offer' || location.pathname === '/sponsored-ads';
+  const hidePlusButton = location.pathname === '/create-offer' || location.pathname === '/draft-offers' || location.pathname === '/preview-offer' || location.pathname === '/sponsored-ads' || location.pathname === '/ad-type-selection';
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto bg-white">

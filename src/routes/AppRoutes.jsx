@@ -20,6 +20,7 @@ import DraftOffersPage from '../pages/DraftOffersPage';
 import PreviewOfferPage from '../pages/PreviewOfferPage';
 import BoostOfferPage from '../pages/BoostOfferPage';
 import SponsoredAdsPage from '../pages/SponsoredAdsPage';
+import AdTypeSelectionPage from '../pages/AdTypeSelectionPage';
 import HelpPage from '../pages/HelpPage';
 import OfferDebugger from '../components/debug/OfferDebugger';
 
@@ -41,6 +42,7 @@ const AppRoutes = () => {
         <Route path="preview-offer" element={<PreviewOfferPage />} />
         <Route path="boost-offer" element={<BoostOfferPage />} />
         <Route path="sponsored-ads" element={<SponsoredAdsPage />} />
+        <Route path="ad-type-selection" element={<AdTypeSelectionPage />} />
         <Route path="draft-offers" element={<DraftOffersPage />} />
         <Route path="scan-qr" element={<ScanQRPage />} />
         <Route path="account" element={<AccountPage />} />

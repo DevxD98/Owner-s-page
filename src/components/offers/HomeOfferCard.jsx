@@ -160,9 +160,9 @@ const HomeOfferCard = ({
                   <MoreVertical size={16} />
                 </button>
                 
-                {/* Dropdown menu */}
+                {/* Dropdown menu - positioned to the left of the icon */}
                 {menuOpen && (
-                  <div className="absolute right-0 top-6 mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-1">
+                  <div className="absolute right-6 top-0 mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-1">
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();

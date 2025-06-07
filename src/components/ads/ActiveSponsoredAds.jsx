@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Megaphone, Calendar } from 'lucide-react';
+import { ChevronRight, Megaphone, Calendar, Eye } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -110,30 +110,36 @@ const ActiveSponsoredAds = () => {
                     className="w-full h-full object-cover"
                   />
                   
-                  {/* Top Badges - Active tag removed and Views tag made smaller */}
-                  <div className="absolute top-3 left-3">
-                    <div className="bg-white/90 backdrop-blur-sm px-3 py-0.5 rounded-full">
-                      <span className="text-xs font-medium text-purple-700">
-                        {ad.views?.toLocaleString() || 0} Views
+                  {/* Views Badge - Extremely compact like in My Ads page */}
+                  <div className="absolute top-2 left-2">
+                    <div className="px-1 py-0.25 text-[9px] font-medium rounded-md bg-white border border-gray-100 shadow-sm flex items-center">
+                      <Eye size={10} className="mr-1 text-purple-500" />
+                      <span className="text-gray-700" style={{ lineHeight: '1.2' }}>
+                        {ad.views?.toLocaleString() || 0}
                       </span>
                     </div>
                   </div>
                   
-                  {/* No Spotlight Badge - Removed as requested */}
+                  {/* Active Status Badge */}
+                  <div className="absolute top-2 right-2">
+                    <div className="px-1 py-0.25 text-[9px] font-medium rounded-md bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-500 border border-emerald-100 whitespace-nowrap shadow-sm" style={{ lineHeight: '1.2' }}>
+                      Active
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Ad Content */}
                 <div className="p-4">
                   {/* Title with Ad Badge */}
-                  <div className="flex items-center space-x-2 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-800">{ad.title}</h3>
-                    <div className="bg-purple-100 text-purple-700 px-3 py-1 text-sm rounded-full">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base font-bold text-gray-800">{ad.title}</h3>
+                    <div className="bg-purple-100 text-purple-700 px-2 py-0.5 text-[10px] rounded-md">
                       Ad
                     </div>
                   </div>
                   
                   {/* Description */}
-                  <p className="text-gray-700 mb-4">{ad.description}</p>
+                  <p className="text-gray-700 text-sm mb-4">{ad.description}</p>
                   
                   {/* Valid Till Date */}
                   <div className="flex items-center">

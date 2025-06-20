@@ -87,6 +87,20 @@ export const loadAppState = () => {
 };
 
 /**
+ * Update account verification status
+ * @param {boolean} isVerified - Whether the account is verified
+ */
+export const updateVerificationStatus = (isVerified) => {
+  try {
+    const accountInfo = loadAccountInfo() || {};
+    accountInfo.isVerified = isVerified;
+    saveAccountInfo(accountInfo);
+  } catch (error) {
+    console.error('Error updating verification status:', error);
+  }
+};
+
+/**
  * Clear all saved data from local storage
  */
 export const clearAllStoredData = () => {

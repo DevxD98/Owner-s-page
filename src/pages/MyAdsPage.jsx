@@ -43,11 +43,23 @@ const formatDate = (dateString) => {
 
 const MyAdsPage = () => {
   const navigate = useNavigate();
-  const { sponsoredAds } = useApp();
+  const { sponsoredAds, updateOffer } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
   const [visibleAds, setVisibleAds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Toggle ad active status function
+  const toggleAdActiveStatus = (ad) => {
+    // Create a copy of the ad with the isActive status toggled
+    const updatedAd = {
+      ...ad,
+      isActive: !ad.isActive
+    };
+    
+    // Update the ad in the context
+    updateOffer(updatedAd);
+  };
 
   // Filter ads based on search term and filter
   useEffect(() => {
@@ -84,7 +96,7 @@ const MyAdsPage = () => {
   return (
     <div className="p-4 pb-20">
       <div className="flex items-center mb-4">
-        <button onClick={() => navigate(-1)} className="mr-2">
+        <button onClick={() => navigate('/')} className="mr-2">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-xl font-bold">My Ads</h1>
@@ -195,6 +207,22 @@ const MyAdsPage = () => {
                     <Calendar size={16} className="mr-2 text-orange-400" />
                     <span className="text-gray-700 text-sm font-medium">Valid: Undefined - {formatDate(ad.validTill)}</span>
                   </div>
+                  
+                  {/* Active/Inactive Toggle */}
+                  <div className="flex justify-end items-center mt-4 pt-4 border-t border-gray-100">
+                    <div 
+                      onClick={() => toggleAdActiveStatus(ad)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                        ad.isActive ? 'bg-green-500' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span 
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                          ad.isActive ? 'translate-x-6' : 'translate-x-1'
+                        }`} 
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -223,7 +251,16 @@ const MyAdsPage = () => {
         )}
       </div>
       
-      {/* Removed floating action button */}
+      {/* Floating Action Button for creating an ad */}
+      <div className="fixed bottom-24 right-6 z-10">
+        <button 
+          onClick={() => navigate('/ad-type-selection')} 
+          className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors"
+          aria-label="Create a new ad"
+        >
+          <Plus size={28} className="text-white" />
+        </button>
+      </div>
     </div>
   );
 };

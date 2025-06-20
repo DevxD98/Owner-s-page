@@ -79,7 +79,7 @@ const CreateAdPage = () => {
   return (
     <div className="p-4 pb-20">
       <div className="flex items-center mb-6">
-        <button onClick={() => navigate(-1)} className="mr-2">
+        <button onClick={() => navigate('/my-ads', { replace: true })} className="mr-2">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-xl font-bold">{editMode ? 'Edit Sponsored Ad' : 'Create Sponsored Ad'}</h1>
@@ -196,7 +196,7 @@ const CreateAdPage = () => {
           
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/my-ads', { replace: true })}
             className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
           >
             Cancel

@@ -140,7 +140,7 @@ const SponsoredAdsPage = () => {
     
     addOffer(newAd);
     alert('Your sponsored ad has been created successfully!');
-    navigate('/my-ads');
+    navigate('/my-ads', { replace: true });
   };
   
   // Get valid till date based on duration
@@ -466,7 +466,7 @@ const SponsoredAdsPage = () => {
         <div className="p-4 max-w-lg mx-auto">
           <div className="flex gap-3">
             <button 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/my-ads', { replace: true })}
               className="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-medium transition-all border border-gray-200 shadow-sm flex-1"
             >
               Cancel

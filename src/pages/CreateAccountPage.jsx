@@ -168,6 +168,7 @@ const CreateAccountPage = () => {
     // Save account creation status to local storage
     saveAccountInfo({ 
       hasAccount: true,
+      isVerified: false, // Account is created but not verified
       createdAt: new Date().toISOString(),
       storeName: formData.storeName // Add store name directly to local storage
     });
@@ -177,8 +178,8 @@ const CreateAccountPage = () => {
 
     // Use setTimeout to ensure state updates have completed before navigation
     setTimeout(() => {
-      // Navigate to home page after successful account creation
-      navigate('/');
+      // Navigate to verification page instead of home page
+      navigate('/verification');
     }, 100);
   };
 

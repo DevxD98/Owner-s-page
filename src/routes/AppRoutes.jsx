@@ -22,6 +22,8 @@ import BoostOfferPage from '../pages/BoostOfferPage';
 import SponsoredAdsPage from '../pages/SponsoredAdsPage';
 import AdTypeSelectionPage from '../pages/AdTypeSelectionPage';
 import HelpPage from '../pages/HelpPage';
+import VerificationPage from '../pages/VerificationPage';
+import WalletPage from '../pages/WalletPage';
 import OfferDebugger from '../components/debug/OfferDebugger';
 
 
@@ -34,6 +36,10 @@ const AppRoutes = () => {
   
   return (
     <Routes>
+      {/* Verification page is standalone outside the Layout */}
+      <Route path="verification" element={<VerificationPage />} />
+      
+      {/* All other routes are inside the Layout */}
       <Route path="/" element={<Layout />}>
         <Route index element={isAccountSetUp ? <HomePage /> : <Navigate to="/create-account" replace />} />
         <Route path="my-ads" element={<MyAdsPage />} />
@@ -53,6 +59,7 @@ const AppRoutes = () => {
         <Route path="create-account" element={<CreateAccountPage />} />
         <Route path="store-information" element={<StoreInformationPage />} />
         <Route path="location-branch" element={<LocationBranchPage />} />
+        <Route path="wallet" element={<WalletPage />} />
         <Route path="switch-account" element={<Navigate to="/" replace />} />
         <Route path="debug-offers" element={<OfferDebugger />} />
         <Route path="timing-availability" element={<Navigate to="/" replace />} />

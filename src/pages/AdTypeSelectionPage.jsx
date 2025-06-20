@@ -13,7 +13,7 @@ const AdTypeSelectionPage = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="flex items-center p-4 border-b">
-        <button onClick={() => navigate('/')} className="mr-4">
+        <button onClick={() => navigate('/my-ads', { replace: true })} className="mr-4">
           <ArrowLeft size={24} />
         </button>
         <h1 className="text-xl font-bold">Create Sponsored Ad</h1>
